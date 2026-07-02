@@ -18,15 +18,15 @@
     background: #0B0B10;
   }
   ::-webkit-scrollbar-thumb {
-    background: #7C3AED;
+    background: #00ffc3;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #A78BFA;
+    background: #ff6eff;
   }
 
   ::selection {
-    background: rgba(124, 58, 237, 0.3);
+    background: rgba(0, 255, 195, 0.25);
     color: white;
   }
 }
@@ -37,11 +37,11 @@
   }
 
   .glass-hover {
-    @apply glass hover:border-accent-purple/30 transition-all duration-300;
+    @apply glass hover:border-accent-green/30 transition-all duration-300;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-accent-purple via-accent-purple-light to-accent-red bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-accent-green via-accent-pink to-accent-green bg-clip-text text-transparent;
   }
 
   .gradient-border {
@@ -60,11 +60,11 @@
     pointer-events: none;
   }
 
-  .glow-purple {
-    box-shadow: 0 0 24px rgba(124, 58, 237, 0.12);
+  .glow-green {
+    box-shadow: 0 0 24px rgba(0, 255, 195, 0.12);
   }
-  .glow-red {
-    box-shadow: 0 0 24px rgba(220, 38, 38, 0.10);
+  .glow-pink {
+    box-shadow: 0 0 24px rgba(255, 110, 255, 0.10);
   }
 
   .section-title {
@@ -75,7 +75,7 @@
   }
 
   .tag {
-    @apply px-3 py-1 text-xs rounded-full bg-accent-purple/10 text-accent-purple border border-accent-purple/20 font-mono;
+    @apply px-3 py-1 text-xs rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20 font-mono;
   }
 
   .duotone-wrap {
@@ -95,7 +95,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(124,58,237,0.55), rgba(220,38,38,0.35));
+    background: linear-gradient(135deg, rgba(0,255,195,0.45), rgba(255,110,255,0.30));
     mix-blend-mode: multiply;
     pointer-events: none;
     border-radius: 50%;

@@ -2,10 +2,10 @@ import { useEffect, useState, useRef } from 'react'
 import { Briefcase, Code2, Calendar, Users } from 'lucide-react'
 
 const stats = [
-  { icon: Briefcase, value: 3, suffix: '', label: 'Proyectos realizados', color: 'from-accent-purple to-accent-purple-light' },
-  { icon: Code2, value: 12, suffix: '', label: 'Tecnologías en mi stack', color: 'from-accent-red to-accent-red-light' },
-  { icon: Calendar, value: 2026, suffix: '', label: 'Inicio como freelance', color: 'from-accent-purple-light to-accent-purple' },
-  { icon: Users, value: 1, suffix: '+', label: 'Clientes satisfechos', color: 'from-accent-red-light to-accent-red' },
+  { icon: Briefcase, value: 3, suffix: '', label: 'Proyectos realizados', color: 'from-accent-green to-accent-pink' },
+  { icon: Code2, value: 12, suffix: '', label: 'Tecnologías en mi stack', color: 'from-accent-pink to-accent-green' },
+  { icon: Calendar, value: 2026, suffix: '', label: 'Inicio como freelance', color: 'from-accent-green to-accent-pink' },
+  { icon: Users, value: 1, suffix: '+', label: 'Clientes satisfechos', color: 'from-accent-pink to-accent-green' },
 ]
 
 function Counter({ to, suffix, duration = 2000 }) {

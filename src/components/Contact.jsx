@@ -6,8 +6,8 @@ const contactMethods = [
     label: 'LinkedIn',
     description: 'Conectemos profesionalmente',
     href: 'https://www.linkedin.com/in/facundo-chac%C3%B3n-catal%C3%A1n-61362735a',
-    color: 'hover:text-accent-purple border-accent-purple/20 hover:border-accent-purple/40',
-    bg: 'hover:bg-accent-purple/5',
+    color: 'hover:text-accent-green border-accent-green/20 hover:border-accent-green/40',
+    bg: 'hover:bg-accent-green/5',
   },
   {
     icon: Github,
@@ -22,16 +22,16 @@ const contactMethods = [
     label: 'WhatsApp',
     description: 'Respuesta rápida por mensaje',
     href: 'https://wa.me/542615799062',
-    color: 'hover:text-green-400 border-green-500/20 hover:border-green-500/40',
-    bg: 'hover:bg-green-500/5',
+    color: 'hover:text-accent-pink border-accent-pink/20 hover:border-accent-pink/40',
+    bg: 'hover:bg-accent-pink/5',
   },
   {
     icon: Mail,
     label: 'Email',
     description: 'facundo.chacon@email.com',
     href: 'mailto:facundo.chacon@email.com',
-    color: 'hover:text-accent-red border-accent-red/20 hover:border-accent-red/40',
-    bg: 'hover:bg-accent-red/5',
+    color: 'hover:text-accent-green border-accent-green/20 hover:border-accent-green/40',
+    bg: 'hover:bg-accent-green/5',
   },
 ]
 
@@ -63,12 +63,12 @@ export default function Contact() {
         </div>
 
         <div className="glass p-8 text-center max-w-lg mx-auto">
-          <Send className="w-8 h-8 text-accent-purple mx-auto mb-4" />
+          <Send className="w-8 h-8 text-accent-green mx-auto mb-4" />
           <p className="text-gray-300 font-medium mb-1">¿Prefieres que te contacte yo?</p>
           <p className="text-sm text-gray-500 mb-4">Dejame tu consulta y te respondo a la brevedad.</p>
           <a href="https://wa.me/542615799062?text=Hola%20Facundo%2C%20vi%20tu%20portfolio%20y%20quiero%20consultarte%20sobre..."
             target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-accent-purple/10 border border-accent-purple/20 rounded-xl text-accent-purple hover:bg-accent-purple/20 transition-all font-medium">
+            className="inline-flex items-center gap-2 px-6 py-3 bg-accent-green/10 border border-accent-green/20 rounded-xl text-accent-green hover:bg-accent-green/20 transition-all font-medium">
             <MessageCircle className="w-4 h-4" />
             Escribime por WhatsApp
           </a>
@@ -80,14 +80,14 @@ export default function Contact() {
           </p>
           <div className="flex items-center gap-4">
             <a href="https://github.com/FacundoChacon" target="_blank" rel="noopener noreferrer"
-              className="text-gray-500 hover:text-accent-purple transition-colors">
+              className="text-gray-500 hover:text-accent-green transition-colors">
               <Github className="w-4 h-4" />
             </a>
             <a href="https://www.linkedin.com/in/facundo-chac%C3%B3n-catal%C3%A1n-61362735a" target="_blank" rel="noopener noreferrer"
-              className="text-gray-500 hover:text-accent-purple transition-colors">
+              className="text-gray-500 hover:text-accent-green transition-colors">
               <Linkedin className="w-4 h-4" />
             </a>
-            <a href="#" className="p-2 bg-dark-card/50 rounded-lg text-gray-500 hover:text-accent-purple hover:bg-accent-purple/10 transition-all">
+            <a href="#" className="p-2 bg-dark-card/50 rounded-lg text-gray-500 hover:text-accent-green hover:bg-accent-green/10 transition-all">
               <ArrowUp className="w-4 h-4" />
             </a>
           </div>

@@ -8,18 +8,16 @@ export default {
     extend: {
       colors: {
         dark: {
-          DEFAULT: '#0B0B10',
-          secondary: '#12121A',
-          card: '#1A1A2E',
-          border: '#1E1E32',
+          DEFAULT: '#030303',
+          secondary: '#0A0A0A',
+          card: '#111116',
+          border: '#1A1A22',
         },
         accent: {
-          purple: '#7C3AED',
-          'purple-light': '#A78BFA',
-          'purple-dark': '#5B21B6',
-          red: '#DC2626',
-          'red-light': '#F87171',
-          'red-dark': '#B91C1C',
+          green: '#00ffc3',
+          'green-dark': '#00cc9a',
+          pink: '#ff6eff',
+          'pink-dark': '#cc3acc',
         }
       },
       fontFamily: {

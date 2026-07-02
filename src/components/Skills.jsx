@@ -51,7 +51,7 @@ function SkillBar({ name, level, index }) {
       </div>
       <div className="h-2 bg-dark-border/50 rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent-purple to-accent-red transition-all duration-1000 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-accent-green to-accent-pink transition-all duration-1000 ease-out"
           style={{ width: `${width}%` }}
         />
       </div>
@@ -74,7 +74,7 @@ export default function Skills() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {skillCategories.map(cat => (
             <div key={cat.name} className="glass-hover p-6">
-              <h3 className="text-sm font-mono uppercase tracking-widest text-accent-purple-light mb-6">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-accent-pink mb-6">
                 {'>'} {cat.name}
               </h3>
               <div>
