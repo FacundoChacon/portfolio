@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-dark text-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0B0B10;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #7C3AED;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A78BFA;
+  }
+
+  ::selection {
+    background: rgba(124, 58, 237, 0.3);
+    color: white;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-dark-card/60 backdrop-blur-md border border-dark-border/60 rounded-2xl;
+  }
+
+  .glass-hover {
+    @apply glass hover:border-accent-purple/30 transition-all duration-300;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-accent-purple via-accent-purple-light to-accent-red bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    @apply relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(220,38,38,0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 24px rgba(124, 58, 237, 0.12);
+  }
+  .glow-red {
+    box-shadow: 0 0 24px rgba(220, 38, 38, 0.10);
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-center mb-2;
+  }
+  .section-desc {
+    @apply text-gray-400 text-center mb-12 max-w-lg mx-auto;
+  }
+
+  .tag {
+    @apply px-3 py-1 text-xs rounded-full bg-accent-purple/10 text-accent-purple border border-accent-purple/20 font-mono;
+  }
+}
