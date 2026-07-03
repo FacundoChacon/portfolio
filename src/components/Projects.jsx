@@ -11,6 +11,7 @@ const projects = [
     tags: ["Java 17", "Spring Boot", "React 18", "Tailwind", "MySQL", "Docker"],
     image: "/project-ecommerce.png",
     repo: "https://github.com/FacundoChacon/Tienda-Electronica",
+    live: "https://tiendaecommerce-electronica.netlify.app/",
   },
   {
     title: "CIMMA-Dentistry",
@@ -30,6 +31,7 @@ const projects = [
     tags: ["Java", "Spring Boot", "JavaScript", "MySQL"],
     image: "/project-bodega.png",
     repo: "https://github.com/FacundoChacon/Bodega",
+    live: "https://bodegamaipu.netlify.app/",
   },
 ]
 
