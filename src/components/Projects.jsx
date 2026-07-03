@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { ExternalLink } from "lucide-react"
 import { GithubIcon } from "./BrandIcons"
 import { useReveal } from "../hooks/useReveal"
@@ -50,6 +51,103 @@ function StatusBadge({ status }) {
     </span>
   )
 }
+
+const chars = "!<>-_/[]{}—=+*^?#@%"
+
+const REPO_TEXT = "Repo"
+
+function RepoButton({ href }) {
+  const [hovering, setHovering] = useState(false)
+  const [displayText, setDisplayText] = useState(REPO_TEXT)
+  const [blocks, setBlocks] = useState([])
+
+  function startGlitch() {
+    setHovering(true)
+    let step = 0
+    const totalSteps = 8
+
+    const scramble = setInterval(() => {
+      step++
+      setDisplayText(
+        REPO_TEXT.split("")
+          .map((c, i) => (i < Math.floor((step / totalSteps) * REPO_TEXT.length) ? c : chars[Math.floor(Math.random() * chars.length)]))
+          .join("")
+      )
+      if (step >= totalSteps) {
+        clearInterval(scramble)
+        setDisplayText(REPO_TEXT)
+      }
+    }, 40)
+
+    const blockInterval = setInterval(() => {
+      if (Math.random() > 0.4) {
+        setBlocks((prev) => [
+          ...prev.slice(-7),
+          { id: Date.now() + Math.random(), x: Math.random() * 80 + 5, y: Math.random() * 70 + 10, w: Math.random() * 18 + 4, h: Math.random() * 4 + 1, delay: Math.random() * 0.3 },
+        ])
+      }
+    }, 60)
+
+    const cleanup = setTimeout(() => {
+      clearInterval(blockInterval)
+      setBlocks([])
+    }, 800)
+
+    return { scramble, blockInterval, cleanup }
+  }
+
+  function handleMouseEnter() {
+    const { scramble, blockInterval, cleanup } = startGlitch()
+    hoverCleanup = { scramble, blockInterval, cleanup }
+  }
+
+  function handleMouseLeave() {
+    setHovering(false)
+    setDisplayText(REPO_TEXT)
+    setBlocks([])
+    if (hoverCleanup) {
+      clearInterval(hoverCleanup.scramble)
+      clearInterval(hoverCleanup.blockInterval)
+      clearTimeout(hoverCleanup.cleanup)
+      hoverCleanup = null
+    }
+  }
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`relative inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest transition-all duration-200 ${
+        hovering
+          ? "text-accent-pink text-glow-magenta"
+          : "text-gray-400 hover:text-accent-pink"
+      }`}
+    >
+      {blocks.map((b) => (
+        <span
+          key={b.id}
+          className="repo-glitch-block"
+          style={{
+            left: `${b.x}%`,
+            top: `${b.y}%`,
+            width: `${b.w}px`,
+            height: `${b.h}px`,
+            animation: `repo-block-flicker 0.5s steps(1) ${b.delay}s`,
+          }}
+        />
+      ))}
+      <GithubIcon className="size-4 transition-all duration-200" />
+      {" "}
+      {displayText}
+    </a>
+  )
+}
+
+let hoverCleanup = null
 
 export default function Projects() {
   const [ref, visible] = useReveal()
@@ -124,11 +222,9 @@ export default function Projects() {
                   ))}
                 </ul>
 
-                {project.repo && project.live && (
+                {project.repo && (
                   <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400">
-                      <GithubIcon className="size-4" /> Repo
-                    </span>
+                    <RepoButton href={project.repo} />
                   </div>
                 )}
               </div>

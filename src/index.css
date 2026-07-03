@@ -235,3 +235,27 @@
 .animate-glitch-line {
   animation: glitch-line 3s ease-in-out infinite;
 }
+
+@keyframes repo-block-flicker {
+  0%, 100% { opacity: 0; }
+  5% { opacity: 0.2; }
+  8% { opacity: 0; }
+  20% { opacity: 0.35; }
+  23% { opacity: 0; }
+  40% { opacity: 0.15; }
+  43% { opacity: 0; }
+  55% { opacity: 0.4; }
+  58% { opacity: 0; }
+  75% { opacity: 0.1; }
+  78% { opacity: 0; }
+  90% { opacity: 0.25; }
+  93% { opacity: 0; }
+}
+
+.repo-glitch-block {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
