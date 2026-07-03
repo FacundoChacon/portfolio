@@ -1,23 +1,19 @@
-import Navbar from './components/Navbar'
+import SiteNav from './components/SiteNav'
 import Hero from './components/Hero'
 import About from './components/About'
-import Metrics from './components/Metrics'
 import Projects from './components/Projects'
-import Skills from './components/Skills'
-import Testimonials from './components/Testimonials'
+import Stack from './components/Stack'
 import Contact from './components/Contact'
 
 export default function App() {
   return (
     <>
-      <Navbar />
-      <main>
+      <SiteNav />
+      <main className="relative min-h-screen overflow-x-hidden bg-dark">
         <Hero />
         <About />
-        <Metrics />
         <Projects />
-        <Skills />
-        <Testimonials />
+        <Stack />
         <Contact />
       </main>
     </>

@@ -1,89 +1,146 @@
-import { ExternalLink, Github } from 'lucide-react'
+import { ExternalLink } from "lucide-react"
+import { GithubIcon } from "./BrandIcons"
+import { useReveal } from "../hooks/useReveal"
 
 const projects = [
   {
-    title: 'Cimma Odontología',
-    description: 'Sitio web profesional para consultorio odontológico con diseño moderno, servicios, equipo y contacto.',
-    tags: ['React', 'Tailwind CSS', 'Node.js'],
-    link: 'https://cimmaodontologia.com',
-    gradient: 'from-accent-green via-emerald-500 to-accent-pink',
-    status: 'Producción',
-    placeholder: 'C',
+    title: "Tienda-Electronica",
+    status: "demo",
+    description:
+      "E-commerce con roles ADMIN/CLIENT, carrito, checkout, panel de administración y API REST protegida con JWT.",
+    tags: ["Java 17", "Spring Boot", "React 18", "Tailwind", "MySQL", "Docker"],
+    image: "/project-ecommerce.png",
+    repo: "https://github.com/FacundoChacon/Tienda-Electronica",
   },
   {
-    title: 'Ferretería Demo 1',
-    description: 'Landing page demo para ferretería con catálogo visual y enlace directo a WhatsApp.',
-    tags: ['HTML', 'CSS', 'JavaScript'],
-    link: 'https://imaginative-palmier-c84960.netlify.app',
-    gradient: 'from-accent-pink via-purple-600 to-accent-green',
-    status: 'Demo',
-    placeholder: 'F1',
+    title: "CIMMA-Dentistry",
+    status: "live",
+    description:
+      "Landing page responsiva para clínica dental con integración de WhatsApp, formulario de contacto y SEO. En producción.",
+    tags: ["HTML5", "CSS3", "SEO", "Responsive"],
+    image: "/project-dental.png",
+    repo: "https://github.com/FacundoChacon/CIMMA-DENTISTRY",
+    live: "https://cimmaodontologia.com",
   },
   {
-    title: 'Ferretería Demo 2',
-    description: 'Sitio web demo para ferretería con galería de productos y formulario de contacto.',
-    tags: ['HTML', 'CSS', 'JavaScript'],
-    link: 'https://admirable-monstera-aedc63.netlify.app',
-    gradient: 'from-accent-green-dark via-teal-800 to-accent-pink-dark',
-    status: 'Demo',
-    placeholder: 'F2',
+    title: "Bodega",
+    status: "demo",
+    description:
+      "Aplicación full stack CRUD con backend en Java/Spring Boot, frontend en JavaScript y base de datos MySQL.",
+    tags: ["Java", "Spring Boot", "JavaScript", "MySQL"],
+    image: "/project-bodega.png",
+    repo: "https://github.com/FacundoChacon/Bodega",
   },
 ]
 
-export default function Projects() {
+function StatusBadge({ status }) {
+  const isLive = status === "live"
   return (
-    <section id="proyectos" className="py-20 px-4 relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(124,58,237,0.03)_0%,transparent_60%)]" />
-      <div className="relative max-w-6xl mx-auto">
-        <h2 className="section-title">
-          Proyectos <span className="gradient-text">recientes</span>
-        </h2>
-        <p className="section-desc">
-          Trabajos realizados para clientes y demos que muestran mi estilo de desarrollo.
-        </p>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest ${
+        isLive
+          ? "border-accent-green/50 text-accent-green"
+          : "border-accent-pink/50 text-accent-pink"
+      }`}
+    >
+      <span className={`size-1.5 rounded-full ${isLive ? "bg-accent-green" : "bg-accent-pink"} animate-pulse`} />
+      {isLive ? "En el mercado" : "Demo"}
+    </span>
+  )
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {projects.map((p) => (
-            <a key={p.title} href={p.link} target="_blank" rel="noopener noreferrer"
-              className="group glass-hover p-[1px] rounded-2xl overflow-hidden">
-              <div className="bg-dark-card rounded-2xl h-full flex flex-col relative">
-                <div className={`h-28 bg-gradient-to-br ${p.gradient} flex items-center justify-center relative overflow-hidden`}>
-                  <div className="absolute inset-0 bg-black/20" />
-                  <span className="text-5xl font-black text-white/30 tracking-tight select-none">
-                    {p.placeholder}
-                  </span>
-                  <div className="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm rounded-lg px-2.5 py-1 flex items-center gap-1.5">
-                    <ExternalLink className="w-3 h-3 text-white/70" />
-                    <span className="text-[10px] text-white/70 font-medium">Visitar</span>
-                  </div>
-                </div>
+export default function Projects() {
+  const [ref, visible] = useReveal()
 
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="text-base font-bold text-white group-hover:text-accent-purple-light transition-colors mb-2">
-                    {p.title}
-                  </h3>
+  const gradientBgs = [
+    "from-accent-green via-emerald-500 to-accent-pink",
+    "from-accent-pink via-purple-600 to-accent-green",
+    "from-accent-green-dark via-teal-800 to-accent-pink-dark",
+  ]
 
-                  <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1">
-                    {p.description}
-                  </p>
+  return (
+    <section id="proyectos" className="relative border-t border-dark-border py-24">
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
+        <div className="flex items-center gap-4">
+          <span className="font-mono text-sm text-accent-green text-glow-cyan">02.</span>
+          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Proyectos</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-accent-green/50 to-transparent" />
+        </div>
 
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex flex-wrap gap-1.5">
-                      {p.tags.map(t => (
-                        <span key={t} className="tag">{t}</span>
-                      ))}
-                    </div>
-                    <span className={`text-[10px] font-mono uppercase tracking-wider px-2 py-1 rounded-full ${
-                      p.status === 'Producción'
-                        ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                        : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                    }`}>
-                      {p.status}
+          <div
+            ref={ref}
+            className={`reveal reveal-left mt-12 grid gap-6 transition-all duration-1000 md:grid-cols-2 lg:grid-cols-3 ${
+              visible ? "visible" : ""
+            }`}
+          >
+          {projects.map((project, i) => (
+            <article
+              key={project.title}
+              className="group relative flex flex-col overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 transition-all duration-300 hover:-translate-y-2 hover:border-accent-green/60 hover:box-glow-cyan"
+            >
+              <div className="relative overflow-hidden">
+                {project.image ? (
+                  <img
+                    src={project.image}
+                    alt={`Vista previa del proyecto ${project.title}`}
+                    className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className={`h-48 w-full bg-gradient-to-br ${gradientBgs[i]} flex items-center justify-center`}>
+                    <span className="text-5xl font-black text-white/30 tracking-tight select-none">
+                      {project.title.charAt(0)}
                     </span>
                   </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-dark-card via-dark-card/20 to-transparent" />
+                <div className="absolute right-3 top-3">
+                  <StatusBadge status={project.status} />
                 </div>
               </div>
-            </a>
+
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-display text-xl font-semibold text-white transition-colors group-hover:text-accent-green">
+                  {project.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-400">
+                  {project.description}
+                </p>
+
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <li
+                      key={tag}
+                      className="rounded border border-dark-border bg-dark-secondary/50 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-gray-400"
+                    >
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
+                  {project.repo && (
+                    <a
+                      href={project.repo}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green"
+                    >
+                      <GithubIcon className="size-4" /> Repo
+                    </a>
+                  )}
+                  {project.live && (
+                    <a
+                      href={project.live}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-accent-pink transition-colors hover:text-glow-magenta"
+                    >
+                      <ExternalLink className="size-4" /> Visitar
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       </div>

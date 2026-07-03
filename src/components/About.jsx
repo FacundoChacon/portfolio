@@ -1,45 +1,80 @@
-import { GraduationCap, Code2, MapPin, Zap } from 'lucide-react'
+import { Code2, Database, Layers, GitBranch } from "lucide-react"
+import { useReveal } from "../hooks/useReveal"
 
 const highlights = [
-  { icon: GraduationCap, label: 'Estudiante en UTN', desc: 'Ingeniería en Sistemas de Información' },
-  { icon: Code2, label: 'Full Stack en formación', desc: 'React, Node.js, Angular, Tailwind CSS' },
-  { icon: MapPin, label: 'Argentina', desc: 'Disponible para trabajo remoto' },
-  { icon: Zap, label: 'Freelance activo', desc: 'Proyectos para clientes reales desde 2026' },
+  {
+    icon: Code2,
+    title: "Backend sólido",
+    text: "REST APIs, lógica de negocio, autenticación JWT y gestión de dependencias con Maven.",
+  },
+  {
+    icon: Layers,
+    title: "Frontend reactivo",
+    text: "UI interactivas y responsivas con React 18, componentes reutilizables y Tailwind CSS.",
+  },
+  {
+    icon: Database,
+    title: "Bases de datos",
+    text: "Diseño de esquemas relacionales, consultas avanzadas y operaciones CRUD con MySQL.",
+  },
+  {
+    icon: GitBranch,
+    title: "Metodología Ágil",
+    text: "Scrum, control de versiones con Git, code review y modelado UML.",
+  },
 ]
 
 export default function About() {
-  return (
-    <section id="sobre-mi" className="py-20 px-4 relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,255,195,0.03)_0%,transparent_60%)]" />
-      <div className="relative max-w-4xl mx-auto">
-        <h2 className="section-title">
-          Sobre <span className="gradient-text">mí</span>
-        </h2>
-        <p className="section-desc">
-          Un poco de mi historia y lo que hago.
-        </p>
+  const [ref, visible] = useReveal()
 
-        <div className="glass-hover p-8 mb-8">
-          <p className="text-gray-300 leading-relaxed mb-4">
-            Soy Facundo, estudiante de Ingeniería en Sistemas en la UTN y desarrollador web freelance.
-            Me especializo en crear sitios web modernos, rápidos y adaptados a celulares para
-            negocios que quieren crecer en internet.
-          </p>
-          <p className="text-gray-400 leading-relaxed">
-            Arranqué en el desarrollo web a principios de 2026 y desde entonces vengo
-            sumando proyectos reales para clientes, usando tecnologías como React, Node.js,
-            Angular y Tailwind CSS. Estoy en constante aprendizaje y buscando nuevos desafíos.
-          </p>
+  return (
+    <section id="quien-soy" className="relative border-t border-dark-border py-24">
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
+        <div className="flex items-center gap-4">
+          <span className="font-mono text-sm text-accent-green text-glow-cyan">01.</span>
+          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Quién soy</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-accent-green/50 to-transparent" />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {highlights.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="glass-hover p-5 text-center">
-              <Icon className="w-6 h-6 text-accent-green mx-auto mb-3" />
-              <p className="text-white text-sm font-semibold mb-1">{label}</p>
-              <p className="text-gray-500 text-xs">{desc}</p>
-            </div>
-          ))}
+          <div
+            ref={ref}
+            className={`reveal reveal-bottom mt-12 grid gap-12 transition-all duration-1000 lg:grid-cols-[1.2fr_1fr] ${
+              visible ? "visible" : ""
+            }`}
+          >
+          <div className="space-y-5 text-lg leading-relaxed text-gray-400 text-pretty">
+            <p>
+              Soy estudiante avanzado de la{" "}
+              <span className="text-white">Tecnicatura en Programación (UTN FRM)</span> y
+              desarrollador Full Stack Jr enfocado en construir software real y funcional.
+            </p>
+            <p>
+              He desarrollado proyectos completos con{" "}
+              <span className="text-accent-green">Java, Spring Boot, React, Tailwind CSS, JavaScript y MySQL</span>,
+              incluyendo una plataforma de e-commerce funcional con autenticación JWT,
+              panel de administración y API REST.
+            </p>
+            <p>
+              Me muevo cómodo en entornos ágiles (Scrum), con control de versiones y
+              revisión de código. También automatizo procesos con Python y analizo datos con R.
+            </p>
+            <p className="font-mono text-sm uppercase tracking-widest text-accent-pink text-glow-magenta">
+              {"// Idiomas: Español (nativo) · Inglés B1"}
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {highlights.map((item) => (
+              <div
+                key={item.title}
+                className="group rounded-lg border border-dark-border bg-dark-card/50 p-5 transition-all hover:-translate-y-1 hover:border-accent-green/60 hover:box-glow-cyan"
+              >
+                <item.icon className="size-6 text-accent-green transition-colors group-hover:text-glow-cyan" />
+                <h3 className="mt-4 font-display text-lg font-semibold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-400">{item.text}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

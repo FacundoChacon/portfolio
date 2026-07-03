@@ -1,71 +1,76 @@
-import { ArrowRight, Sparkles, Code2, MapPin } from 'lucide-react'
+import { ArrowDown } from "lucide-react"
+import { GithubIcon, LinkedinIcon } from "./BrandIcons"
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,255,195,0.06)_0%,transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(255,110,255,0.04)_0%,transparent_50%)]" />
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-        backgroundSize: '40px 40px'
-      }} />
+    <section
+      id="presentacion"
+      className="relative flex min-h-screen items-center overflow-hidden pt-24"
+    >
+      <div className="cyber-grid pointer-events-none absolute inset-0 opacity-60" />
+      <div className="pointer-events-none absolute -left-20 top-1/3 h-72 w-72 rounded-full bg-accent-green/20 blur-[120px]" />
+      <div className="pointer-events-none absolute -right-20 bottom-1/4 h-72 w-72 rounded-full bg-accent-pink/20 blur-[120px]" />
 
-      <div className="relative max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-        <div className="flex justify-center md:justify-end animate-fade-in">
-          <div className="relative">
-            <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full bg-gradient-to-br from-accent-green to-accent-pink p-[3px] shadow-2xl shadow-accent-green/20">
-              <div className="w-full h-full rounded-full overflow-hidden bg-dark">
-                <div className="duotone-wrap w-full h-full">
-                  <img
-                    src="/profile.jpeg"
-                    alt="Facundo Chacón"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-2 -right-2 glass px-4 py-2 rounded-xl flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow" />
-              <span className="text-xs text-gray-300 font-medium">Disponible</span>
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
+        <div className="order-2 flex justify-center md:order-1">
+          <div className="group relative">
+            <div className="absolute -inset-1 rounded-lg bg-gradient-to-tr from-accent-green/60 to-accent-pink/60 opacity-70 blur-sm transition-opacity group-hover:opacity-100" />
+            <div className="box-glow-cyan relative overflow-hidden rounded-lg border border-accent-green/40">
+              <img
+                src="/profile.jpeg"
+                alt="Retrato de Facundo Chacón"
+                className="h-[420px] w-[340px] object-cover md:h-[520px] md:w-[440px]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark via-transparent to-transparent" />
+              <span className="absolute bottom-4 left-4 font-mono text-xs uppercase tracking-widest text-accent-green text-glow-cyan">
+                {"// online"}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="text-center md:text-left animate-slide-up">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-green/10 border border-accent-green/20 text-sm text-accent-pink mb-6">
-            <Sparkles className="w-4 h-4" />
-            Freelance
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4">
-            <span className="gradient-text">Facundo Chacón</span>
+        <div className="order-1 md:order-2">
+          <h1 className="font-display text-4xl font-bold leading-tight text-balance text-white sm:text-5xl lg:text-6xl">
+            Facundo
+            <br />
+            <span className="text-accent-green text-glow-cyan animate-flicker">Chacón</span>
           </h1>
-
-          <div className="flex items-center justify-center md:justify-start gap-2 text-lg text-gray-300 font-medium mb-3">
-            <Code2 className="w-5 h-5 text-accent-green" />
-            <span>Desarrollador Web Freelance</span>
-          </div>
-
-          <p className="flex items-center justify-center md:justify-start gap-1.5 text-sm text-gray-500 mb-5">
-            <MapPin className="w-4 h-4" />
-            Argentina &middot; Estudiante en UTN
+          <p className="mt-4 font-mono text-base uppercase tracking-widest text-gray-400">
+            Full Stack Developer{" · "}Java / React
+          </p>
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-400 text-pretty">
+            Construyo experiencias full stack de punta a punta: APIs robustas con
+            Java 17 y Spring Boot, interfaces reactivas con React y Tailwind CSS. Actualmente
+            buscando mi primera oportunidad profesional.
           </p>
 
-          <p className="text-gray-400 max-w-md mb-8 text-base leading-relaxed">
-            Creo sitios web modernos, rápidos y profesionales para negocios que quieren
-            crecer en internet.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center md:items-start gap-4">
-            <a href="#proyectos"
-              className="group flex items-center gap-2 px-7 py-3 bg-accent-green hover:bg-accent-green-dark text-white rounded-xl font-semibold transition-all glow-green">
-              Ver proyectos
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <a
+              href="#proyectos"
+              className="box-glow-cyan inline-flex items-center gap-2 rounded-md bg-accent-green px-6 py-3 font-mono text-sm font-semibold uppercase tracking-widest text-dark transition-transform hover:-translate-y-0.5"
+            >
+              Ver proyectos <ArrowDown className="size-4" />
             </a>
-            <a href="#contacto"
-              className="flex items-center gap-2 px-7 py-3 border border-accent-pink/30 text-accent-pink hover:bg-accent-pink/10 rounded-xl font-semibold transition-all">
-              Contactame
-            </a>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/FacundoChacon"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub"
+                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-green hover:text-accent-green"
+              >
+                <GithubIcon className="size-5" />
+              </a>
+              <a
+                href="https://linkedin.com/in/facundo-chacón-catalán"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="LinkedIn"
+                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-pink hover:text-accent-pink"
+              >
+                <LinkedinIcon className="size-5" />
+              </a>
+            </div>
           </div>
         </div>
       </div>

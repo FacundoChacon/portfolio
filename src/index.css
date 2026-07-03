@@ -100,4 +100,110 @@
     pointer-events: none;
     border-radius: 50%;
   }
+
+  .cyber-grid {
+    background-image:
+      linear-gradient(to right, rgba(0, 255, 195, 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 255, 195, 0.12) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 12px rgba(0, 255, 195, 0.6);
+  }
+
+  .text-glow-magenta {
+    text-shadow: 0 0 12px rgba(255, 110, 255, 0.6);
+  }
+
+  .box-glow-cyan {
+    box-shadow:
+      0 0 0 1px rgba(0, 255, 195, 0.4),
+      0 0 24px rgba(0, 255, 195, 0.22);
+  }
+
+  .box-glow-magenta {
+    box-shadow:
+      0 0 0 1px rgba(255, 110, 255, 0.4),
+      0 0 24px rgba(255, 110, 255, 0.22);
+  }
+
+  .animate-scan {
+    animation: scan 8s linear infinite;
+  }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes glitch {
+  0% { clip-path: inset(0 0 85% 0); transform: translate(-1px, 1px); }
+  5% { clip-path: inset(15% 0 60% 0); transform: translate(2px, -1px); }
+  10% { clip-path: inset(40% 0 30% 0); transform: translate(-2px, 2px); }
+  15% { clip-path: inset(70% 0 5% 0); transform: translate(1px, -2px); }
+  20% { clip-path: inset(0 0 85% 0); transform: translate(-1px, 1px); }
+  100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
+}
+
+@keyframes glitch-slice {
+  0% { transform: translate(0); }
+  10% { transform: translate(-3px, 0); }
+  20% { transform: translate(3px, 0); }
+  30% { transform: translate(0); }
+  100% { transform: translate(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+}
+
+.reveal-bottom {
+  transform: translateY(60px);
+  filter: blur(8px);
+}
+
+.reveal-bottom.visible {
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.reveal-left {
+  transform: translateX(-80px);
+}
+
+.reveal-left.visible {
+  transform: translateX(0);
+}
+
+.reveal-right {
+  transform: translateX(80px);
+}
+
+.reveal-right.visible {
+  transform: translateX(0);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 12px rgba(255, 30, 30, 0.7), 0 0 24px rgba(255, 0, 0, 0.3);
+}
+
+.box-glow-red {
+  box-shadow:
+    0 0 0 1px rgba(255, 30, 30, 0.4),
+    0 0 24px rgba(255, 30, 30, 0.22);
+}
+
+.animate-glitch {
+  animation: glitch 0.6s ease-in-out forwards;
+}
+
+.animate-glitch-slice {
+  animation: glitch-slice 0.8s ease-in-out infinite;
 }
