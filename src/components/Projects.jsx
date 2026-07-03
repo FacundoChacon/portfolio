@@ -73,9 +73,14 @@ export default function Projects() {
               visible ? "visible" : ""
             }`}
           >
-          {projects.map((project, i) => (
-            <article
+          {projects.map((project, i) => {
+            const cardHref = project.live || project.repo
+            return (
+            <a
               key={project.title}
+              href={cardHref}
+              target="_blank"
+              rel="noreferrer"
               className="group relative flex flex-col overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 transition-all duration-300 hover:-translate-y-2 hover:border-accent-green/60 hover:box-glow-cyan"
             >
               <div className="relative overflow-hidden">
@@ -117,31 +122,17 @@ export default function Projects() {
                   ))}
                 </ul>
 
-                <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
-                  {project.repo && (
-                    <a
-                      href={project.repo}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green"
-                    >
+                {project.repo && project.live && (
+                  <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400">
                       <GithubIcon className="size-4" /> Repo
-                    </a>
-                  )}
-                  {project.live && (
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-accent-pink transition-colors hover:text-glow-magenta"
-                    >
-                      <ExternalLink className="size-4" /> Visitar
-                    </a>
-                  )}
-                </div>
+                    </span>
+                  </div>
+                )}
               </div>
-            </article>
-          ))}
+            </a>
+            )
+          })}
         </div>
       </div>
     </section>
