@@ -31,13 +31,13 @@ export default function Contact() {
   const [ref, visible] = useReveal({ threshold: 0.1 })
 
   return (
-    <section id="contacto" className="relative border-t border-dark-border py-24">
+    <section id="contacto" className="relative border-t border-dark-border py-24 overflow-hidden">
       <div className="cyber-grid pointer-events-none absolute inset-0 opacity-30" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="animate-glitch-line h-px w-full bg-accent-pink/40" style={{ boxShadow: "0 0 12px rgba(255,110,255,0.4)" }} />
         <div className="animate-glitch-slice-visual absolute inset-0 bg-gradient-to-b from-accent-green/10 via-accent-pink/10 to-transparent" />
       </div>
-      <div className={`relative mx-auto max-w-6xl px-4 md:px-6 ${visible ? "animate-glitch-subtle" : ""}`}>
+      <div className={`relative mx-auto max-w-6xl px-5 md:px-6 ${visible ? "md:animate-glitch-subtle" : ""}`}>
         <div className="flex items-center gap-4">
           <span className="font-mono text-sm text-accent-green text-glow-cyan">04.</span>
           <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
@@ -46,7 +46,7 @@ export default function Contact() {
           <div className="h-px flex-1 bg-gradient-to-r from-accent-green/50 to-transparent" />
         </div>
 
-        <div ref={ref} className="mt-12 grid gap-10 lg:grid-cols-2">
+        <div ref={ref} className="mt-12 grid gap-6 sm:gap-10 lg:grid-cols-2">
           <div>
             <h3 className="font-display text-2xl font-bold text-balance text-white sm:text-3xl">
               <GlitchText text="¿Construimos algo" interval={5000} scrambleDuration={200} />{" "}
@@ -68,7 +68,7 @@ export default function Contact() {
                 href={c.href}
                 target="_blank"
                 rel="noreferrer"
-                className={`group flex items-center gap-4 rounded-lg border border-dark-border bg-dark-card/50 p-5 transition-all hover:-translate-y-1 ${
+                className={`group flex items-center gap-4 rounded-lg border border-dark-border bg-dark-card/50 p-3 sm:p-5 transition-all hover:-translate-y-1 ${
                   c.accent === "primary"
                     ? "hover:border-accent-green/60 hover:box-glow-cyan"
                     : c.accent === "red"
@@ -77,7 +77,7 @@ export default function Contact() {
                 }`}
               >
                 <span
-                  className={`flex size-11 items-center justify-center rounded-md border border-dark-border transition-colors ${
+                  className={`flex size-9 sm:size-11 items-center justify-center rounded-md border border-dark-border transition-colors ${
                     c.accent === "primary"
                       ? "text-accent-green group-hover:border-accent-green"
                       : c.accent === "red"
@@ -91,7 +91,7 @@ export default function Contact() {
                   <p className="font-mono text-[10px] uppercase tracking-widest text-gray-400">
                     {c.label}
                   </p>
-                  <p className={`truncate font-display text-lg font-medium ${
+                  <p className={`truncate font-display text-base sm:text-lg font-medium ${
                     c.accent === "red" ? "text-red-400 text-glow-red" : "text-white"
                   }`}>
                     {c.value}
