@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Download } from "lucide-react"
+import { Download, Menu, X } from "lucide-react"
 
 const links = [
   { href: "#presentacion", label: "Inicio" },
@@ -11,6 +11,7 @@ const links = [
 
 export default function SiteNav() {
   const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -41,6 +42,16 @@ export default function SiteNav() {
             </li>
           ))}
         </ul>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+          aria-label={open ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+          className="rounded-md border border-dark-border p-2 text-gray-400 transition-colors hover:text-accent-green md:hidden"
+        >
+          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+        </button>
         <div className="flex items-center gap-3">
           <a
             href="/cv.pdf"
@@ -58,6 +69,27 @@ export default function SiteNav() {
           </a>
         </div>
       </nav>
+      <div
+        id="mobile-nav"
+        aria-hidden={!open}
+        className={`md:hidden ${
+          open ? "block" : "hidden"
+        } border-t border-dark-border bg-dark/95 backdrop-blur-md`}
+      >
+        <ul className="flex flex-col gap-1 px-4 py-4">
+          {links.map((link) => (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="block rounded-md px-3 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:bg-dark-secondary hover:text-accent-green"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </header>
   )
 }
