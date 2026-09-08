@@ -46,8 +46,9 @@ const projects = [
   {
     title: "3-Esquinas",
     status: "inprogress",
-    description: "Portal de donaciones en desarrollo.",
-    tags: ["React", "Tailwind CSS"],
+    description:
+      "Portal de donaciones full stack: frontend en React con Tailwind CSS, API y lógica de negocio en Java con Spring Boot, persistencia en MySQL y despliegue en contenedores con Docker. En desarrollo.",
+    tags: ["React", "Tailwind CSS", "Java", "Spring Boot", "MySQL", "Docker"],
     image: "/project-3-esquinas.png",
     live: "https://3-esquinas-frontend.vercel.app/",
   },
