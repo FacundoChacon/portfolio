@@ -28,8 +28,8 @@ export default function Stack() {
         </div>
 
         <p className="mt-6 max-w-xl text-gray-400 text-pretty">
-          Las tecnologías que uso con frecuencia. Pasá el cursor por encima para
-          verlas cobrar vida.
+Las tecnologías que uso con frecuencia. Tocá o pasá el cursor para
+verlas cobrar vida.
         </p>
 
           <div
@@ -42,15 +42,16 @@ export default function Stack() {
             <div
               key={tech.name}
               style={{ "--tech": tech.color }}
-              className="group relative flex items-center gap-4 overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--tech)] hover:shadow-[0_0_24px_-4px_var(--tech)]"
+              tabIndex={0}
+              className="group relative flex items-center gap-4 overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--tech)] hover:shadow-[0_0_24px_-4px_var(--tech)] focus-within:-translate-y-1 focus-within:border-[var(--tech)] focus-within:shadow-[0_0_24px_-4px_var(--tech)] active:-translate-y-1 active:border-[var(--tech)] active:shadow-[0_0_24px_-4px_var(--tech)]"
             >
               <span
-                className="flex size-12 shrink-0 items-center justify-center rounded-md border border-dark-border font-mono text-sm font-bold text-gray-400 transition-all duration-300 group-hover:border-[var(--tech)] group-hover:text-[var(--tech)]"
+                className="flex size-12 shrink-0 items-center justify-center rounded-md border border-dark-border font-mono text-sm font-bold text-gray-400 transition-all duration-300 group-hover:border-[var(--tech)] group-hover:text-[var(--tech)] group-focus-within:border-[var(--tech)] group-focus-within:text-[var(--tech)] group-active:border-[var(--tech)] group-active:text-[var(--tech)]"
               >
                 {tech.glyph}
               </span>
               <div className="min-w-0">
-                <p className="truncate font-display font-semibold text-white transition-colors group-hover:text-[var(--tech)]">
+                <p className="truncate font-display font-semibold text-white transition-colors group-hover:text-[var(--tech)] group-focus-within:text-[var(--tech)] group-active:text-[var(--tech)]">
                   {tech.name}
                 </p>
                 <p className="font-mono text-[10px] uppercase tracking-widest text-gray-400">
@@ -58,7 +59,7 @@ export default function Stack() {
                 </p>
               </div>
               <span
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[var(--tech)] transition-transform duration-300 group-hover:scale-x-100"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[var(--tech)] transition-transform duration-300 group-hover:scale-x-100 group-focus-within:scale-x-100 group-active:scale-x-100"
               />
             </div>
           ))}
