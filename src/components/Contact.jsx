@@ -66,8 +66,8 @@ export default function Contact() {
               <a
                 key={c.label}
                 href={c.href}
-                target="_blank"
-                rel="noreferrer"
+                target={c.href.startsWith("mailto:") ? undefined : "_blank"}
+                rel={c.href.startsWith("mailto:") ? undefined : "noreferrer"}
                 className={`group flex items-center gap-4 rounded-lg border border-dark-border bg-dark-card/50 p-3 sm:p-5 transition-all hover:-translate-y-1 ${
                   c.accent === "primary"
                     ? "hover:border-accent-green/60 hover:box-glow-cyan focus-visible:border-accent-green/60 focus-visible:box-glow-cyan"
