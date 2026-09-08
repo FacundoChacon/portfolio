@@ -40,6 +40,7 @@ const projects = [
     description:
       "Landing para el consultorio de Odontología Carolina Simón (endodoncia) en Mendoza, con servicios y contacto por teléfono, WhatsApp e Instagram. En desarrollo.",
     tags: ["React", "Tailwind CSS", "Vite"],
+    favicon: "https://test-odontologia-carolina.vercel.app/logo.jpeg",
     live: "https://test-odontologia-carolina.vercel.app/",
   },
   {
@@ -47,6 +48,7 @@ const projects = [
     status: "inprogress",
     description: "Portal de donaciones en desarrollo.",
     tags: ["React", "Tailwind CSS"],
+    favicon: "https://3-esquinas-frontend.vercel.app/images/logo-3esquinas.png",
     live: "https://3-esquinas-frontend.vercel.app/",
   },
 ]
@@ -205,13 +207,21 @@ export default function Projects() {
                     alt={`Vista previa del proyecto ${project.title}`}
                     className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                ) : (
-                  <div className={`h-48 w-full bg-gradient-to-br ${gradientBgs[i % gradientBgs.length]} flex items-center justify-center`}>
-                    <span className="text-5xl font-black text-white/30 tracking-tight select-none">
-                      {project.title.charAt(0)}
-                    </span>
-                  </div>
-                )}
+) : (
+  <div className={`h-48 w-full bg-gradient-to-br ${gradientBgs[i % gradientBgs.length]} flex items-center justify-center`}>
+    {project.favicon ? (
+      <img
+        src={project.favicon}
+        alt={`Ícono del sitio ${project.title}`}
+        className="size-14 rounded-xl bg-dark/60 p-1.5 object-contain"
+      />
+    ) : (
+      <span className="text-5xl font-black text-white/30 tracking-tight select-none">
+        {project.title.charAt(0)}
+      </span>
+    )}
+  </div>
+)}
                 <div className="absolute inset-0 bg-gradient-to-t from-dark-card via-dark-card/20 to-transparent" />
                 <div className="absolute right-3 top-3">
                   <StatusBadge status={project.status} />
