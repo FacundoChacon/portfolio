@@ -216,9 +216,6 @@ export default function Projects() {
   </div>
 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-dark-card via-dark-card/20 to-transparent" />
-                <div className="absolute right-3 top-3">
-                  <StatusBadge status={project.status} />
-                </div>
               </div>
 
               <div className="flex flex-1 flex-col p-5">
@@ -248,8 +245,9 @@ export default function Projects() {
                   ))}
                 </ul>
 
-                <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
-                  {project.live && (
+                <div className="mt-5 flex items-center justify-between gap-4 border-t border-dark-border pt-4">
+                  <div className="flex items-center gap-4">
+                    {project.live && (
                     <a
                       href={project.live}
                       target="_blank"
@@ -261,6 +259,8 @@ export default function Projects() {
                     </a>
                   )}
                   {project.repo && <RepoButton href={project.repo} />}
+                  </div>
+                  <StatusBadge status={project.status} />
                 </div>
               </div>
             </article>
