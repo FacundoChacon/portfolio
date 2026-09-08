@@ -54,7 +54,7 @@ verlas cobrar vida.
                 <p className="truncate font-display font-semibold text-white transition-colors group-hover:text-[var(--tech)] group-focus-within:text-[var(--tech)] group-active:text-[var(--tech)]">
                   {tech.name}
                 </p>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-gray-400">
+                <p className="font-mono text-[11px] uppercase tracking-widest text-gray-400">
                   {tech.category}
                 </p>
               </div>

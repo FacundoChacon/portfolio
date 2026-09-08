@@ -88,7 +88,7 @@ export default function Contact() {
                   <c.icon className="size-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-gray-400">
+                  <p className="font-mono text-[11px] uppercase tracking-widest text-gray-400">
                     {c.label}
                   </p>
                   <p className={`truncate font-display text-base sm:text-lg font-medium ${

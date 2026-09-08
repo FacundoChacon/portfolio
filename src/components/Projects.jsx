@@ -40,7 +40,7 @@ function StatusBadge({ status }) {
   const isLive = status === "live"
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] uppercase tracking-widest ${
         isLive
           ? "border-accent-green/50 text-accent-green"
           : "border-accent-pink/50 text-accent-pink"
@@ -220,7 +220,7 @@ export default function Projects() {
                   {project.tags.map((tag) => (
                     <li
                       key={tag}
-                      className="rounded border border-dark-border bg-dark-secondary/50 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-gray-400"
+                      className="rounded border border-dark-border bg-dark-secondary/50 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide text-gray-400"
                     >
                       {tag}
                     </li>
