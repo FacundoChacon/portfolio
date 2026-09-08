@@ -176,11 +176,8 @@ export default function Projects() {
           {projects.map((project, i) => {
             const cardHref = project.live || project.repo
             return (
-            <a
+            <article
               key={project.title}
-              href={cardHref}
-              target="_blank"
-              rel="noreferrer"
               className="group relative flex flex-col overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 transition-all duration-300 hover:-translate-y-2 hover:border-accent-green/60 hover:box-glow-cyan"
             >
               <div className="relative overflow-hidden">
@@ -204,9 +201,17 @@ export default function Projects() {
               </div>
 
               <div className="flex flex-1 flex-col p-5">
-                <h3 className="font-display text-xl font-semibold text-white transition-colors group-hover:text-accent-green">
-                  {project.title}
-                </h3>
+                <a
+                  href={cardHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Ver el proyecto ${project.title} en vivo`}
+                  className="after:absolute after:inset-0"
+                >
+                  <h3 className="font-display text-xl font-semibold text-white transition-colors group-hover:text-accent-green">
+                    {project.title}
+                  </h3>
+                </a>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-400">
                   {project.description}
                 </p>
@@ -222,13 +227,22 @@ export default function Projects() {
                   ))}
                 </ul>
 
-                {project.repo && (
-                  <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
-                    <RepoButton href={project.repo} />
-                  </div>
-                )}
+                <div className="mt-5 flex items-center gap-4 border-t border-dark-border pt-4">
+                  {project.live && (
+                    <a
+                      href={project.live}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="relative z-10 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green"
+                    >
+                      <ExternalLink className="size-4 transition-all duration-200" /> Demo
+                    </a>
+                  )}
+                  {project.repo && <RepoButton href={project.repo} />}
+                </div>
               </div>
-            </a>
+            </article>
             )
           })}
         </div>
