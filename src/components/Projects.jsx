@@ -124,7 +124,7 @@ function RepoButton({ href }) {
       className={`relative inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest transition-all duration-200 ${
         hovering
           ? "text-accent-pink text-glow-magenta"
-          : "text-gray-400 hover:text-accent-pink"
+          : "text-gray-400 hover:text-accent-pink focus-visible:text-accent-pink"
       }`}
     >
       {blocks.map((b) => (
@@ -234,7 +234,7 @@ export default function Projects() {
                       target="_blank"
                       rel="noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="relative z-10 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green"
+                      className="relative z-10 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green"
                     >
                       <ExternalLink className="size-4 transition-all duration-200" /> Demo
                     </a>

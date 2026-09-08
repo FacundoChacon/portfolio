@@ -8,6 +8,11 @@ export function useReveal(options = {}) {
     const el = ref.current
     if (!el) return
 
+    if (!("IntersectionObserver" in window)) {
+      setVisible(true)
+      return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

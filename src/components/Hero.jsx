@@ -57,7 +57,7 @@ export default function Hero() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="GitHub"
-                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-green hover:text-accent-green"
+                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-green hover:text-accent-green focus-visible:border-accent-green focus-visible:text-accent-green"
               >
                 <GithubIcon className="size-5" />
               </a>
@@ -66,7 +66,7 @@ export default function Hero() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="LinkedIn"
-                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-pink hover:text-accent-pink"
+                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-pink hover:text-accent-pink focus-visible:border-accent-pink focus-visible:text-accent-pink"
               >
                 <LinkedinIcon className="size-5" />
               </a>

@@ -70,10 +70,10 @@ export default function Contact() {
                 rel="noreferrer"
                 className={`group flex items-center gap-4 rounded-lg border border-dark-border bg-dark-card/50 p-3 sm:p-5 transition-all hover:-translate-y-1 ${
                   c.accent === "primary"
-                    ? "hover:border-accent-green/60 hover:box-glow-cyan"
+                    ? "hover:border-accent-green/60 hover:box-glow-cyan focus-visible:border-accent-green/60 focus-visible:box-glow-cyan"
                     : c.accent === "red"
-                    ? "hover:border-red-500/60 hover:box-glow-red"
-                    : "hover:border-accent-pink/60 hover:box-glow-magenta"
+                    ? "hover:border-red-500/60 hover:box-glow-red focus-visible:border-red-500/60 focus-visible:box-glow-red"
+                    : "hover:border-accent-pink/60 hover:box-glow-magenta focus-visible:border-accent-pink/60 focus-visible:box-glow-magenta"
                 }`}
               >
                 <span

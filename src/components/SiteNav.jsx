@@ -35,7 +35,7 @@ export default function SiteNav() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green"
+                className="font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green"
               >
                 {link.label}
               </a>
@@ -48,7 +48,7 @@ export default function SiteNav() {
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
-          className="rounded-md border border-dark-border p-2 text-gray-400 transition-colors hover:text-accent-green md:hidden"
+          className="rounded-md border border-dark-border p-2 text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green md:hidden"
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
@@ -57,13 +57,13 @@ export default function SiteNav() {
             href="/cv.pdf"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-md border border-accent-pink/50 px-3 py-2 font-mono text-xs uppercase tracking-widest text-accent-pink transition-colors hover:bg-accent-pink hover:text-dark"
+            className="flex items-center gap-1.5 rounded-md border border-accent-pink/50 px-3 py-2 font-mono text-xs uppercase tracking-widest text-accent-pink transition-colors hover:bg-accent-pink hover:text-dark focus-visible:bg-accent-pink focus-visible:text-dark"
           >
             <Download className="size-3.5" /> CV
           </a>
           <a
             href="#contacto"
-            className="box-glow-cyan rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark"
+            className="box-glow-cyan rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark"
           >
             Hablemos
           </a>
@@ -82,7 +82,7 @@ export default function SiteNav() {
               <a
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="block rounded-md px-3 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:bg-dark-secondary hover:text-accent-green"
+                className="block rounded-md px-3 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:bg-dark-secondary hover:text-accent-green focus-visible:bg-dark-secondary focus-visible:text-accent-green"
               >
                 {link.label}
               </a>
