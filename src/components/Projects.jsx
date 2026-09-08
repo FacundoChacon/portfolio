@@ -34,20 +34,38 @@ const projects = [
     repo: "https://github.com/FacundoChacon/Bodega",
     live: "https://bodegamaipu.netlify.app/",
   },
+  {
+    title: "Odontologia-Carolina",
+    status: "inprogress",
+    description:
+      "Landing para el consultorio de Odontología Carolina Simón (endodoncia) en Mendoza, con servicios y contacto por teléfono, WhatsApp e Instagram. En desarrollo.",
+    tags: ["React", "Tailwind CSS", "Vite"],
+    live: "https://test-odontologia-carolina.vercel.app/",
+  },
+  {
+    title: "3-Esquinas",
+    status: "inprogress",
+    description: "Portal de donaciones en desarrollo.",
+    tags: ["React", "Tailwind CSS"],
+    live: "https://3-esquinas-frontend.vercel.app/",
+  },
 ]
 
 function StatusBadge({ status }) {
   const isLive = status === "live"
+  const isInProgress = status === "inprogress"
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] uppercase tracking-widest ${
         isLive
           ? "border-accent-green/50 text-accent-green"
+          : isInProgress
+          ? "border-amber-400/50 text-amber-400"
           : "border-accent-pink/50 text-accent-pink"
       }`}
     >
-      <span className={`size-1.5 rounded-full ${isLive ? "bg-accent-green" : "bg-accent-pink"} animate-pulse`} />
-      {isLive ? "En el mercado" : "Demo"}
+      <span className={`size-1.5 rounded-full ${isLive ? "bg-accent-green" : isInProgress ? "bg-amber-400" : "bg-accent-pink"} animate-pulse`} />
+      {isLive ? "En el mercado" : isInProgress ? "En curso" : "Demo"}
     </span>
   )
 }
@@ -188,7 +206,7 @@ export default function Projects() {
                     className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className={`h-48 w-full bg-gradient-to-br ${gradientBgs[i]} flex items-center justify-center`}>
+                  <div className={`h-48 w-full bg-gradient-to-br ${gradientBgs[i % gradientBgs.length]} flex items-center justify-center`}>
                     <span className="text-5xl font-black text-white/30 tracking-tight select-none">
                       {project.title.charAt(0)}
                     </span>
