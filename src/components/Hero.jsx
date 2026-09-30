@@ -17,7 +17,7 @@ export default function Hero() {
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-tr from-accent-green/60 to-accent-pink/60 opacity-70 blur-sm transition-opacity group-hover:opacity-100" />
             <div className="box-glow-cyan relative overflow-hidden rounded-lg border border-accent-green/40">
               <img
-                src="/profile.jpeg"
+                src="/profile.webp"
                 alt="Retrato de Facundo Chacón"
                 className="h-[420px] w-[340px] object-cover md:h-[520px] md:w-[440px]"
               />

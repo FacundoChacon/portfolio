@@ -10,7 +10,7 @@ const projects = [
     description:
       "E-commerce con roles ADMIN/CLIENT, carrito, checkout, panel de administración y API REST protegida con JWT.",
     tags: ["Java 17", "Spring Boot", "React 18", "Tailwind", "MySQL", "Docker"],
-    image: "/project-ecommerce.png",
+    image: "/project-ecommerce.webp",
     repo: "https://github.com/FacundoChacon/Tienda-Electronica",
     live: "https://tiendaecommerce-electronica.netlify.app/",
   },
@@ -20,7 +20,7 @@ const projects = [
     description:
       "Landing page responsiva para clínica dental con integración de WhatsApp, formulario de contacto y SEO. En producción.",
     tags: ["HTML5", "CSS3", "SEO", "Responsive"],
-    image: "/project-dental.png",
+    image: "/project-dental.webp",
     repo: "https://github.com/FacundoChacon/CIMMA-DENTISTRY",
     live: "https://cimmaodontologia.com",
   },
@@ -30,7 +30,7 @@ const projects = [
     description:
       "Aplicación full stack CRUD con backend en Java/Spring Boot, frontend en JavaScript y base de datos MySQL.",
     tags: ["Java", "Spring Boot", "JavaScript", "MySQL"],
-    image: "/project-bodega.png",
+    image: "/project-bodega.webp",
     repo: "https://github.com/FacundoChacon/Bodega",
     live: "https://bodegamaipu.netlify.app/",
   },
@@ -40,7 +40,7 @@ const projects = [
     description:
       "Landing para el consultorio de Odontología Carolina Simón (endodoncia) en Mendoza, con servicios y contacto por teléfono, WhatsApp e Instagram. En desarrollo.",
     tags: ["React", "Tailwind CSS", "Vite"],
-    image: "/project-odontologia-carolina.png",
+    image: "/project-odontologia-carolina.webp",
     live: "https://test-odontologia-carolina.vercel.app/",
   },
   {
@@ -49,7 +49,7 @@ const projects = [
     description:
       "Portal de donaciones full stack: frontend en React con Tailwind CSS, API y lógica de negocio en Java con Spring Boot, persistencia en MySQL y despliegue en contenedores con Docker. En desarrollo.",
     tags: ["React", "Tailwind CSS", "Java", "Spring Boot", "MySQL", "Docker"],
-    image: "/project-3-esquinas.png",
+    image: "/project-3-esquinas.webp",
     live: "https://3-esquinas-frontend.vercel.app/",
   },
 ]
