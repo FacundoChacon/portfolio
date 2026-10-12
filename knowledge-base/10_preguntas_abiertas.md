@@ -29,6 +29,16 @@
 | Baja (P-09) | ¿Analytics de embudo (ej. Vercel Analytics) para medir conversión? | Métricas | Facundo |
 | Baja (P-10) | ¿Se agrega sección "Precios" también en la home (sin entrar al configurador)? | Marketing | Facundo |
 
+### Nota P-07 — Fallback SPA requerido (definido en C-02)
+
+El sitio usa `BrowserRouter` (URLs limpias). Para que una **recarga directa** de rutas internas como `/configurador` funcione en producción, el hosting debe reescribir **todas** las rutas a `/index.html` (fallback SPA). Sin este fallback, `/configurador` solo funciona navegando desde la home; al recargar la URL directa, el hosting respondería 404.
+
+- **Vercel**: `rewrites: [{ "source": "/(.*)", "destination": "/index.html" }]` (`vercel.json`) — o el preset SPA lo resuelve por defecto.
+- **Netlify**: línea `/index.html 200` en `public/_redirects`.
+- **Local**: `vite preview` ya aplica el fallback (`appType: 'spa'`), por eso la recarga directa se puede verificar sin tocar el hosting.
+
+**Pendiente**: confirmar el hosting final (P-07) y **aplicar** esta configuración en C-12.
+
 ## Notas para el roadmap
 
 - **P-01 y P-03** bloquean el deploy pero **no** el desarrollo (se pueden usar placeholders).

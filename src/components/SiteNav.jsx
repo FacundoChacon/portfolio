@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { Download, Menu, X } from "lucide-react"
 
 const links = [
@@ -27,9 +28,9 @@ export default function SiteNav() {
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6">
-        <a href="#presentacion" className="font-mono text-sm font-bold tracking-widest text-accent-green text-glow-cyan">
+        <Link to="/" className="font-mono text-sm font-bold tracking-widest text-accent-green text-glow-cyan">
           {"<FC/>"}
-        </a>
+        </Link>
         <ul className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <li key={link.href}>
@@ -53,6 +54,12 @@ export default function SiteNav() {
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
         <div className="flex items-center gap-3">
+          <Link
+            to="/configurador"
+            className="box-glow-cyan hidden rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark sm:inline-flex"
+          >
+            Armá tu web
+          </Link>
           <a
             href="/cv.pdf"
             target="_blank"
@@ -77,6 +84,15 @@ export default function SiteNav() {
         } border-t border-dark-border bg-dark/95 backdrop-blur-md`}
       >
         <ul className="flex flex-col gap-1 px-4 py-4">
+          <li>
+            <Link
+              to="/configurador"
+              onClick={() => setOpen(false)}
+              className="block rounded-md border border-accent-green/50 px-3 py-2 text-center font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark"
+            >
+              Armá tu web
+            </Link>
+          </li>
           {links.map((link) => (
             <li key={link.href}>
               <a

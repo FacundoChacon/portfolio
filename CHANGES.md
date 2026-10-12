@@ -100,7 +100,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/08_arquitectura_propuesta.md` §Estructura de directorios, §Variables de entorno
 
 ### [C-02] `routing-shell`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - Refactor `src/App.jsx` a `<Routes>`: `/` → portfolio (secciones actuales), `/configurador` → `React.lazy(Configurador)`, `*` → redirect a `/`.
   - `Suspense` con fallback coherente con el tema.
