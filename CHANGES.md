@@ -135,7 +135,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/10_preguntas_abiertas.md` §P-01 (precios a confirmar)
 
 ### [C-04] `pricing-engine`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - Crear `src/utils/pricing.js`: `computeTotal(service, qty, extras)`, `formatARS(n)`, `splitRecurring(extras)` (único vs /mes), `hasQuotable(...)`.
   - Manejar `priceARS: null` (no suma, marca quotable) y `0` (no altera).
