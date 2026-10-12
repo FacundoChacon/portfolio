@@ -166,7 +166,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
 ## FASE 3 — UI del configurador
 
 ### [C-06] `wizard-layout`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - `src/pages/Configurador.jsx`: layout 2 columnas (contenido + `SummarySidebar` sticky), header propio, estética cyber/neón.
   - `components/configurador/WizardSteps.jsx`: indicador de 4 pasos con estados (done/current/pending).
