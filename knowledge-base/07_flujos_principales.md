@@ -9,7 +9,7 @@ Cada flujo se documenta extremo a extremo, mostrando interacciones entre compone
 
 **Pasos**:
 1. El router carga la página `Configurador` (chunk lazy).
-2. `useConfigurador` inicializa el estado: `step = 0`, `serviceId = services[0].id`, `extras = []`, `quantity = 1`.
+2. `useConfigurador` inicializa el estado: `step = 0`, `serviceId = services[0].id`, `extras` = los marcados como `recommended` en el catálogo (hoy `hosting`), `quantity = 1`.
 3. **Paso 1** — el visitante elige el tipo de sitio (`ServiceCards`). Se actualiza `serviceId`.
 4. **Paso 2** — marca extras (`ExtrasCards`) y ajusta cantidad. `pricing.js` recalcula el total; `SummarySidebar` lo muestra en vivo.
 5. **Paso 3** — completa `name`, `email` (y opcionalmente `phone`, `project`). Validación inline.

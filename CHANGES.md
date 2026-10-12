@@ -148,7 +148,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/04_modelo_de_datos.md` §QuoteConfig, §LeadPayload
 
 ### [C-05] `wizard-state`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - Crear `src/hooks/useConfigurador.js`: estado `{ step, serviceId, extras[], quantity, form, submitted, status }`.
   - Acciones: `setService`, `toggleExtra`, `setQuantity(min 1)`, `setForm`, `nextStep` (valida paso 3), `prevStep`, `submit`.
