@@ -181,13 +181,13 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/09_decisiones_y_supuestos.md` §DD-07
 
 ### [C-07] `service-extras-cards`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - `components/configurador/ServiceCards.jsx`: paso 1, 7 cards con nombre/descripción/precio ARS o "A cotizar", una seleccionada (RN-CO-01).
   - `components/configurador/ExtrasCards.jsx`: paso 2, 8 toggles; `hosting` con disclaimer visible (RN-HD-03); `maintenance` con "/mes".
   - `components/configurador/QuantityControl.jsx`: +/− con mínimo 1.
   - Estados visuales seleccionado/hover/focus; responsive.
-  - Tests: selección única de servicio; toggle de extras; mínimo de cantidad.
+  - Tests: etiquetas de precio y resolución de los iconos del catálogo. La selección única, el toggle y el mínimo de cantidad ya están cubiertos por `scripts/wizard.test.mjs` (C-05), así que no se duplican.
 - **Dependencias**: `C-06`, `C-05`
 - **Governance**: BAJO
 - **Leer antes**:
