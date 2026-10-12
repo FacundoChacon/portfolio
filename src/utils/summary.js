@@ -42,38 +42,9 @@
  * @property {SummaryExtraLine[]} extras
  */
 
+import { extraPriceLabel, serviceLineLabel } from './priceLabels.js'
 import { computeTotal, formatARS } from './pricing.js'
 import { getSelectedExtras, getService } from './wizard.js'
-
-/** Etiqueta para un ítem sin precio fijo. */
-const QUOTABLE_LABEL = 'A cotizar'
-/** Etiqueta para un extra de precio 0. */
-const FREE_LABEL = 'Sin costo'
-
-/**
- * Etiqueta del importe del servicio: "A cotizar" si es cotizable.
- * @param {{quotable?: boolean}|null} service
- * @param {number} amount
- * @returns {string}
- */
-const serviceAmountLabel = (service, amount) => {
-  if (service?.quotable === true) return QUOTABLE_LABEL
-  return formatARS(amount)
-}
-
-/**
- * Etiqueta del importe de un extra: "<importe>/mes" si es recurrente,
- * "Sin costo" si vale 0, o el importe formateado.
- * @param {SummaryExtraLine} extra
- * @returns {string}
- */
-const extraAmountLabel = (extra) => {
-  const amount =
-    typeof extra?.priceARS === 'number' && Number.isFinite(extra.priceARS) ? extra.priceARS : 0
-  if (extra?.recurring === true) return `${formatARS(amount)}/mes`
-  if (amount === 0) return FREE_LABEL
-  return formatARS(amount)
-}
 
 /**
  * Arma el resumen del presupuesto a partir del estado del wizard y el catálogo.
@@ -105,7 +76,7 @@ export function buildSummary(state = {}, services = [], extras = []) {
           quantity,
           quotable: service.quotable === true,
           amount: quote.serviceTotal,
-          amountLabel: serviceAmountLabel(service, quote.serviceTotal),
+          amountLabel: serviceLineLabel(service, quote.serviceTotal),
         }
       : null,
     extras: selectedExtras.map((extra) => ({
@@ -113,7 +84,7 @@ export function buildSummary(state = {}, services = [], extras = []) {
       name: extra.name,
       priceARS: extra.priceARS,
       recurring: extra.recurring === true,
-      amountLabel: extraAmountLabel(extra),
+      amountLabel: extraPriceLabel(extra),
       disclaimer: extra.disclaimer ?? null,
     })),
   }

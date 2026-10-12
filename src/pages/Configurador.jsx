@@ -1,16 +1,19 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react'
 
+import ExtrasCards from '../components/configurador/ExtrasCards.jsx'
+import QuantityControl from '../components/configurador/QuantityControl.jsx'
+import ServiceCards from '../components/configurador/ServiceCards.jsx'
 import SummarySidebar from '../components/configurador/SummarySidebar.jsx'
 import WizardSteps from '../components/configurador/WizardSteps.jsx'
 import { extras, services } from '../data/configurador.js'
 import { useConfigurador } from '../hooks/useConfigurador.js'
 import { buildSummary } from '../utils/summary.js'
-import { FIRST_STEP, LAST_STEP } from '../utils/wizard.js'
+import { FIRST_STEP, LAST_STEP, STEPS } from '../utils/wizard.js'
 
 /**
- * Cuerpo temporal del paso actual.
- * C-07 (pasos 1-2) y C-08 (pasos 3-4) lo reemplazan por el contenido real.
+ * Cuerpo temporal de un paso todavía no implementado.
+ * C-08 (pasos 3-4) lo reemplaza por el contenido real.
  */
 function StepPlaceholder({ step }) {
   return (
@@ -25,6 +28,43 @@ function StepPlaceholder({ step }) {
   )
 }
 
+const stepTitle = {
+  [STEPS.SERVICE]: '1. Elegí el tipo de sitio',
+  [STEPS.EXTRAS]: '2. Sumá extras',
+  [STEPS.CONTACT]: '3. Dejame tus datos',
+  [STEPS.REVIEW]: '4. Revisá tu presupuesto',
+}
+
+/** Cuerpo del paso actual del wizard. */
+function StepBody({ step, wizard }) {
+  if (step === STEPS.SERVICE) {
+    return (
+      <div className="space-y-6">
+        <ServiceCards
+          services={services}
+          selectedId={wizard.serviceId}
+          onSelect={wizard.setService}
+        />
+        <div className="glass flex items-center justify-between gap-4 p-4">
+          <div>
+            <p className="font-display text-sm text-white">Cantidad</p>
+            <p className="text-xs text-gray-400">¿Cuántos sitios o líneas de negocio?</p>
+          </div>
+          <QuantityControl quantity={wizard.quantity} onChange={wizard.setQuantity} />
+        </div>
+      </div>
+    )
+  }
+
+  if (step === STEPS.EXTRAS) {
+    return (
+      <ExtrasCards extras={extras} selectedIds={wizard.extras} onToggle={wizard.toggleExtra} />
+    )
+  }
+
+  return <StepPlaceholder step={step} />
+}
+
 const secondaryButton =
   'inline-flex items-center gap-2 rounded-md border border-dark-border px-4 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green'
 
@@ -32,8 +72,8 @@ const primaryButton =
   'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark'
 
 /**
- * Página `/configurador` (C-06): layout de dos columnas con el wizard y el
- * resumen en vivo.
+ * Página `/configurador`: layout de dos columnas con el wizard y el resumen en
+ * vivo. Pasos 1-2 (C-07); pasos 3-4 pendientes (C-08).
  */
 export default function Configurador() {
   const wizard = useConfigurador({ services, extras })
@@ -70,7 +110,11 @@ export default function Configurador() {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <section className="min-w-0">
-            <StepPlaceholder step={wizard.step} />
+            <h2 className="mb-4 font-display text-lg font-bold text-white">
+              {stepTitle[wizard.step]}
+            </h2>
+
+            <StepBody step={wizard.step} wizard={wizard} />
 
             <div className="mt-6 flex items-center justify-between gap-3">
               {wizard.step > FIRST_STEP ? (
