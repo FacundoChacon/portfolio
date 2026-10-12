@@ -195,12 +195,12 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/05_reglas_de_negocio.md` §RN-HD, §RN-CO, §RN-QT
 
 ### [C-08] `contact-review-steps`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - `components/configurador/FormStep.jsx`: paso 3, campos nombre/email (obligatorios) + teléfono/descripción (opcionales), validación inline accesible (`aria-invalid`, `aria-describedby`).
   - `components/configurador/ReviewStep.jsx`: paso 4, resumen completo + botones "Editar" por bloque + nota "estimación no vinculante".
   - Incluir campo **honeypot** oculto (base para C-11) y placeholder de botón de envío.
-  - Tests: bloqueo de avance sin nombre/email; resumen refleja el estado.
+  - Tests: `buildReview` (bloques, cantidad, "Sin extras", datos de contacto) y `goToStep` (saltos acotados). El bloqueo de avance sin nombre/email ya está cubierto por `scripts/wizard.test.mjs` (C-05), así que no se duplica.
 - **Dependencias**: `C-06`, `C-05`
 - **Governance**: MEDIO
 - **Leer antes**:
