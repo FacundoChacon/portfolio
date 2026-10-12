@@ -16,6 +16,7 @@ import {
   createInitialState,
   getSelectedExtras,
   getService,
+  goToStep,
   nextStep,
   prevStep,
   setForm,
@@ -181,6 +182,28 @@ test('prevStep: conserva el estado cargado', () => {
   assert.equal(back.serviceId, 'landing')
 })
 
+// --- Salto de paso (C-08) ---------------------------------------------------
+
+test('goToStep: salta al paso pedido (Editar)', () => {
+  const state = createInitialState(SERVICES, EXTRAS)
+  assert.equal(goToStep(state, STEPS.EXTRAS).step, STEPS.EXTRAS)
+  assert.equal(goToStep(state, STEPS.CONTACT).step, STEPS.CONTACT)
+  assert.equal(goToStep(state, STEPS.REVIEW).step, STEPS.REVIEW)
+})
+
+test('goToStep: acota fuera de rango (RN-EX-03)', () => {
+  const state = createInitialState(SERVICES, EXTRAS)
+  assert.equal(goToStep(state, -5).step, FIRST_STEP)
+  assert.equal(goToStep(state, 99).step, LAST_STEP)
+})
+
+test('goToStep: ignora valores no numéricos', () => {
+  const state = { ...createInitialState(SERVICES, EXTRAS), step: STEPS.CONTACT }
+  assert.equal(goToStep(state, 'abc').step, STEPS.CONTACT)
+  assert.equal(goToStep(state, null).step, STEPS.CONTACT)
+  assert.equal(goToStep(state, undefined).step, STEPS.CONTACT)
+})
+
 // --- 3.5 Envío --------------------------------------------------------------
 
 test('submit: con datos válidos marca enviado y pasa a submitting', () => {
@@ -235,6 +258,7 @@ test('las acciones no mutan el estado previo', () => {
   setForm(state, { name: 'Ana' })
   nextStep(state)
   prevStep(state)
+  goToStep(state, STEPS.REVIEW)
   submit(state)
 
   assert.deepEqual(state, snapshot)

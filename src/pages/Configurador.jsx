@@ -2,31 +2,17 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react'
 
 import ExtrasCards from '../components/configurador/ExtrasCards.jsx'
+import FormStep from '../components/configurador/FormStep.jsx'
 import QuantityControl from '../components/configurador/QuantityControl.jsx'
+import ReviewStep from '../components/configurador/ReviewStep.jsx'
 import ServiceCards from '../components/configurador/ServiceCards.jsx'
 import SummarySidebar from '../components/configurador/SummarySidebar.jsx'
 import WizardSteps from '../components/configurador/WizardSteps.jsx'
 import { extras, services } from '../data/configurador.js'
 import { useConfigurador } from '../hooks/useConfigurador.js'
+import { buildReview } from '../utils/review.js'
 import { buildSummary } from '../utils/summary.js'
 import { FIRST_STEP, LAST_STEP, STEPS } from '../utils/wizard.js'
-
-/**
- * Cuerpo temporal de un paso todavía no implementado.
- * C-08 (pasos 3-4) lo reemplaza por el contenido real.
- */
-function StepPlaceholder({ step }) {
-  return (
-    <div className="glass flex min-h-48 flex-col items-center justify-center p-8 text-center">
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-green text-glow-cyan">
-        Paso {step + 1}
-      </p>
-      <p className="mt-3 max-w-sm text-sm text-gray-400">
-        Este paso se completa en los próximos cambios del roadmap.
-      </p>
-    </div>
-  )
-}
 
 const stepTitle = {
   [STEPS.SERVICE]: '1. Elegí el tipo de sitio',
@@ -62,7 +48,12 @@ function StepBody({ step, wizard }) {
     )
   }
 
-  return <StepPlaceholder step={step} />
+  if (step === STEPS.CONTACT) {
+    return <FormStep form={wizard.form} errors={wizard.errors} onChange={wizard.setForm} />
+  }
+
+  const review = buildReview(wizard, services, extras)
+  return <ReviewStep review={review} onEdit={wizard.goToStep} onSubmit={wizard.submit} />
 }
 
 const secondaryButton =
@@ -73,7 +64,8 @@ const primaryButton =
 
 /**
  * Página `/configurador`: layout de dos columnas con el wizard y el resumen en
- * vivo. Pasos 1-2 (C-07); pasos 3-4 pendientes (C-08).
+ * vivo. Los cuatro pasos quedan operativos tras C-08; el envío se termina de
+ * cablear en C-10.
  */
 export default function Configurador() {
   const wizard = useConfigurador({ services, extras })

@@ -5,6 +5,7 @@ import {
   createInitialState,
   getSelectedExtras,
   getService,
+  goToStep,
   nextStep,
   prevStep,
   setForm,
@@ -40,6 +41,7 @@ export function useConfigurador({
     setForm: (patch) => setState((current) => setForm(current, patch)),
     nextStep: () => setState((current) => nextStep(current)),
     prevStep: () => setState((current) => prevStep(current)),
+    goToStep: (step) => setState((current) => goToStep(current, step)),
     submit: () => setState((current) => submit(current)),
     setStatus: (status) => setState((current) => setStatus(current, status)),
   }

@@ -52,6 +52,16 @@ export const STATUS = {
   ERROR: 'error',
 }
 
+/**
+ * Nombre del campo trampa (honeypot, RN-AB-01). Es la única fuente de verdad:
+ * el formulario (C-08) lo renderiza oculto y el guard antiabuso (C-11) lo lee.
+ * No forma parte del modelo `ContactForm` a propósito (el test de C-05 hace
+ * `deepEqual` del formulario vacío); se lee como `form[HONEYPOT_FIELD]`
+ * (ausente → `undefined` → no dispara). `setForm` ya hace merge de parches, así
+ * que el valor se persiste sin tocar el modelo.
+ */
+export const HONEYPOT_FIELD = 'company'
+
 /** Formato de email aceptado por RN-VL-01 (no exhaustivo, suficiente por diseño). */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -192,6 +202,23 @@ export function nextStep(state) {
  */
 export function prevStep(state) {
   return { ...state, step: Math.max(FIRST_STEP, state.step - 1) }
+}
+
+/**
+ * Salta a un paso arbitrario (usado por los botones "Editar" del paso de
+ * revisión, RN-EX-03). Solo acepta pasos numéricos enteros y acota al rango
+ * del wizard; cualquier otro valor (incluido `null`, que en JavaScript coerci
+ * a 0) es no-op. No valida: quien salta sabe a dónde va, y RN-EX-03 garantiza
+ * que el estado cargado no se pierde.
+ *
+ * @param {WizardState} state
+ * @param {unknown} target
+ * @returns {WizardState}
+ */
+export function goToStep(state, target) {
+  if (typeof target !== 'number' || !Number.isInteger(target)) return state
+  const step = Math.min(LAST_STEP, Math.max(FIRST_STEP, target))
+  return { ...state, step }
 }
 
 /**

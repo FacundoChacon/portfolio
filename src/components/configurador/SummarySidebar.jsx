@@ -1,13 +1,14 @@
-import { AlertCircle } from 'lucide-react'
+import BudgetTotals from './BudgetTotals.jsx'
 
 /**
  * Panel de resumen del presupuesto (C-06).
  *
  * Presentacional: recibe el modelo ya armado por `buildSummary` (C-06) y lo
- * pinta. El total se anuncia con `aria-live` para reflejar los cambios en vivo.
+ * pinta. Los totales (total, /mes, aviso de cotizable) salen de `BudgetTotals`
+ * (C-08).
  */
 export default function SummarySidebar({ summary, className = '' }) {
-  const { service, extras, totalLabel, recurringLabel, hasQuotable } = summary
+  const { service, extras } = summary
 
   return (
     <aside className={`glass p-6 ${className}`} aria-label="Resumen del presupuesto">
@@ -44,27 +45,7 @@ export default function SummarySidebar({ summary, className = '' }) {
         )}
       </div>
 
-      {hasQuotable && (
-        <p className="mt-4 flex items-start gap-2 rounded-md border border-accent-pink/40 bg-accent-pink/10 px-3 py-2 text-xs text-accent-pink">
-          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          Incluye un sistema a medida: se cotiza aparte y no está incluido en el total.
-        </p>
-      )}
-
-      <div className="mt-6 border-t border-dark-border pt-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="font-mono text-xs uppercase tracking-widest text-gray-400">Total</span>
-          <span
-            aria-live="polite"
-            className="font-display text-2xl font-bold text-accent-green text-glow-cyan"
-          >
-            {totalLabel}
-          </span>
-        </div>
-        {recurringLabel && (
-          <p className="mt-1 text-right font-mono text-xs text-gray-400">+ {recurringLabel}/mes</p>
-        )}
-      </div>
+      <BudgetTotals summary={summary} className="mt-6 border-t border-dark-border pt-4" />
     </aside>
   )
 }
