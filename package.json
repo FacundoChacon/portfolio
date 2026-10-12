@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "ci": "npm run lint && npm run build"
+    "verify:catalog": "node scripts/verify-catalog.mjs",
+    "ci": "npm run lint && npm run verify:catalog && npm run build"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

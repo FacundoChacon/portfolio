@@ -120,7 +120,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
 ## FASE 2 — Dominio del configurador (lógica pura y datos)
 
 ### [C-03] `catalog-data`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - Crear `src/data/configurador.js` con `services[]` (7: landing, onepage, ecommerce, corporate, blog, portfolio, custom) y `extras[]` (8: seo, copy, cms, i18n, clients, whatsapp, maintenance, hosting).
   - Cada item con `id`, `name`, `description`, `priceARS`, `icon` (lucide), y extras con `category`, `recurring`, `disclaimer`, `recommended`.
