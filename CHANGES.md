@@ -85,7 +85,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
 ## FASE 1 — Fundaciones
 
 ### [C-01] `foundation-setup`
-- **Estado**: `[x]` completado (2026-10-12)
+- **Estado**: [x] completado (2026-10-12)
 - **Scope**:
   - Instalar deps: `react-router-dom`, `@react-pdf/renderer`.
   - Crear `.env.example` con `VITE_WEBHOOK_URL`, `VITE_WHATSAPP_NUMBER`, `VITE_CONTACT_EMAIL`, `VITE_APP_URL`.

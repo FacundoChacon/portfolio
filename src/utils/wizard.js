@@ -26,7 +26,7 @@
  * @property {ContactForm} form    Datos de contacto.
  * @property {FormErrors} errors   Errores de validación vigentes.
  * @property {boolean} submitted   Si el presupuesto fue enviado.
- * @property {Status} status       Estado del ciclo de envío.
+ * @property {boolean} submitting  Si hay un envío en curso (RN-AB-02).
  */
 
 /** Pasos del wizard (0-indexados). */
@@ -93,6 +93,7 @@ export function createInitialState(services = [], extras = []) {
     errors: {},
     submitted: false,
     status: STATUS.IDLE,
+    submitting: false,
   }
 }
 
@@ -233,9 +234,9 @@ export function goToStep(state, target) {
 export function submit(state) {
   const errors = validateForm(state.form)
   if (Object.keys(errors).length > 0) {
-    return { ...state, errors, submitted: false, status: STATUS.IDLE }
+    return { ...state, errors, submitted: false, status: STATUS.IDLE, submitting: false }
   }
-  return { ...state, errors: {}, submitted: true, status: STATUS.SUBMITTING }
+  return { ...state, errors: {}, submitted: true, status: STATUS.SUBMITTING, submitting: true }
 }
 
 /**

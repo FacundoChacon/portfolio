@@ -3,21 +3,22 @@ import { PencilLine } from 'lucide-react'
 import BudgetTotals from './BudgetTotals.jsx'
 
 /**
- * Paso 4: revisión del presupuesto (C-08).
+ * Paso 4: revisión del presupuesto (C-08 → extendido C-10).
  *
  * Presentacional: recibe el modelo de `buildReview` (bloques + summary), el
- * callback de edición (`onEdit(editStep)`, que salta al paso con `goToStep`) y
- * el callback de envío (`onSubmit`, que inicia el ciclo con `submit`; el
- * transporte llega en C-10).
+ * callback de edición (`onEdit(editStep)`), el callback de envío (`onSubmit`) y
+ * estados de envío (`submitting`, `submitted`).
  */
 const editButton =
   'inline-flex items-center gap-1.5 rounded-md border border-dark-border px-2.5 py-1 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green'
 
 const submitButton =
-  'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark'
+  'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark disabled:cursor-not-allowed disabled:opacity-50'
 
-export default function ReviewStep({ review, onEdit, onSubmit }) {
+export default function ReviewStep({ review, onEdit, onSubmit, submitting = false, submitted = false }) {
   const { blocks, summary } = review
+  const disabled = submitting || submitted
+  const label = submitting ? 'Enviando...' : 'Enviar solicitud'
 
   return (
     <div className="space-y-4">
@@ -49,8 +50,8 @@ export default function ReviewStep({ review, onEdit, onSubmit }) {
       </section>
 
       <div className="flex justify-end">
-        <button type="button" onClick={onSubmit} className={submitButton}>
-          Enviar solicitud
+        <button type="button" onClick={onSubmit} className={submitButton} disabled={disabled}>
+          {label}
         </button>
       </div>
     </div>

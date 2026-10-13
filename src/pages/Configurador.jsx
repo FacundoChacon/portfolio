@@ -7,6 +7,8 @@ import QuantityControl from '../components/configurador/QuantityControl.jsx'
 import ReviewStep from '../components/configurador/ReviewStep.jsx'
 import ServiceCards from '../components/configurador/ServiceCards.jsx'
 import SummarySidebar from '../components/configurador/SummarySidebar.jsx'
+import SuccessStep from '../components/configurador/SuccessStep.jsx'
+import ErrorStep from '../components/configurador/ErrorStep.jsx'
 import WizardSteps from '../components/configurador/WizardSteps.jsx'
 import { extras, services } from '../data/configurador.js'
 import { useConfigurador } from '../hooks/useConfigurador.js'
@@ -53,7 +55,15 @@ function StepBody({ step, wizard }) {
   }
 
   const review = buildReview(wizard, services, extras)
-  return <ReviewStep review={review} onEdit={wizard.goToStep} onSubmit={wizard.submit} />
+  return (
+    <ReviewStep
+      review={review}
+      onEdit={wizard.goToStep}
+      onSubmit={wizard.submit}
+      submitting={wizard.submitting}
+      submitted={wizard.submitted}
+    />
+  )
 }
 
 const secondaryButton =
@@ -102,27 +112,43 @@ export default function Configurador() {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <section className="min-w-0">
-            <h2 className="mb-4 font-display text-lg font-bold text-white">
-              {stepTitle[wizard.step]}
-            </h2>
+            {wizard.status === 'success' ? (
+              <SuccessStep name={wizard.form?.name} />
+            ) : wizard.status === 'error' ? (
+              <ErrorStep
+                onRetry={wizard.submit}
+                contactEmail={import.meta.env.VITE_CONTACT_EMAIL || 'facundochacon.dev@gmail.com'}
+                whatsappUrl={
+                  import.meta.env.VITE_WHATSAPP_URL ||
+                  'https://wa.me/?text=Hola Facundo, te quería consultar por el presupuesto del configurador'
+                }
+              />
+            ) : (
+              <>
+                <h2 className="mb-4 font-display text-lg font-bold text-white">
+                  {stepTitle[wizard.step]}
+                </h2>
+                <StepBody step={wizard.step} wizard={wizard} />
+              </>
+            )}
 
-            <StepBody step={wizard.step} wizard={wizard} />
+            {wizard.status !== 'success' && wizard.status !== 'error' && (
+              <div className="mt-6 flex items-center justify-between gap-3">
+                {wizard.step > FIRST_STEP ? (
+                  <button type="button" onClick={wizard.prevStep} className={secondaryButton}>
+                    <ChevronLeft className="size-4" aria-hidden="true" /> Atrás
+                  </button>
+                ) : (
+                  <span />
+                )}
 
-            <div className="mt-6 flex items-center justify-between gap-3">
-              {wizard.step > FIRST_STEP ? (
-                <button type="button" onClick={wizard.prevStep} className={secondaryButton}>
-                  <ChevronLeft className="size-4" aria-hidden="true" /> Atrás
-                </button>
-              ) : (
-                <span />
-              )}
-
-              {wizard.step < LAST_STEP && (
-                <button type="button" onClick={wizard.nextStep} className={primaryButton}>
-                  Continuar <ArrowRight className="size-4" aria-hidden="true" />
-                </button>
-              )}
-            </div>
+                {wizard.step < LAST_STEP && (
+                  <button type="button" onClick={wizard.nextStep} className={primaryButton}>
+                    Continuar <ArrowRight className="size-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            )}
           </section>
 
           <SummarySidebar summary={summary} className="lg:sticky lg:top-8 lg:self-start" />
