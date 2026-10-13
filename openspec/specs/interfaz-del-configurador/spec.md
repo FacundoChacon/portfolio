@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define la presentación del wizard de presupuesto: el layout de la página del configurador, el indicador de progreso de los cuatro pasos, el resumen en vivo con su desglose y el total, y la navegación entre pasos.
+Define la presentación del wizard de solicitud: el layout de la página del configurador, el indicador de progreso de los cuatro pasos, el resumen en vivo de la selección (sin precios) y la navegación entre pasos.
 
 ## Requirements
 
@@ -17,9 +17,9 @@ La página del configurador SHALL mostrar el contenido del paso actual y un pane
 - **WHEN** se abre `/configurador` en una pantalla chica
 - **THEN** el resumen se muestra debajo del contenido del paso
 
-#### Scenario: Total siempre visible
+#### Scenario: Resumen siempre visible
 - **WHEN** el visitante recorre los pasos
-- **THEN** el total permanece visible en el panel de resumen
+- **THEN** el resumen de la selección permanece visible en el panel lateral
 
 ### Requirement: Indicador de progreso
 El sistema SHALL mostrar los cuatro pasos con su estado (completado, actual o pendiente) y SHALL marcar el paso actual de forma accesible.
@@ -37,46 +37,23 @@ El sistema SHALL mostrar los cuatro pasos con su estado (completado, actual o pe
 - **THEN** los pasos anteriores se distinguen de los pendientes
 
 ### Requirement: Resumen en vivo
-El panel de resumen SHALL mostrar el desglose de la configuración —el servicio con su cantidad, los extras seleccionados y el importe mensual si hay extras recurrentes— y el total de pago único en ARS, y SHALL actualizarse cuando cambia la configuración.
+El panel de resumen SHALL mostrar la selección actual —el tipo de sitio con su cantidad y los extras elegidos— y SHALL actualizarse cuando cambia la configuración. El resumen NO SHALL mostrar importes.
 
 #### Scenario: Servicio con su cantidad
 - **WHEN** hay un servicio seleccionado
-- **THEN** el resumen muestra su nombre, la cantidad y su importe
+- **THEN** el resumen muestra su nombre y, si es mayor a uno, la cantidad
 
 #### Scenario: Extras seleccionados
 - **WHEN** hay extras seleccionados
-- **THEN** el resumen lista cada extra con su importe
+- **THEN** el resumen lista cada extra por su nombre
 
-#### Scenario: Importe mensual separado
-- **WHEN** hay extras de cobro mensual seleccionados
-- **THEN** el resumen muestra su suma como importe mensual (`/mes`), además del total de pago único
-
-#### Scenario: El total se actualiza al alternar un extra
+#### Scenario: El resumen se actualiza al alternar un extra
 - **WHEN** el visitante marca o desmarca un extra
-- **THEN** el total del resumen cambia en consecuencia
+- **THEN** el resumen refleja la nueva selección
 
 #### Scenario: Sin extras
 - **WHEN** no hay extras seleccionados
-- **THEN** el resumen muestra el total del servicio y ningún extra
-
-### Requirement: Aviso de ítem cotizable
-Cuando la configuración incluye un ítem cotizable, el resumen SHALL mostrar un aviso de que ese ítem se cotiza aparte y NO SHALL sumarlo al total.
-
-#### Scenario: Servicio "a cotizar"
-- **WHEN** el servicio seleccionado es cotizable
-- **THEN** el resumen muestra un aviso de que se cotiza aparte
-- **AND** el total no incluye su importe
-
-#### Scenario: Sin ítems cotizables
-- **WHEN** ningún ítem es cotizable
-- **THEN** el resumen no muestra el aviso de cotizable
-
-### Requirement: Extras sin costo
-El resumen SHALL mostrar un extra con precio 0 como "Sin costo".
-
-#### Scenario: Hosting + Dominio
-- **WHEN** el extra "Hosting + Dominio" (precio 0) está seleccionado
-- **THEN** el resumen lo muestra como "Sin costo"
+- **THEN** el resumen lo indica y no lista ninguno
 
 ### Requirement: Navegación entre pasos
 El sistema SHALL ofrecer un botón para avanzar y otro para retroceder, y NO SHALL mostrar el botón de retroceso en el primer paso.
@@ -94,7 +71,7 @@ El sistema SHALL ofrecer un botón para avanzar y otro para retroceder, y NO SHA
 - **THEN** no avanza y se muestran los errores
 
 ### Requirement: Selección del tipo de sitio
-El sistema SHALL mostrar los siete tipos de sitio como tarjetas seleccionables, cada una con su nombre, descripción, icono y precio, y SHALL mantener exactamente una tarjeta seleccionada y distinguible del resto.
+El sistema SHALL mostrar los siete tipos de sitio como tarjetas seleccionables, cada una con su nombre, descripción e icono, y SHALL mantener exactamente una tarjeta seleccionada y distinguible del resto.
 
 #### Scenario: Las siete opciones
 - **WHEN** el visitante llega al paso de tipo de sitio
@@ -102,11 +79,8 @@ El sistema SHALL mostrar los siete tipos de sitio como tarjetas seleccionables, 
 
 #### Scenario: Contenido de cada tarjeta
 - **WHEN** se muestra una tarjeta de tipo de sitio
-- **THEN** muestra su nombre, su descripción, su icono y su precio en ARS
-
-#### Scenario: Sistema a medida sin precio
-- **WHEN** se muestra la tarjeta de "Sistema a medida"
-- **THEN** su precio se muestra como "A cotizar" y nunca como un número
+- **THEN** muestra su nombre, su descripción y su icono
+- **AND** no muestra ningún precio
 
 #### Scenario: Una sola tarjeta seleccionada
 - **WHEN** el visitante elige una tarjeta
@@ -137,13 +111,6 @@ El sistema SHALL mostrar el disclaimer de "Hosting + Dominio" de forma visible d
 #### Scenario: Disclaimer siempre visible
 - **WHEN** se muestra la tarjeta de "Hosting + Dominio"
 - **THEN** su disclaimer se lee directamente en la tarjeta, sin tooltip ni interacción
-
-### Requirement: Sufijo mensual en extras recurrentes
-El sistema SHALL mostrar los extras de cobro mensual con el sufijo `/mes`.
-
-#### Scenario: Mantenimiento mensual
-- **WHEN** se muestra el extra "Mantenimiento mensual"
-- **THEN** su precio se muestra con el sufijo `/mes`
 
 ### Requirement: Control de cantidad
 El sistema SHALL ofrecer un control para sumar y restar unidades del servicio principal, con un mínimo de 1.
@@ -227,8 +194,8 @@ El sistema SHALL incluir en el formulario un campo trampa (honeypot) que no sea 
 - **WHEN** se envía el formulario
 - **THEN** el campo trampa viaja junto con los demás campos
 
-### Requirement: Revisión del presupuesto
-El sistema SHALL mostrar en el paso de revisión la configuración completa agrupada en bloques —tipo de sitio con su cantidad, extras y datos de contacto—, el total con el aviso de ítem cotizable si corresponde, y la aclaración de que es una estimación no vinculante.
+### Requirement: Revisión de la solicitud
+El sistema SHALL mostrar en el paso de revisión la configuración completa agrupada en bloques —tipo de sitio con su cantidad, extras y datos de contacto— y la aclaración de que el presupuesto se confirma por email. El paso de revisión NO SHALL mostrar importes.
 
 #### Scenario: Bloques de la configuración
 - **WHEN** el visitante llega al paso de revisión
@@ -242,13 +209,9 @@ El sistema SHALL mostrar en el paso de revisión la configuración completa agru
 - **WHEN** no hay extras seleccionados
 - **THEN** el bloque de extras lo indica explícitamente en vez de quedar vacío
 
-#### Scenario: Total y aviso de cotizable
+#### Scenario: Aclaración de presupuesto por email
 - **WHEN** se muestra la revisión
-- **THEN** el total del presupuesto está visible y, si hay un sistema a medida, se muestra el aviso de que se cotiza aparte
-
-#### Scenario: Aclaración de no vinculante
-- **WHEN** se muestra la revisión
-- **THEN** se aclara que el presupuesto es una estimación no vinculante
+- **THEN** se aclara que el presupuesto se envía por email y no se muestra ningún importe
 
 ### Requirement: Edición por bloque desde la revisión
 El sistema SHALL ofrecer en cada bloque de la revisión una acción de edición que devuelva al paso correspondiente conservando lo ya cargado.

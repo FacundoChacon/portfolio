@@ -1,9 +1,7 @@
 import { PencilLine } from 'lucide-react'
 
-import BudgetTotals from './BudgetTotals.jsx'
-
 /**
- * Paso 4: revisión del presupuesto (C-08 → extendido C-10).
+ * Paso 4: revisión de la solicitud (C-08 → extendido C-10).
  *
  * Presentacional: recibe el modelo de `buildReview` (bloques + summary), el
  * callback de edición (`onEdit(editStep)`), el callback de envío (`onSubmit`) y
@@ -16,7 +14,7 @@ const submitButton =
   'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark disabled:cursor-not-allowed disabled:opacity-50'
 
 export default function ReviewStep({ review, onEdit, onSubmit, submitting = false, submitted = false }) {
-  const { blocks, summary } = review
+  const { blocks } = review
   const disabled = submitting || submitted
   const label = submitting ? 'Enviando...' : 'Enviar solicitud'
 
@@ -42,12 +40,9 @@ export default function ReviewStep({ review, onEdit, onSubmit, submitting = fals
         </section>
       ))}
 
-      <section className="glass p-4">
-        <BudgetTotals summary={summary} />
-        <p className="mt-3 text-xs text-gray-500">
-          Es una estimación no vinculante: el precio final se confirma por email.
-        </p>
-      </section>
+      <p className="text-xs text-gray-500">
+        Es una solicitud sin cargo: te paso el presupuesto por email.
+      </p>
 
       <div className="flex justify-end">
         <button type="button" onClick={onSubmit} className={submitButton} disabled={disabled}>

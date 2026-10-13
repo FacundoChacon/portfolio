@@ -6,6 +6,10 @@
 
 ---
 
+> **Nota (2026-10-12) — Sistema de precios eliminado.** El configurador dejó de exponer precios: el catálogo no tiene `priceARS`, se eliminaron `pricing.js`/`priceLabels.js`, la spec `calculo-de-presupuesto`, y los importes del resumen, PDF y payload del webhook. Ahora arma una **solicitud de presupuesto** (tipo de sitio + cantidad + extras + contacto) y el precio se confirma por email. Esto revierte **C-04** y ajusta **C-06/C-07/C-09/C-10**. Quedan pendientes **C-11** y **C-12**.
+
+---
+
 ## Cómo usar este documento
 
 1. **Identificá el change** libre en la fase correspondiente (respetá las dependencias de la columna `Dependencias`).
@@ -135,7 +139,8 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/10_preguntas_abiertas.md` §P-01 (precios a confirmar)
 
 ### [C-04] `pricing-engine`
-- **Estado**: `[x]` completado (2026-10-12)
+- **Estado**: `[x]` revertido — sistema de precios eliminado (2026-10-12)
+- **Nota**: ver la nota al inicio del documento. El configurador ya no calcula importes; se eliminaron `pricing.js`/`priceLabels.js` y la spec `calculo-de-presupuesto`.
 - **Scope**:
   - Crear `src/utils/pricing.js`: `computeTotal(service, qty, extras)`, `formatARS(n)`, `splitRecurring(extras)` (único vs /mes), `hasQuotable(...)`.
   - Manejar `priceARS: null` (no suma, marca quotable) y `0` (no altera).
@@ -212,7 +217,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
 ## FASE 4 — Integración y entrega
 
 ### [C-09] `pdf-generator`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - `src/utils/pdfGenerator.js`: documento `@react-pdf/renderer` desde el `LeadPayload` (encabezado Facundo Chacón, fecha, servicio, extras, únicos vs /mes, total, disclaimer hosting, nota "no vinculante").
   - Import **dinámico** de `@react-pdf/renderer` (no engordar bundle inicial).
@@ -227,7 +232,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/07_flujos_principales.md` §Flujo 3
 
 ### [C-10] `webhook-integration`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-10-12)
 - **Scope**:
   - `src/utils/webhook.js`: `buildLeadPayload(state)` + `sendLead(payload, pdfBlob)` (POST a `VITE_WEBHOOK_URL`, timeout, manejo de error).
   - Fallback si falta `VITE_WEBHOOK_URL`: serializar resumen a `mailto:` (embudo degradado).

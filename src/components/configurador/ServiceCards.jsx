@@ -1,4 +1,3 @@
-import { servicePriceLabel } from '../../utils/priceLabels.js'
 import { resolveServiceIcon } from './serviceIcons.js'
 
 /**
@@ -41,13 +40,6 @@ export default function ServiceCards({ services = [], selectedId, onSelect }) {
 
               <h3 className="mt-3 font-display text-base font-bold text-white">{service.name}</h3>
               <p className="mt-1 text-sm text-gray-400">{service.description}</p>
-              <p
-                className={`mt-3 font-mono text-sm ${
-                  selected ? 'text-accent-green' : 'text-gray-300'
-                }`}
-              >
-                {servicePriceLabel(service)}
-              </p>
             </button>
           </li>
         )

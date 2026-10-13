@@ -1,4 +1,3 @@
-import { extraPriceLabel } from './priceLabels.js'
 import { buildSummary } from './summary.js'
 import { STEPS, getSelectedExtras, getService } from './wizard.js'
 
@@ -6,9 +5,9 @@ import { STEPS, getSelectedExtras, getService } from './wizard.js'
  * Modelo puro del paso de revisión (C-08).
  *
  * Deriva los bloques de la revisión (tipo de sitio, extras y datos de
- * contacto) con el paso que edita cada uno, y reutiliza `buildSummary` (C-06)
- * para los totales y las etiquetas de precio (C-07). Los componentes `ReviewStep`
- * quedan finos y la lógica es testeable con `node:test`.
+ * contacto) con el paso que edita cada uno, y reutiliza `buildSummary` para el
+ * resumen. Los componentes `ReviewStep` quedan finos y la lógica es testeable
+ * con `node:test`.
  *
  * @typedef {Object} ReviewLine
  * @property {string} label
@@ -45,13 +44,12 @@ export function buildReview(state = {}, services = [], extras = []) {
     ? [
         { label: 'Tipo de sitio', value: service.name },
         ...(quantity > 1 ? [{ label: 'Cantidad', value: `× ${quantity}` }] : []),
-        { label: 'Importe', value: summary.service?.amountLabel ?? '—' },
       ]
     : [{ label: 'Tipo de sitio', value: 'Sin seleccionar' }]
 
   const extrasLines =
     selectedExtras.length > 0
-      ? selectedExtras.map((extra) => ({ label: extra.name, value: extraPriceLabel(extra) }))
+      ? [{ label: 'Extras', value: selectedExtras.map((extra) => extra.name).join(', ') }]
       : [{ label: 'Extras', value: 'Sin extras' }]
 
   const contactLines = [

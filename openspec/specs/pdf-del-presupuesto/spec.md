@@ -1,36 +1,36 @@
 # pdf-del-presupuesto Specification
 
 ## Purpose
-TBD - created by archiving change c-09-pdf-generator. Update Purpose after archive.
+Define la generación client-side de un PDF que resume la solicitud del configurador, con carga diferida de la librería de renderizado y tolerancia al fallo. El documento no incluye importes.
 
 ## Requirements
 
-### Requirement: Documento del presupuesto
-El sistema SHALL construir el documento del presupuesto a partir del `LeadPayload` con un encabezado (Facundo Chacón, fecha, fuente), el servicio con su cantidad, los extras distinguiendo el pago único del cobro mensual, los totales, el aviso de ítem cotizable cuando corresponda, el disclaimer de hosting cuando se haya incluido y la nota de estimación no vinculante.
+### Requirement: Documento de la solicitud
+El sistema SHALL construir el documento a partir del `LeadPayload` con un encabezado (Facundo Chacón, fecha, fuente), el servicio con su cantidad, los extras seleccionados, el disclaimer de hosting cuando se haya incluido y la nota de que el presupuesto se confirma por email. El documento NO SHALL incluir importes.
 
 #### Scenario: Encabezado del documento
 - **WHEN** se construye el documento
 - **THEN** muestra el nombre del emisor, el tipo de documento, la fecha de envío y la página de origen
 
 #### Scenario: Servicio con su cantidad
-- **WHEN** el presupuesto tiene cantidad mayor a uno
+- **WHEN** la solicitud tiene cantidad mayor a uno
 - **THEN** el bloque del servicio lo muestra
 
-#### Scenario: Extras de cobro mensual separados
-- **WHEN** hay extras recurrente de cobro mensual
-- **THEN** se muestran diferenciados con el sufijo `/mes` y separados del pago único
+#### Scenario: Extras listados por nombre
+- **WHEN** hay extras seleccionados
+- **THEN** se listan por su nombre, sin importes ni separación por recurrencia
 
-#### Scenario: Aviso de ítem cotizable
-- **WHEN** el presupuesto tiene un sistema a medida
-- **THEN** el documento aclara que se cotiza aparte y que no está incluido en el total
+#### Scenario: Sin importes
+- **WHEN** se construye el documento
+- **THEN** no se muestran totales, subtotales ni precios
 
 #### Scenario: Disclaimer de hosting
-- **WHEN** el presupuesto incluye el extra de hosting
+- **WHEN** la solicitud incluye el extra de hosting
 - **THEN** el documento muestra el disclaimer de gestión técnica y contratación a nombre del cliente
 
-#### Scenario: Estimación no vinculante
+#### Scenario: Presupuesto por email
 - **WHEN** se muestra el documento
-- **THEN** se aclara que es una estimación no vinculante y que el precio final se confirma por email
+- **THEN** se aclara que el presupuesto se confirma por email
 
 ### Requirement: Generación en el cliente con carga diferida
 El sistema SHALL generar el PDF en el navegador del visitante y SHALL cargar `@react-pdf/renderer` solo bajo demanda, sin incorporarlo al bundle inicial del configurador.

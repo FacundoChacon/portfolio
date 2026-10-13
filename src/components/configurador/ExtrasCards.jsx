@@ -1,7 +1,5 @@
 import { Check } from 'lucide-react'
 
-import { extraPriceLabel } from '../../utils/priceLabels.js'
-
 /**
  * Paso 2: selección de extras (C-07).
  *
@@ -41,13 +39,6 @@ export default function ExtrasCards({ extras = [], selectedIds = [], onToggle })
               </div>
 
               <p className="mt-1 text-sm text-gray-400">{extra.description}</p>
-              <p
-                className={`mt-2 font-mono text-xs ${
-                  selected ? 'text-accent-green' : 'text-gray-400'
-                }`}
-              >
-                {extraPriceLabel(extra)}
-              </p>
 
               {extra.disclaimer && (
                 <p className="mt-2 rounded-md border border-accent-pink/30 bg-accent-pink/5 px-2.5 py-2 text-xs text-accent-pink/90">

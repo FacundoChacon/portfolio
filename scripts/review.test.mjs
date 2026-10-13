@@ -50,20 +50,17 @@ test('buildReview: "Sin extras" cuando no hay seleccionados', () => {
   assert.deepEqual(review.blocks[1].lines, [{ label: 'Extras', value: 'Sin extras' }])
 })
 
-test('buildReview: extras listados con su etiqueta de precio (RN-PR-05, RN-HD-01)', () => {
+test('buildReview: los extras se listan por nombre, sin importes', () => {
   let state = createInitialState(services, extras) // hosting preseleccionado
   state = toggleExtra(state, 'maintenance')
 
   const review = buildReview(state, services, extras)
-  const lines = review.blocks[1].lines
+  const line = review.blocks[1].lines[0]
 
-  const hosting = lines.find((line) => line.label === 'Hosting + Dominio')
-  assert.ok(hosting)
-  assert.equal(hosting.value, 'Sin costo')
-
-  const maintenance = lines.find((line) => line.label === 'Mantenimiento mensual')
-  assert.ok(maintenance)
-  assert.ok(maintenance.value.endsWith('/mes'))
+  assert.equal(line.label, 'Extras')
+  assert.match(line.value, /Hosting \+ Dominio/)
+  assert.match(line.value, /Mantenimiento mensual/)
+  assert.doesNotMatch(line.value, /\$/)
 })
 
 test('buildReview: datos de contacto con "—" en obligatorios y omitiendo opcionales vacíos', () => {
@@ -85,12 +82,12 @@ test('buildReview: datos de contacto con "—" en obligatorios y omitiendo opcio
   ])
 })
 
-test('buildReview: incluye el resumen con total y aviso de cotizable (RN-CO-02)', () => {
+test('buildReview: incluye el resumen de la selección (sin precios)', () => {
   const review = buildReview(setService(createInitialState(services, extras), 'custom'), services, extras)
 
-  assert.equal(review.summary.hasQuotable, true)
-  assert.ok(review.summary.totalLabel)
-  assert.match(review.summary.totalLabel, /\$\s/)
+  assert.equal(review.summary.service.id, 'custom')
+  assert.equal(review.summary.service.name, 'Sistema a medida')
+  assert.equal('totalLabel' in review.summary, false)
 })
 
 test('buildReview: un estado vacío no rompe', () => {

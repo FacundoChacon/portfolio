@@ -1,12 +1,13 @@
 /**
- * Catálogo del Configurador de Presupuestos Web.
+ * Catálogo del Configurador Web.
  *
  * Fuente de verdad única de los productos (tipos de sitio y extras) que ofrece
- * el configurador, junto con su semántica de precio. Es un dato editable: cambiar
- * un precio o un texto no requiere tocar ningún componente de UI.
+ * el configurador. Es un dato editable: cambiar un texto o agregar un ítem no
+ * requiere tocar ningún componente de UI.
  *
- * Los importes son valores de referencia en ARS (ver P-01 en
- * `knowledge-base/10_preguntas_abiertas.md`) y no son vinculantes.
+ * El catálogo **no expone precios**: el configurador arma una solicitud de
+ * presupuesto a medida y el precio se confirma por email (ver
+ * `knowledge-base/10_preguntas_abiertas.md` §P-01).
  *
  * @typedef {'contenido'|'tecnico'|'crecimiento'|'soporte'|'infra'} ExtraCategory
  *
@@ -14,24 +15,17 @@
  * @property {string} id            Identificador único y estable (kebab-case).
  * @property {string} name          Nombre visible.
  * @property {string} description   Qué incluye y para quién.
- * @property {number|null} priceARS Precio de referencia en ARS; `null` si es "a cotizar".
- * @property {boolean} quotable     `true` si el precio se cotiza a medida (no suma al total).
  * @property {string} icon          Nombre del icono de lucide-react (lo resuelve la UI).
- * @property {string} [tag]         Etiqueta promocional opcional ("Más elegido", "A cotizar").
+ * @property {string} [tag]         Etiqueta promocional opcional ("Más elegido").
  *
  * @typedef {Object} Extra
  * @property {string} id             Identificador único y estable (kebab-case).
  * @property {string} name           Nombre visible.
  * @property {string} description    Qué incluye.
- * @property {number} priceARS       Precio de referencia en ARS; `0` para "sin costo".
  * @property {ExtraCategory} category Categoría del extra.
- * @property {boolean} recurring     `true` si es de cobro mensual.
  * @property {string} [disclaimer]   Texto legal/aclaratorio opcional.
  * @property {boolean} recommended   `true` si viene preseleccionado.
  */
-
-/** Moneda del catálogo: todos los precios se expresan y muestran en ARS (RN-PR-01). */
-export const CURRENCY = 'ARS'
 
 /** Categorías válidas de un extra. */
 /** @type {ExtraCategory[]} */
@@ -52,8 +46,6 @@ export const services = [
     name: 'Landing Page',
     description:
       'Una sola página enfocada en convertir: ideal para lanzar un producto, servicio o campaña puntual.',
-    priceARS: 250000,
-    quotable: false,
     icon: 'Rocket',
     tag: 'Más elegido',
   },
@@ -62,8 +54,6 @@ export const services = [
     name: 'One Page',
     description:
       'Todo tu negocio en una sola página con secciones y navegación por anclas.',
-    priceARS: 180000,
-    quotable: false,
     icon: 'Layers',
   },
   {
@@ -71,8 +61,6 @@ export const services = [
     name: 'E-commerce',
     description:
       'Tienda online con catálogo, carrito y medios de pago para vender las 24 horas.',
-    priceARS: 600000,
-    quotable: false,
     icon: 'ShoppingCart',
   },
   {
@@ -80,8 +68,6 @@ export const services = [
     name: 'Web Corporativa',
     description:
       'Sitio institucional multipágina para empresas que necesitan transmitir confianza.',
-    priceARS: 450000,
-    quotable: false,
     icon: 'Building2',
   },
   {
@@ -89,8 +75,6 @@ export const services = [
     name: 'Blog',
     description:
       'Sitio de contenidos con artículos, categorías y publicación periódica.',
-    priceARS: 300000,
-    quotable: false,
     icon: 'Newspaper',
   },
   {
@@ -98,8 +82,6 @@ export const services = [
     name: 'Portfolio',
     description:
       'Muestra tu trabajo con una galería de proyectos pensada para conseguir clientes.',
-    priceARS: 220000,
-    quotable: false,
     icon: 'Briefcase',
   },
   {
@@ -107,10 +89,7 @@ export const services = [
     name: 'Sistema a medida',
     description:
       'Una aplicación web hecha a medida para un flujo o proceso específico. Se cotiza según el alcance.',
-    priceARS: null,
-    quotable: true,
     icon: 'Sparkles',
-    tag: 'A cotizar',
   },
 ]
 
@@ -122,9 +101,7 @@ export const extras = [
     name: 'SEO inicial',
     description:
       'Optimización base de estructura, metaetiquetas y rendimiento para posicionar en Google.',
-    priceARS: 120000,
     category: 'crecimiento',
-    recurring: false,
     recommended: false,
   },
   {
@@ -132,9 +109,7 @@ export const extras = [
     name: 'Copywriting',
     description:
       'Redacción de los textos del sitio con foco en claridad y conversión.',
-    priceARS: 90000,
     category: 'contenido',
-    recurring: false,
     recommended: false,
   },
   {
@@ -142,18 +117,14 @@ export const extras = [
     name: 'CMS / Blog',
     description:
       'Panel de administración para editar tus propios contenidos sin depender de un desarrollador.',
-    priceARS: 150000,
     category: 'tecnico',
-    recurring: false,
     recommended: false,
   },
   {
     id: 'i18n',
     name: 'Multi-idioma',
     description: 'Sitio traducible a varios idiomas con selector de lengua.',
-    priceARS: 180000,
     category: 'tecnico',
-    recurring: false,
     recommended: false,
   },
   {
@@ -161,9 +132,7 @@ export const extras = [
     name: 'Área de clientes',
     description:
       'Acceso con registro y login para que tus clientes vean su información privada.',
-    priceARS: 250000,
     category: 'tecnico',
-    recurring: false,
     recommended: false,
   },
   {
@@ -171,9 +140,7 @@ export const extras = [
     name: 'Integración WhatsApp/CRM',
     description:
       'Conexión de los formularios de contacto con WhatsApp o tu CRM para no perder leads.',
-    priceARS: 80000,
     category: 'crecimiento',
-    recurring: false,
     recommended: false,
   },
   {
@@ -181,9 +148,7 @@ export const extras = [
     name: 'Mantenimiento mensual',
     description:
       'Actualizaciones, respaldos y soporte técnico continuo para que el sitio siga funcionando.',
-    priceARS: 60000,
     category: 'soporte',
-    recurring: true,
     recommended: false,
   },
   {
@@ -191,9 +156,7 @@ export const extras = [
     name: 'Hosting + Dominio',
     description:
       'Me encargo de publicar y mantener el sitio online: configuración, deploy, SSL y DNS.',
-    priceARS: 0,
     category: 'infra',
-    recurring: false,
     disclaimer: HOSTING_DISCLAIMER,
     recommended: true,
   },

@@ -1,24 +1,24 @@
 # webhook-integration Specification
 
 ## Purpose
-TBD - created by archiving change c-10-webhook-integration. Update Purpose after archive.
+Define la construcción y el envío del lead del configurador a un webhook externo, con los estados de envío y las pantallas de éxito/error. El payload describe la selección y el contacto; no incluye importes.
 
 ## Requirements
 
 ### Requirement: Payload del lead
-El sistema SHALL construir el `LeadPayload` a partir del estado del wizard, del catálogo de servicios y extras, incluyendo `submittedAt` (ISO 8601), `source` (`facucode.dev/configurador`), servicio con cantidad, extras seleccionados, `hasQuotable`, `subtotal`, `total`, `currency`, `contacto` y `meta`.
+El sistema SHALL construir el `LeadPayload` a partir del estado del wizard, del catálogo de servicios y extras, incluyendo `submittedAt` (ISO 8601), `source` (`facucode.dev/configurador`), servicio con cantidad, extras seleccionados, `contacto` y `meta`. El payload NO SHALL incluir importes.
 
 #### Scenario: Mapeo de servicio y cantidad
 - **WHEN** el visitante envía con un servicio y cantidad > 1
-- **THEN** el `LeadPayload` contiene el servicio (id, name, priceARS) y `quantity` correcto
+- **THEN** el `LeadPayload` contiene el servicio (id, name) y `quantity` correcto
 
 #### Scenario: Mapeo de extras
 - **WHEN** hay extras seleccionados
-- **THEN** el payload incluye cada uno con sus campos (`id`, `name`, `priceARS`, `recurring`)
+- **THEN** el payload incluye cada uno con sus campos (`id`, `name`)
 
-#### Scenario: Totales y quotable
-- **WHEN** el presupuesto es cotizable
-- **THEN** `hasQuotable` es `true` y `subtotal`/`total` reflejan lo calculado
+#### Scenario: Sin importes
+- **WHEN** se construye el payload
+- **THEN** no incluye `priceARS`, `recurring`, `hasQuotable`, `subtotal`, `total` ni `currency`
 
 #### Scenario: Contacto y metadatos
 - **WHEN** el formulario tiene datos

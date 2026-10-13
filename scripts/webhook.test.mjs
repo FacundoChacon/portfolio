@@ -3,16 +3,15 @@
  * Runner nativo de Node (`node:test`); sin dependencias.
  *
  * Cubre el mapeo puro de `buildLeadPayload` al `LeadPayload` (KB 04).
+ * El configurador no publica precios: el payload no debe llevar importes.
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { extras, services } from '../src/data/configurador.js'
-import { computeTotal } from '../src/utils/pricing.js'
 import { buildLeadPayload, LEAD_SOURCE, isWebhookConfigured } from '../src/utils/webhook.js'
 
 const LANDING = services.find((s) => s.id === 'landing')
-const CUSTOM = services.find((s) => s.id === 'custom')
 const HOSTING = extras.find((e) => e.id === 'hosting')
 const MAINT = extras.find((e) => e.id === 'maintenance')
 
@@ -30,7 +29,6 @@ test('buildLeadPayload: mapea servicio, cantidad, extras, contacto, source e ISO
   }
 
   const payload = buildLeadPayload(state, services, extras)
-  const totals = computeTotal(LANDING, 2, [HOSTING, MAINT])
 
   assert.equal(payload.source, LEAD_SOURCE)
   assert.equal(payload.service.id, LANDING.id)
@@ -38,11 +36,7 @@ test('buildLeadPayload: mapea servicio, cantidad, extras, contacto, source e ISO
   assert.equal(payload.quantity, 2)
   assert.equal(payload.extras.length, 2)
   assert.equal(payload.extras[0].id, HOSTING.id)
-  assert.equal(payload.extras[1].recurring, true)
-  assert.equal(payload.hasQuotable, totals.hasQuotable)
-  assert.equal(payload.subtotal, totals.subtotal)
-  assert.equal(payload.total, totals.total)
-  assert.equal(payload.currency, totals.currency)
+  assert.equal(payload.extras[1].id, MAINT.id)
   assert.equal(payload.contact.name, 'Martina')
   assert.equal(payload.contact.email, 'martina@marca.com')
   assert.equal(payload.contact.phone, '+54 9 11 5555')
@@ -53,20 +47,23 @@ test('buildLeadPayload: mapea servicio, cantidad, extras, contacto, source e ISO
   assert.equal(payload.meta.referrer, '')
 })
 
-test('buildLeadPayload: quotable → hasQuotable true y totales coherentes', () => {
+test('buildLeadPayload: no incluye ningún campo de precio', () => {
   const state = {
-    serviceId: CUSTOM.id,
+    serviceId: LANDING.id,
     quantity: 1,
-    extras: [],
+    extras: [HOSTING.id],
     form: { name: 'Ana', email: 'ana@test.com' },
   }
   const payload = buildLeadPayload(state, services, extras)
-  const totals = computeTotal(CUSTOM, 1, [])
 
-  assert.equal(payload.hasQuotable, true)
-  assert.equal(payload.subtotal, totals.subtotal)
-  assert.equal(payload.total, totals.total)
-  assert.equal(payload.service.id, CUSTOM.id)
+  for (const key of ['hasQuotable', 'subtotal', 'total', 'currency']) {
+    assert.equal(key in payload, false, `el payload no debe tener "${key}"`)
+  }
+  assert.equal('priceARS' in payload.service, false)
+  for (const extra of payload.extras) {
+    assert.equal('priceARS' in extra, false)
+    assert.equal('recurring' in extra, false)
+  }
 })
 
 test('buildLeadPayload: extras vacíos y sin servicio → maneja sin romper', () => {

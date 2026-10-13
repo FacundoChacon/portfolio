@@ -1,5 +1,5 @@
 /**
- * Documento PDF del presupuesto (C-09).
+ * Documento PDF de la solicitud (C-09).
  *
  * Construye el documento de `@react-pdf/renderer` a partir del `LeadPayload`
  * (KB 04). Está escrito **sin JSX** (`createElement`) a propósito: Node no
@@ -9,35 +9,25 @@
  * RN-PD-03 y conversión a base64). Este módulo solo define el documento y un
  * modelo de secciones puro y testeable: `buildPdfSections`.
  *
- * Reglas que aplica: cantidad multiplica al servicio (RN-PR-03), recurrentes
- * separados como "/mes" (RN-PR-05), "A cotizar" deriva de `hasQuotable`
- * (RN-CO-02), disclaimer de hosting si se incluyó (RN-HD-02/03) y nota de
- * estimación no vinculante (RN-PD-02).
+ * El configurador no publica precios: el documento resume la selección (tipo de
+ * sitio, cantidad, extras) y los datos de contacto. Aplica el disclaimer de
+ * hosting si se incluyó (RN-HD-02/03).
  */
 
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 
-import { formatARS, splitRecurring } from './pricing.js'
-import { QUOTABLE_LABEL, extraPriceLabel } from './priceLabels.js'
 import { HOSTING_DISCLAIMER } from '../data/configurador.js'
 
 /** Formateador de fecha es-AR (mismo idioma de la UI). */
 const DATE_FORMATTER = new Intl.DateTimeFormat('es-AR', { dateStyle: 'long' })
 
-/** Normaliza un importe a número utilizable (0 si no es finito). */
-const toAmount = (value) =>
-  typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0
-
 /** Textos fijos del documento. */
 const EMISOR = 'Facundo Chacón'
-const TITULO = 'Presupuesto web'
-/** Nota de estimación no vinculante (RN-PR-07). */
-export const NOTA_NO_VINCULANTE =
-  'Estimación no vinculante: los montos expresados son de referencia y el precio final se confirma por email al responder esta consulta.'
-/** Aviso de ítem cotizable (RN-CO-02). */
-export const NOTA_COTIZABLE =
-  'El ítem "Sistema a medida" se cotiza por separado según el alcance y no está incluido en el total.'
+const TITULO = 'Solicitud de presupuesto'
+/** Nota de la solicitud: el precio se confirma por email. */
+export const NOTA_SOLICITUD =
+  'Gracias por tu solicitud. Te voy a responder por email con una propuesta a medida, sin cargo y sin compromiso.'
 /** Error que lanzan los payloads inválidos (lo captura `tryBuildPdfBlob`). */
 const PAYLOAD_INVALIDO = new TypeError('pdfDocument: payload inválido')
 
@@ -56,7 +46,6 @@ export function buildPdfSections(payload) {
   if (!payload || typeof payload !== 'object') throw PAYLOAD_INVALIDO
   const submittedAt = payload.submittedAt
 
-  const isQuotable = payload.hasQuotable === true
   const quantity =
     typeof payload.quantity === 'number' &&
     Number.isFinite(payload.quantity) &&
@@ -66,34 +55,19 @@ export function buildPdfSections(payload) {
   const service = payload.service ?? null
   const extras = Array.isArray(payload.extras) ? payload.extras : []
   const contact = payload.contact ?? {}
-  const { oneTime, recurring } = splitRecurring(extras)
 
   const serviceRows = service
     ? [
         { label: 'Tipo de sitio', value: service.name || '—' },
         ...(quantity > 1 ? [{ label: 'Cantidad', value: `× ${quantity}` }] : []),
-        {
-          label: 'Importe del servicio',
-          value: isQuotable
-            ? QUOTABLE_LABEL
-            : formatARS(toAmount(service.priceARS) * quantity),
-        },
       ]
     : [{ label: 'Tipo de sitio', value: '—' }]
 
-  const oneTimeRows = oneTime.map((extra) => ({
-    label: extra.name || extra.id,
-    value: extraPriceLabel(extra),
-  }))
+  const extraNames = extras.map((extra) => extra.name || extra.id)
+  const extrasRows = [
+    { label: 'Seleccionados', value: extraNames.length > 0 ? extraNames.join(', ') : 'Sin extras' },
+  ]
 
-  const monthlyRows = recurring.map((extra) => ({
-    label: extra.name || extra.id,
-    value: extraPriceLabel(extra),
-  }))
-
-  const subtotal = payload.subtotal ?? 0
-  const total = payload.total ?? 0
-  const monthlyTotal = recurring.reduce((sum, extra) => sum + toAmount(extra.priceARS), 0)
   const hasHosting = extras.some((extra) => extra && extra.id === 'hosting')
 
   const contactRows = [
@@ -109,13 +83,10 @@ export function buildPdfSections(payload) {
     fecha: DATE_FORMATTER.format(new Date(submittedAt)),
     fuente: payload.source || 'facucode.dev/configurador',
     serviceRows,
-    oneTimeRows,
-    monthlyRows,
-    totals: { subtotal, total, showSubtotal: subtotal !== total, monthlyTotal, isQuotable },
+    extrasRows,
     hasHosting,
     contactRows,
-    notaNoVinculante: NOTA_NO_VINCULANTE,
-    notaCotizable: NOTA_COTIZABLE,
+    notaSolicitud: NOTA_SOLICITUD,
     disclaimerHosting: HOSTING_DISCLAIMER,
   }
 }
@@ -142,30 +113,22 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
   rowLabel: { color: '#333' },
   rowValue: { fontFamily: 'Helvetica-Bold', color: '#030303' },
-  totalRow: { borderTop: 1, borderTopColor: '#ddd', paddingTop: 4, marginTop: 4 },
-  totalValue: { color: '#00b389' },
-  monthlyValue: { color: '#555' },
   note: { marginTop: 8, fontSize: 9, color: '#555' },
-  quotableNote: { marginTop: 8, fontSize: 9, color: '#7a2d9e', fontFamily: 'Helvetica-Bold' },
   disclaimer: { marginTop: 8, fontSize: 9, color: '#555' },
 })
 
 const T = (children, style) => React.createElement(Text, { style }, children)
 const V = (children, style) => React.createElement(View, { style }, children)
 
-function Row(label, value, valueStyle) {
-  return V([T(label, styles.rowLabel), T(value, valueStyle)], styles.row)
+function Row(label, value) {
+  return V([T(label, styles.rowLabel), T(value, styles.rowValue)], styles.row)
 }
 
 /**
- * Bloque con título y filas. `styleFor` (opcional) devuelve el estilo del valor
- * de cada fila; por defecto todas usan el estilo de valor estándar.
+ * Bloque con título y filas.
  */
-function Section(title, rows, styleFor = () => styles.rowValue) {
-  return V(
-    [T(title, styles.sectionTitle), ...rows.map((row) => Row(row.label, row.value, styleFor(row)))],
-    styles.section
-  )
+function Section(title, rows) {
+  return V([T(title, styles.sectionTitle), ...rows.map((row) => Row(row.label, row.value))], styles.section)
 }
 
 /**
@@ -175,14 +138,6 @@ function Section(title, rows, styleFor = () => styles.rowValue) {
  */
 export function buildPdfDocument(payload) {
   const s = buildPdfSections(payload)
-
-  const totalRows = []
-  if (s.totals.subtotal !== s.totals.total) totalRows.push({ label: 'Subtotal', value: formatARS(s.totals.subtotal) })
-  totalRows.push({ label: 'Total', value: formatARS(s.totals.total) })
-  if (s.totals.monthlyTotal > 0) {
-    totalRows.push({ label: 'Mensual', value: `${formatARS(s.totals.monthlyTotal)}/mes` })
-  }
-  const totalStyle = (row) => (row.label === 'Mensual' ? styles.monthlyValue : styles.totalValue)
 
   const children = [
     V(
@@ -195,22 +150,19 @@ export function buildPdfDocument(payload) {
     ),
     V(null, styles.rule),
     Section('Servicio', s.serviceRows),
-    ...(s.oneTimeRows.length ? [Section('Extras', s.oneTimeRows)] : []),
-    ...(s.monthlyRows.length ? [Section('Servicios mensuales', s.monthlyRows)] : []),
-    Section('Total', totalRows, totalStyle),
-    ...(s.totals.isQuotable ? [T(s.notaCotizable, styles.quotableNote)] : []),
+    Section('Extras', s.extrasRows),
     ...(s.hasHosting ? [T(s.disclaimerHosting, styles.disclaimer)] : []),
     Section('Contacto', s.contactRows),
-    T(s.notaNoVinculante, styles.note),
+    T(s.notaSolicitud, styles.note),
   ]
 
   return React.createElement(
     Document,
     {
-      title: 'Presupuesto web',
+      title: 'Solicitud de presupuesto',
       author: EMISOR,
-      creator: 'Configurador de Presupuestos · facucode.dev',
-      producer: 'Configurador de Presupuestos',
+      creator: 'Configurador web · facucode.dev',
+      producer: 'Configurador web',
     },
     React.createElement(Page, { size: 'A4', style: styles.page }, children)
   )

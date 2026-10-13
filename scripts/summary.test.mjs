@@ -11,132 +11,80 @@ import { buildSummary } from '../src/utils/summary.js'
 import { createInitialState, setQuantity, toggleExtra } from '../src/utils/wizard.js'
 
 const SERVICES = [
-  { id: 'landing', name: 'Landing Page', priceARS: 250000, quotable: false },
-  { id: 'custom', name: 'Sistema a medida', priceARS: null, quotable: true },
+  { id: 'landing', name: 'Landing Page' },
+  { id: 'custom', name: 'Sistema a medida' },
 ]
 const EXTRAS = [
-  { id: 'seo', name: 'SEO inicial', priceARS: 120000, recurring: false },
-  { id: 'maintenance', name: 'Mantenimiento mensual', priceARS: 60000, recurring: true },
+  { id: 'seo', name: 'SEO inicial' },
+  { id: 'maintenance', name: 'Mantenimiento mensual' },
   {
     id: 'hosting',
     name: 'Hosting + Dominio',
-    priceARS: 0,
-    recurring: false,
     recommended: true,
     disclaimer: 'El costo del hosting está a cargo del cliente.',
   },
 ]
 
-// El locale es-AR usa un espacio duro (U+00A0) entre el símbolo y el número.
-const ARS = (n) => `$\u00A0${n}`
+// --- Desglose ---------------------------------------------------------------
 
-// --- 4.1 Desglose -----------------------------------------------------------
-
-test('buildSummary: servicio × cantidad y total', () => {
+test('buildSummary: servicio y cantidad', () => {
   const state = setQuantity(createInitialState(SERVICES, []), 3)
   const summary = buildSummary(state, SERVICES, [])
   assert.equal(summary.service.name, 'Landing Page')
   assert.equal(summary.service.quantity, 3)
-  assert.equal(summary.service.amount, 750000)
-  assert.equal(summary.oneTimeTotal, 750000)
-  assert.equal(summary.totalLabel, ARS('750.000,00'))
 })
 
-test('buildSummary: lista los extras seleccionados con su importe', () => {
+test('buildSummary: lista los extras seleccionados con su nombre y disclaimer', () => {
   const state = toggleExtra(createInitialState(SERVICES, EXTRAS), 'seo')
   const summary = buildSummary(state, SERVICES, EXTRAS)
   const ids = summary.extras.map((e) => e.id).sort()
   assert.deepEqual(ids, ['hosting', 'seo'])
+
   const seo = summary.extras.find((e) => e.id === 'seo')
   assert.equal(seo.name, 'SEO inicial')
-  assert.equal(seo.amountLabel, ARS('120.000,00'))
-})
+  assert.equal(seo.disclaimer, null)
 
-test('buildSummary: la cantidad no multiplica los extras', () => {
-  let state = createInitialState(SERVICES, EXTRAS)
-  state = toggleExtra(state, 'seo')
-  state = setQuantity(state, 2)
-  const summary = buildSummary(state, SERVICES, EXTRAS)
-  assert.equal(summary.oneTimeTotal, 250000 * 2 + 120000)
-})
-
-// --- 4.2 Etiquetas especiales ----------------------------------------------
-
-test('buildSummary: servicio cotizable se etiqueta "A cotizar"', () => {
-  const state = { ...createInitialState(SERVICES, []), serviceId: 'custom' }
-  const summary = buildSummary(state, SERVICES, [])
-  assert.equal(summary.service.quotable, true)
-  assert.equal(summary.service.amountLabel, 'A cotizar')
-})
-
-test('buildSummary: un extra de precio 0 se etiqueta "Sin costo"', () => {
-  const state = createInitialState(SERVICES, EXTRAS) // hosting viene preseleccionado
-  const summary = buildSummary(state, SERVICES, EXTRAS)
   const hosting = summary.extras.find((e) => e.id === 'hosting')
-  assert.equal(hosting.amountLabel, 'Sin costo')
   assert.equal(hosting.disclaimer, 'El costo del hosting está a cargo del cliente.')
 })
 
-test('buildSummary: un extra recurrente se etiqueta "<importe>/mes"', () => {
-  const state = toggleExtra(createInitialState(SERVICES, EXTRAS), 'maintenance')
-  const summary = buildSummary(state, SERVICES, EXTRAS)
-  const maintenance = summary.extras.find((e) => e.id === 'maintenance')
-  assert.equal(maintenance.amountLabel, `${ARS('60.000,00')}/mes`)
-  assert.equal(summary.recurringLabel, ARS('60.000,00'))
-})
-
-test('buildSummary: sin recurrentes la etiqueta mensual es vacía', () => {
-  const state = createInitialState(SERVICES, [])
-  const summary = buildSummary(state, SERVICES, [])
-  assert.equal(summary.recurringMonthly, 0)
-  assert.equal(summary.recurringLabel, '')
-})
-
-// --- 4.3 Cotizable no suma --------------------------------------------------
-
-test('buildSummary: hasQuotable y el ítem cotizable no se suma al total', () => {
-  const state = toggleExtra(
-    { ...createInitialState(SERVICES, EXTRAS), serviceId: 'custom' },
-    'seo',
-  )
-  const summary = buildSummary(state, SERVICES, EXTRAS)
-  assert.equal(summary.hasQuotable, true)
-  assert.equal(summary.oneTimeTotal, 120000)
-})
-
-test('buildSummary: sin ítems cotizables hasQuotable es false', () => {
+test('buildSummary: no expone ningún campo de precio', () => {
   const summary = buildSummary(createInitialState(SERVICES, EXTRAS), SERVICES, EXTRAS)
-  assert.equal(summary.hasQuotable, false)
+  for (const key of ['currency', 'totalLabel', 'oneTimeTotal', 'recurringMonthly', 'hasQuotable']) {
+    assert.equal(key in summary, false, `el resumen no debe tener "${key}"`)
+  }
+  assert.equal('amount' in summary.service, false)
+  for (const extra of summary.extras) {
+    assert.equal('amountLabel' in extra, false)
+    assert.equal('priceARS' in extra, false)
+  }
 })
 
-// --- 4.4 Integración con el estado (el total cambia al togglear) ------------
+// --- Integración con el estado ----------------------------------------------
 
-test('buildSummary: alternar un extra cambia el total', () => {
-  const base = createInitialState(SERVICES, EXTRAS) // hosting (0)
-  const before = buildSummary(base, SERVICES, EXTRAS)
-  assert.equal(before.oneTimeTotal, 250000)
+test('buildSummary: alternar un extra cambia la lista', () => {
+  const base = createInitialState(SERVICES, EXTRAS) // hosting preseleccionado
+  assert.deepEqual(
+    buildSummary(base, SERVICES, EXTRAS).extras.map((e) => e.id),
+    ['hosting'],
+  )
 
   const withSeo = toggleExtra(base, 'seo')
-  const after = buildSummary(withSeo, SERVICES, EXTRAS)
-  assert.equal(after.oneTimeTotal, 370000)
-  assert.notEqual(after.totalLabel, before.totalLabel)
-
-  const removed = toggleExtra(withSeo, 'seo')
-  assert.equal(buildSummary(removed, SERVICES, EXTRAS).oneTimeTotal, before.oneTimeTotal)
+  assert.deepEqual(
+    buildSummary(withSeo, SERVICES, EXTRAS).extras.map((e) => e.id).sort(),
+    ['hosting', 'seo'],
+  )
 })
 
-// --- 4.5 Sin extras y estado vacío ------------------------------------------
+// --- Sin extras y estado vacío ----------------------------------------------
 
-test('buildSummary: sin extras el total es solo el servicio', () => {
+test('buildSummary: sin extras la lista queda vacía', () => {
   const summary = buildSummary(createInitialState(SERVICES, []), SERVICES, [])
   assert.deepEqual(summary.extras, [])
-  assert.equal(summary.oneTimeTotal, 250000)
 })
 
 test('buildSummary: estado vacío no rompe', () => {
   const summary = buildSummary(undefined, SERVICES, EXTRAS)
   assert.equal(summary.service, null)
   assert.deepEqual(summary.extras, [])
-  assert.equal(summary.totalLabel, ARS('0,00'))
-  assert.equal(summary.hasQuotable, false)
 })

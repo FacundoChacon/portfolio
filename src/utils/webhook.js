@@ -5,11 +5,12 @@
  * si hay webhook configurado y envía el lead. El PDF se deja preparado para
  * integrarse con C-09 (`pdf` acepta null por ahora).
  *
- * Reglas: ISO 8601, `source: 'facucode.dev/configurador'`, usa `computeTotal`
- * (única fuente de verdad de totales), RN-NT-03/RN-AB-02/RN-AB-04.
+ * El configurador no publica precios: el payload lleva la selección (tipo de
+ * sitio, cantidad y extras) y los datos de contacto, sin importes.
+ *
+ * Reglas: ISO 8601, `source: 'facucode.dev/configurador'`,
+ * RN-NT-03/RN-AB-02/RN-AB-04.
  */
-
-import { computeTotal } from './pricing.js'
 
 /** Origen del lead. */
 export const LEAD_SOURCE = 'facucode.dev/configurador'
@@ -41,8 +42,6 @@ export function buildLeadPayload(state, services = [], extras = []) {
     .filter(Boolean)
   const qty = typeof state.quantity === 'number' && state.quantity >= 1 ? state.quantity : 1
 
-  const totals = computeTotal(service, qty, selectedExtras)
-
   const form = state.form ?? {}
   const contact = {
     name: form.name?.trim() ?? '',
@@ -63,20 +62,13 @@ export function buildLeadPayload(state, services = [], extras = []) {
       ? {
           id: service.id,
           name: service.name,
-          priceARS: service.priceARS,
         }
       : null,
     quantity: qty,
     extras: selectedExtras.map((e) => ({
       id: e.id,
       name: e.name,
-      priceARS: e.priceARS,
-      recurring: e.recurring === true,
     })),
-    hasQuotable: totals.hasQuotable,
-    subtotal: totals.subtotal,
-    total: totals.total,
-    currency: totals.currency,
     contact,
     meta,
   }
