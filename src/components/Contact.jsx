@@ -23,8 +23,8 @@ const contacts = [
   {
     icon: LinkedinIcon,
     label: "LinkedIn",
-    value: "in/facundo-chacon",
-    href: "https://www.linkedin.com/in/facundo-chacon",
+    value: "in/facundo-chacon-61362735a",
+    href: "https://www.linkedin.com/in/facundo-chacon-61362735a",
     accent: "accent",
   },
 ]
