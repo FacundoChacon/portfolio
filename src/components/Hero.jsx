@@ -62,7 +62,7 @@ export default function Hero() {
                 <GithubIcon className="size-5" />
               </a>
               <a
-                href="https://www.linkedin.com/in/facundo-chacón-catalán-61362735a"
+                href="https://www.linkedin.com/in/facundo-chacon"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="LinkedIn"
