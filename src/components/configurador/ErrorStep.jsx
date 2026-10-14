@@ -6,7 +6,7 @@
  */
 export default function ErrorStep({
   onRetry,
-  contactEmail = 'facundochacon.dev@gmail.com',
+  contactEmail = 'chaconfacu2006@gmail.com',
   whatsappUrl = 'https://wa.me/?text=Hola Facundo, te quería consultar por el presupuesto del configurador',
 }) {
   const subject = encodeURIComponent('Presupuesto web - Configurador')

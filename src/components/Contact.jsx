@@ -3,12 +3,14 @@ import { GithubIcon, LinkedinIcon } from "./BrandIcons"
 import { useReveal } from "../hooks/useReveal"
 import GlitchText from "./GlitchText"
 
+const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || "chaconfacu2006@gmail.com"
+
 const contacts = [
   {
     icon: Mail,
     label: "Email",
-    value: "chaconfacu2006@gmail.com",
-    href: "mailto:chaconfacu2006@gmail.com",
+    value: contactEmail,
+    href: `mailto:${contactEmail}`,
     accent: "red",
   },
   {
@@ -21,8 +23,8 @@ const contacts = [
   {
     icon: LinkedinIcon,
     label: "LinkedIn",
-    value: "in/facundo-chacón-catalán",
-    href: "https://linkedin.com/in/facundo-chacón-catalán",
+    value: "in/facundo-chacón-catalán-61362735a",
+    href: "https://www.linkedin.com/in/facundo-chacón-catalán-61362735a",
     accent: "accent",
   },
 ]

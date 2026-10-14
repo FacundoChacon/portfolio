@@ -117,7 +117,7 @@ export default function Configurador() {
             ) : wizard.status === 'error' ? (
               <ErrorStep
                 onRetry={wizard.submit}
-                contactEmail={import.meta.env.VITE_CONTACT_EMAIL || 'facundochacon.dev@gmail.com'}
+                contactEmail={import.meta.env.VITE_CONTACT_EMAIL || 'chaconfacu2006@gmail.com'}
                 whatsappUrl={
                   import.meta.env.VITE_WHATSAPP_URL ||
                   'https://wa.me/?text=Hola Facundo, te quería consultar por el presupuesto del configurador'

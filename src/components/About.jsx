@@ -59,7 +59,7 @@ export default function About() {
               revisión de código. También automatizo procesos con Python y analizo datos con R.
             </p>
             <p className="font-mono text-sm uppercase tracking-widest text-accent-pink text-glow-magenta">
-              {"// Idiomas: Español (nativo) · Inglés B1"}
+              {"// Idiomas: Español (nativo) · Inglés B2"}
             </p>
           </div>
 
