@@ -41,7 +41,7 @@ export default function Contact() {
       </div>
       <div className={`relative mx-auto max-w-6xl px-5 md:px-6 ${visible ? "md:animate-glitch-subtle" : ""}`}>
         <div className="flex items-center gap-4">
-          <span className="font-mono text-sm text-accent-green text-glow-cyan">04.</span>
+          <span className="font-mono text-sm text-accent-green text-glow-cyan">05.</span>
           <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
             <GlitchText text="Contáctame" interval={4000} scrambleDuration={250} />
           </h2>
