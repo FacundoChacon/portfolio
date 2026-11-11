@@ -283,6 +283,23 @@ GATE 5: C-11 antiabuse-and-polish ✓
 
 ---
 
+## FASE 6 — Portfolio (post-roadmap)
+
+### [C-13] `testimonios-seccion`
+- **Estado**: [x] completado (2026-11-11)
+- **Scope**:
+  - `src/data/testimonios.js`: testimonios de la home (`{ nombre, rol, comentario, rating }` × 3-6; array vacío hasta cargar testimonios reales — la sección queda oculta por guard del componente).
+  - `src/components/Testimonials.jsx`: sección "04. Testimonios" de la home (figure → blockquote → figcaption, rating accesible `role="img"` + `aria-label`, avatar de iniciales decorativo).
+  - `src/pages/Home.jsx`: montar `<Testimonials />` entre `<Stack />` y `<Contact />`.
+  - `src/components/Contact.jsx`: renumerar el header de sección `04.` → `05.`.
+  - `scripts/verify-testimonials.mjs` + `verify:testimonials` incluido en `npm run ci`.
+- **Dependencias**: ninguna
+- **Governance**: BAJO
+- **Leer antes**:
+  - `knowledge-base/02_descripcion_general.md`
+
+---
+
 ## Resumen
 
 | Fase | Changes | Paralelizable |
@@ -292,8 +309,9 @@ GATE 5: C-11 antiabuse-and-polish ✓
 | 3 — UI | C-06, C-07, C-08 | C-07 y C-08 tras C-06 |
 | 4 — Integración | C-09, C-10 | Sí (tras C-04/C-05) |
 | 5 — Cierre | C-11, C-12 | No (secuencial) |
+| 6 — Portfolio | C-13 | No |
 
-**Total**: 12 changes · **Camino crítico**: 7 · **Gates**: 6
+**Total**: 13 changes · **Camino crítico**: 7 · **Gates**: 6
 
 **Primer change recomendado**: `C-01` (foundation-setup)
 
