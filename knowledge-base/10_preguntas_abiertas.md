@@ -32,7 +32,7 @@
 
 El sitio usa `BrowserRouter` (URLs limpias). Para que una **recarga directa** de rutas internas como `/configurador` funcione en producción, el hosting reescribe todas las rutas a `/index.html`.
 
-- **Vercel (aplicado)**: `rewrites: [{ "source": "/(.*)", "destination": "/index.html" }]` en `vercel.json`. Vercel resuelve primero el filesystem, por lo que `public/robots.txt` y `public/sitemap.xml` se sirven como archivos y no como la SPA.
+- **Vercel (aplicado)**: `rewrites: [{ "source": "/(.*)", "destination": "/index.html" }]` en `vercel.json`. Vercel resuelve primero el filesystem, por lo que `public/robots.txt`, `public/sitemap.xml` y `dist/configurador/index.html` (HTML propio de `/configurador`, con su canonical) se sirven como archivos y no como la SPA.
 - **Local**: `vite preview` ya aplica el fallback (`appType: 'spa'`).
 - `npm run verify:deploy` falla en CI si se pierde el rewrite.
 

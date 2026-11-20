@@ -23,7 +23,7 @@ portfolio/
 ├── tailwind.config.js
 ├── .env.example                      # VITE_WEBHOOK_URL, VITE_WHATSAPP_NUMBER, VITE_CONTACT_EMAIL
 ├── vercel.json                       # rewrite SPA + cabeceras de seguridad + CSP
-├── scripts/                          # verify-*.mjs, lib/deploy-config.mjs y tests (node:test)
+├── scripts/                          # verify-*.mjs, lib/deploy-config.mjs, lib/route-html.mjs y tests (node:test)
 ├── .github/workflows/ci.yml          # npm run ci + verificación de artefactos
 ├── CHANGES.md                        # NUEVO (índice de changes)
 ├── knowledge-base/                   # NUEVO (esta KB)
@@ -84,7 +84,8 @@ portfolio/
 
 - `@react-pdf/renderer` no está integrado al envío; su chunk no entra al build actual.
 - La ruta `/configurador` se carga con `React.lazy`, creando el chunk `dist/assets/Configurador-*.js`.
-- El CI corre `npm run ci` y verifica que el build emita ese chunk, que `dist/index.html` no lo referencie y que existan `sitemap.xml` y `robots.txt`.
+- Metadatos por ruta: la fuente única es `src/data/seo.js` (`ROUTES`, `resolveRouteMeta`). Un plugin de Vite (`vite.config.js`, `closeBundle`) genera con `scripts/lib/route-html.mjs` un HTML estático por página pública (`dist/index.html` y `dist/configurador/index.html`) con título, description, canonical, `og:*` y `twitter:*` propios y los mismos assets; falla el build si la plantilla `index.html` pierde una etiqueta gestionada. Vercel sirve ese archivo antes del rewrite SPA. En el cliente, `useRouteMeta` (`src/hooks/useRouteMeta.js`) sincroniza título, description y canonical al navegar.
+- El CI corre `npm run ci` (incluye `npm run verify:build`, que valida cada URL del sitemap contra su HTML construido) y verifica que el build emita el chunk `Configurador-*.js`, que `dist/index.html` no lo referencie y que existan `configurador/index.html`, `sitemap.xml` y `robots.txt`.
 
 ## Testing (mínimo esperado)
 

@@ -10,14 +10,15 @@
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { ROUTES, SITE_URL, canonicalUrl } from '../src/data/seo.js'
 import { checkRobots, checkSitemap, checkVercelConfig } from './lib/deploy-config.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const read = (relativePath) => readFileSync(`${root}${relativePath}`, 'utf8')
 
-const SITE = 'https://www.facucode.dev'
-const SITEMAP_URL = `${SITE}/sitemap.xml`
-const PUBLIC_PAGES = [`${SITE}/`]
+const SITEMAP_URL = `${SITE_URL}/sitemap.xml`
+/** Páginas públicas esperadas en el sitemap: se derivan de la fuente única de metadatos. */
+const PUBLIC_PAGES = ROUTES.map((route) => canonicalUrl(route.path))
 
 const errors = []
 const warnings = []

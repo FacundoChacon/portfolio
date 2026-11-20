@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint, verificaciones, tests y build
+      - name: Lint, verificaciones, tests, build y verificación del build
         run: npm run ci
 
       - name: Verify build artifacts
@@ -40,10 +40,12 @@ jobs:
           set -euo pipefail
           fail=0
 
-          if [ ! -f dist/index.html ]; then
-            echo "::error::dist/index.html no fue generado"
-            fail=1
-          fi
+          for page in index.html configurador/index.html; do
+            if [ ! -f "dist/$page" ]; then
+              echo "::error::dist/$page no fue generado"
+              fail=1
+            fi
+          done
 
           for asset in og-image.png robots.txt sitemap.xml profile.webp project-ecommerce.webp; do
             if [ ! -f "dist/$asset" ]; then
@@ -67,8 +69,13 @@ jobs:
             fail=1
           fi
 
-          if grep -qE 'og:image" content="/' dist/index.html; then
+          if grep -qE 'og:image" content="/' dist/index.html dist/configurador/index.html; then
             echo "::error::og:image relativo detectado"
+            fail=1
+          fi
+
+          if ! grep -q 'rel="canonical" href="https://www.facucode.dev/configurador"' dist/configurador/index.html; then
+            echo "::error::dist/configurador/index.html no declara su propio canonical"
             fail=1
           fi
 

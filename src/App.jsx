@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
+import { useRouteMeta } from './hooks/useRouteMeta'
 
 const Configurador = lazy(() => import('./pages/Configurador'))
 
@@ -16,6 +17,8 @@ function LoadingFallback() {
 }
 
 export default function App() {
+  useRouteMeta()
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />

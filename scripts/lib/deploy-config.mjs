@@ -5,6 +5,7 @@
  * que los tests puedan afirmar los mensajes. El CLI `scripts/verify-deploy.mjs`
  * se ocupa de leer los archivos y de fijar el código de salida.
  */
+import { extractHeadMeta } from './route-html.mjs'
 
 /** Hosts de Google Apps Script que el webhook necesita en `connect-src` (envío + redirección 302). */
 export const WEBHOOK_HOSTS = ['https://script.google.com', 'https://script.googleusercontent.com']
@@ -250,6 +251,53 @@ export function checkRobots(txt, sitemapUrl) {
   if (!lines.includes('Allow: /')) errors.push('robots.txt: falta "Allow: /"')
   if (!lines.includes(`Sitemap: ${sitemapUrl}`)) {
     errors.push(`robots.txt: falta la línea "Sitemap: ${sitemapUrl}" (URL absoluta)`)
+  }
+  return errors
+}
+
+/**
+ * Valida los HTML construidos de las páginas públicas (post-build): cada URL
+ * del sitemap debe tener su documento con `canonical` y `og:url` iguales a
+ * esa URL.
+ * @param {Array<{ url: string, file: string, html: string | null }>} pages
+ * @returns {string[]} errores
+ */
+export function checkBuiltPages(pages) {
+  const errors = []
+  for (const { url, file, html } of pages) {
+    if (html === null || html === undefined) {
+      errors.push(`${url}: falta el HTML construido ${file}`)
+      continue
+    }
+    const meta = extractHeadMeta(html)
+    for (const [label, value] of [
+      ['canonical', meta.canonical],
+      ['og:url', meta.ogUrl],
+    ]) {
+      if (value !== url) errors.push(`${url}: ${file} declara ${label} "${value}" (debe ser ${url})`)
+    }
+    for (const [label, value] of [
+      ['og:image', meta.ogImage],
+      ['twitter:image', meta.twitterImage],
+    ]) {
+      if (!value || !value.startsWith(SITE_ORIGIN)) {
+        errors.push(`${url}: ${file} debe declarar ${label} como URL absoluta de ${SITE_ORIGIN} (es "${value}")`)
+      }
+    }
+    if (meta.twitterCard !== 'summary_large_image') {
+      errors.push(`${url}: ${file} debe declarar twitter:card "summary_large_image" (es "${meta.twitterCard}")`)
+    }
+    if (meta.inlineScripts > 0) {
+      errors.push(`${url}: ${file} contiene ${meta.inlineScripts} <script> inline (la CSP script-src 'self' no lo admite)`)
+    }
+    for (const handler of meta.inlineHandlers) {
+      errors.push(`${url}: ${file} contiene el manejador inline ${handler} (la CSP no lo admite)`)
+    }
+    for (const asset of meta.assetUrls) {
+      if (!asset.startsWith('/') && !asset.startsWith('http://') && !asset.startsWith('https://')) {
+        errors.push(`${url}: ${file} referencia el asset con ruta relativa "${asset}" (con base '/' debe empezar con /)`)
+      }
+    }
   }
   return errors
 }

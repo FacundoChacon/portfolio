@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseCsp, checkCsp, checkVercelConfig, checkSitemap, checkRobots } from './lib/deploy-config.mjs'
+import { parseCsp, checkCsp, checkVercelConfig, checkSitemap, checkRobots, checkBuiltPages } from './lib/deploy-config.mjs'
+import { readFileSync } from 'node:fs'
+import { canonicalUrl, resolveRouteMeta } from '../src/data/seo.js'
+import { renderRouteHtml, routeOutputFile } from './lib/route-html.mjs'
 
 const CSP_OK = [
   "default-src 'self'",
@@ -277,7 +280,7 @@ test('checkVercelConfig: config vacía o sin headers no lanza y reporta errores'
 
 const HOME = 'https://www.facucode.dev/'
 const CONFIGURADOR = 'https://www.facucode.dev/configurador'
-const EXPECTED = [HOME]
+const EXPECTED = [HOME, CONFIGURADOR]
 const NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
 function sitemap(locs, ns = NS) {
@@ -286,13 +289,16 @@ function sitemap(locs, ns = NS) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset${nsAttr}>\n${urls}\n</urlset>\n`
 }
 
-test('checkSitemap: sitemap válido con solo la home', () => {
+test('checkSitemap: sitemap válido con la home y el configurador', () => {
   assert.deepEqual(checkSitemap(sitemap(EXPECTED), EXPECTED), [])
 })
 
-test('checkSitemap: /configurador listado es inesperado (duplicado de la home para Google)', () => {
-  const errors = checkSitemap(sitemap([HOME, CONFIGURADOR]), EXPECTED)
-  assert.ok(errors.some((e) => e.includes(CONFIGURADOR) && /inesperada/i.test(e)))
+test('checkSitemap: sitemap con solo la home reporta que falta /configurador', () => {
+  const errors = checkSitemap(sitemap([HOME]), EXPECTED)
+  assert.ok(errors.some((e) => /falta/i.test(e) && e.includes(CONFIGURADOR)))
+})
+
+test('checkSitemap: sitemap con solo /configurador reporta que falta la home', () => {
   assert.ok(checkSitemap(sitemap([CONFIGURADOR]), EXPECTED).some((e) => /falta/i.test(e) && e.includes(HOME)))
 })
 
@@ -342,4 +348,69 @@ test('checkRobots: falta User-agent: * o Allow: /', () => {
   const sitemapLine = `Sitemap: ${SITEMAP_URL}\n`
   assert.ok(checkRobots(`Allow: /\n${sitemapLine}`, SITEMAP_URL).some((e) => e.includes('User-agent')))
   assert.ok(checkRobots(`User-agent: *\n${sitemapLine}`, SITEMAP_URL).some((e) => e.includes('Allow')))
+})
+
+// --- checkBuiltPages ---
+
+const TEMPLATE_HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
+
+/** Página construida válida para una ruta, con la misma plantilla que usa el build. */
+function builtPage(path, mutate = (html) => html) {
+  const url = canonicalUrl(path)
+  return { url, file: `dist/${routeOutputFile(path)}`, html: mutate(renderRouteHtml(TEMPLATE_HTML, resolveRouteMeta(path))) }
+}
+
+const validPages = () => [builtPage('/'), builtPage('/configurador')]
+
+test('checkBuiltPages: home y configurador construidos correctamente no reportan errores', () => {
+  assert.deepEqual(checkBuiltPages(validPages()), [])
+})
+
+test('checkBuiltPages: HTML faltante nombra la URL y el archivo esperado', () => {
+  const pages = [builtPage('/'), { url: CONFIGURADOR, file: 'dist/configurador/index.html', html: null }]
+  const errors = checkBuiltPages(pages)
+  assert.equal(errors.length, 1)
+  assert.ok(errors[0].includes(CONFIGURADOR) && errors[0].includes('dist/configurador/index.html'))
+})
+
+test('checkBuiltPages: canonical distinto de la URL nombra la URL y el valor encontrado', () => {
+  const pages = [builtPage('/'), builtPage('/configurador', (html) => html.replace('facucode.dev/configurador" />', 'facucode.dev/" />'))]
+  const errors = checkBuiltPages(pages)
+  assert.ok(errors.some((e) => e.includes(CONFIGURADOR) && e.includes('canonical') && e.includes('https://www.facucode.dev/')))
+})
+
+test('checkBuiltPages: og:url distinto de la URL falla aunque el canonical sea correcto', () => {
+  const pages = [builtPage('/configurador', (html) => html.replace(/(og:url" content=")[^"]*/, '$1https://www.facucode.dev/otra'))]
+  const errors = checkBuiltPages(pages)
+  assert.ok(errors.some((e) => e.includes('og:url') && e.includes('https://www.facucode.dev/otra')))
+  assert.ok(!errors.some((e) => e.includes('canonical')))
+})
+
+test('checkBuiltPages: og:image o twitter:image relativas fallan nombrando la URL', () => {
+  const og = builtPage('/', (html) => html.replace(/(og:image" content=")[^"]*/, '$1/og-image.png'))
+  assert.ok(checkBuiltPages([og]).some((e) => e.includes('og:image') && e.includes('/og-image.png')))
+  const tw = builtPage('/configurador', (html) => html.replace(/(twitter:image" content=")[^"]*/, '$1og-image.png'))
+  const errors = checkBuiltPages([tw])
+  assert.ok(errors.some((e) => e.includes(CONFIGURADOR) && e.includes('twitter:image')))
+  assert.ok(!errors.some((e) => e.includes('og:image')))
+})
+
+test('checkBuiltPages: twitter:card ausente o distinto de summary_large_image falla', () => {
+  const sin = builtPage('/', (html) => html.replace(/\s*<meta name="twitter:card"[^>]*>/, ''))
+  assert.ok(checkBuiltPages([sin]).some((e) => e.includes('twitter:card')))
+  const otra = builtPage('/', (html) => html.replace('summary_large_image', 'summary'))
+  assert.ok(checkBuiltPages([otra]).some((e) => e.includes('twitter:card') && e.includes('summary')))
+})
+
+test('checkBuiltPages: <script> inline o atributo on* falla (la CSP no admite inline)', () => {
+  const inline = builtPage('/', (html) => html.replace('</body>', '<script>alert(1)</script></body>'))
+  assert.ok(checkBuiltPages([inline]).some((e) => /inline/i.test(e) && e.includes('script')))
+  const handler = builtPage('/', (html) => html.replace('<div id="root">', '<div id="root" onclick="x()">'))
+  assert.ok(checkBuiltPages([handler]).some((e) => e.includes('onclick')))
+})
+
+test('checkBuiltPages: asset propio con ruta relativa falla; absolutas y externas pasan', () => {
+  const relativa = builtPage('/configurador', (html) => html.replace('src="/src/main.jsx"', 'src="assets/index.js"'))
+  assert.ok(checkBuiltPages([relativa]).some((e) => e.includes('assets/index.js') && /relativ/i.test(e)))
+  assert.deepEqual(checkBuiltPages(validPages()), [])
 })
