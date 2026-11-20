@@ -271,7 +271,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
   - `knowledge-base/06_funcionalidades.md` §US-012
 
 ### [C-12] `ci-and-deploy`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-11-20)
 - **Scope**:
   - CI: el workflow corre `npm run ci` (incluye `verify:deploy`) y verifica artefactos del build (chunk `Configurador-*.js`, `sitemap.xml`, `og:image`).
   - Cabeceras de seguridad y CSP en `vercel.json` (rollout Report-Only → enforcing), `public/sitemap.xml` y `Sitemap` en `robots.txt`.
@@ -316,8 +316,6 @@ GATE 5: C-11 antiabuse-and-polish ✓
 
 **Total**: 13 changes · **Camino crítico**: 7 · **Gates**: 6
 
-**Primer change recomendado**: `C-01` (foundation-setup)
-
-Para arrancar: `/opsx-propose C-01-foundation-setup`
+**Estado del roadmap**: C-01..C-12 completados (C-04 revertido el 2026-10-12, ver nota de precios); C-13 completado (2026-11-11). No quedan changes pendientes.
 
 > **Checklist de deploy** (vigente): variables `VITE_WEBHOOK_URL`, `VITE_WHATSAPP_NUMBER` y `VITE_CONTACT_EMAIL` en Vercel (Production); cabeceras y CSP en `vercel.json` (primero Report-Only, luego enforcing); `/sitemap.xml` y `/robots.txt` servidos como estáticos; verificación post-deploy con `curl -I` y recorrido del configurador sin violaciones de CSP. Preguntas P-01 (cerrada), P-02, P-03 y P-07 resueltas: ver `knowledge-base/10_preguntas_abiertas.md`.
