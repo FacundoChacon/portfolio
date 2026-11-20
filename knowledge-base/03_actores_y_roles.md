@@ -5,8 +5,8 @@
 | Actor | Descripción | Cómo interactúa |
 |-------|-------------|-----------------|
 | **Visitante anónimo** | Prospecto (pyme, profesional, emprendedor) que necesita una web | Navega el portfolio, entra a `/configurador`, arma el presupuesto y envía la solicitud. Sin registro. |
-| **Facundo (freelance / dueño)** | Desarrollador que ofrece los servicios | No usa la UI como usuario logueado; **recibe** los leads por email/notificación y responde. Es el dueño del catálogo y precios. |
-| **Sistema externo (webhook)** | Automatización (n8n/Zapier/Make) | Recibe el POST, persiste el lead, envía emails y notificaciones. No es una persona; es integración. |
+| **Facundo (freelance / dueño)** | Desarrollador que ofrece los servicios | No usa la UI como usuario logueado; **recibe** los leads por email/notificación y responde. Es el dueño del catálogo (los precios se confirman por email, fuera del sitio). |
+| **Sistema externo (webhook)** | Google Apps Script | Recibe el POST, persiste el lead en la hoja "Leads" y envía el email al dueño. No es una persona; es integración. |
 
 > **No hay autenticación ni RBAC en v1.0.** Todos los actores humanos son anónimos del lado del sistema. La única "autoridad" es sobre el contenido del catálogo, que se edita en código (`data/configurador.js`).
 
@@ -17,7 +17,7 @@
 | Visitante anónimo | Catálogo (productos/extras) | R (leer) | Read-only desde el bundle público |
 | Visitante anónimo | Configuración de presupuesto | C (crear, en memoria) | Estado efímero en el navegador; no se persiste localmente |
 | Visitante anónimo | Solicitud de presupuesto | C (crear → enviar vía webhook) | Efecto secundario externo |
-| Facundo | Catálogo (productos/precios) | CRUD | Vía edición de código + deploy |
+| Facundo | Catálogo (productos y extras) | CRUD | Vía edición de código + deploy |
 | Sistema externo | Lead recibido | R (leer payload) | Recibe el POST del front |
 
 ## Rutas públicas

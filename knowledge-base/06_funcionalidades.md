@@ -32,29 +32,28 @@ Organizadas por **épica** y luego por **historia de usuario** (formato US-NNN).
 
 ### US-003 — Elegir el tipo de sitio
 **Como** visitante
-**Quiero** elegir entre los 7 tipos de sitio con sus precios
+**Quiero** elegir entre los 7 tipos de sitio
 **Para** partir de una base clara
 
 **Criterios de aceptación**:
 - [ ] CA-1: se listan Landing, One Page, E-commerce, Web Corporativa, Blog, Portfolio y Sistema a medida.
-- [ ] CA-2: cada card muestra nombre, descripción y precio en ARS (o "A cotizar").
+- [ ] CA-2: cada card muestra nombre y descripción (sin precio).
 - [ ] CA-3: hay exactamente un servicio seleccionado; por defecto el primero.
 - [ ] CA-4: la card seleccionada se distingue visualmente (borde/acento).
 
-**Reglas relacionadas**: RN-PR-01, RN-CO-01
+**Reglas relacionadas**: ninguna vigente (RN-PR-01 y RN-CO-01 derogadas)
 
-### US-004 — Sumar extras y ver el total en vivo
+### US-004 — Sumar extras y ver la selección en vivo
 **Como** visitante
-**Quiero** marcar extras y ver el total recalcularse al instante
-**Para** entender el costo de mi alcance
+**Quiero** marcar extras y ver mi selección reflejada al instante
+**Para** entender el alcance de mi pedido
 
 **Criterios de aceptación**:
 - [ ] CA-1: se pueden marcar/desmarcar los 8 extras (toggle).
-- [ ] CA-2: el resumen lateral muestra el desglose y el total en ARS en vivo.
-- [ ] CA-3: "Mantenimiento mensual" se muestra como `/mes` y separado del pago único.
-- [ ] CA-4: "Hosting + Dominio" muestra su disclaimer y no altera el total.
+- [ ] CA-2: el resumen lateral muestra la selección (tipo de sitio, cantidad y extras) en vivo, sin importes.
+- [ ] CA-3: "Hosting + Dominio" muestra su disclaimer.
 
-**Reglas relacionadas**: RN-PR-03, RN-PR-04, RN-PR-05, RN-HD-01, RN-HD-03
+**Reglas relacionadas**: RN-HD-01, RN-HD-03 (RN-PR-03 a RN-PR-05 derogadas)
 
 ### US-005 — Ajustar la cantidad
 **Como** visitante (empresa con varias sucursales)
@@ -64,7 +63,7 @@ Organizadas por **épica** y luego por **historia de usuario** (formato US-NNN).
 **Criterios de aceptación**:
 - [ ] CA-1: control "+" / "−" con mínimo 1.
 - [ ] CA-2: la cantidad solo multiplica el servicio principal.
-- [ ] CA-3: el resumen refleja `servicio × cantidad`.
+- [ ] CA-3: el resumen refleja la cantidad del servicio.
 
 **Reglas relacionadas**: RN-QT-01, RN-QT-02, RN-QT-03
 
@@ -88,11 +87,11 @@ Organizadas por **épica** y luego por **historia de usuario** (formato US-NNN).
 **Para** confirmar antes de enviar
 
 **Criterios de aceptación**:
-- [ ] CA-1: el paso 4 lista servicio, cantidad, extras, total y aviso "+ sistema a medida (a cotizar)" si aplica.
+- [ ] CA-1: el paso 4 lista servicio, cantidad y extras (sin total).
 - [ ] CA-2: hay "Editar" que retorna al paso correspondiente.
 - [ ] CA-3: se aclara que es una estimación no vinculante.
 
-**Reglas relacionadas**: RN-PR-07, RN-CO-02
+**Reglas relacionadas**: ninguna vigente (RN-PR-07 y RN-CO-02 derogadas)
 
 ### US-008 — Enviar la solicitud y recibir confirmación
 **Como** visitante
@@ -107,27 +106,29 @@ Organizadas por **épica** y luego por **historia de usuario** (formato US-NNN).
 
 **Reglas relacionadas**: RN-NT-03, RN-AB-02, RN-AB-04
 
-### US-009 — Recibir el PDF del presupuesto
+### US-009 — Recibir el PDF del presupuesto (no integrado)
+
+> Estado: el generador existe pero no está integrado al envío; los criterios aplican cuando se integre.
 **Como** visitante
 **Quiero** descargar/recibir un PDF de mi presupuesto
 **Para** guardarlo o compartirlo
 
 **Criterios de aceptación**:
 - [ ] CA-1: el PDF se genera en el cliente a partir del payload.
-- [ ] CA-2: incluye servicio, extras, totales, disclaimer de hosting y nota "no vinculante".
+- [ ] CA-2: incluye servicio, extras, disclaimer de hosting y nota "no vinculante".
 - [ ] CA-3: si el PDF falla, el envío igual procede.
 
 **Reglas relacionadas**: RN-PD-01, RN-PD-02, RN-PD-03
 
-### US-010 — Notificación y auto-reply (externo)
+### US-010 — Notificación al dueño (externo)
 **Como** Facundo
-**Quiero** recibir el lead por email y que el prospecto reciba un auto-reply
-**Para** responder rápido y dar buena impresión
+**Quiero** recibir el lead por email y en la hoja "Leads"
+**Para** responder rápido
 
 **Criterios de aceptación**:
-- [ ] CA-1: email a Facundo con datos + PDF adjunto.
-- [ ] CA-2: auto-reply al prospecto confirmando recepción.
-- [ ] CA-3: (opcional) notificación Telegram/Slack.
+- [ ] CA-1: email a Facundo con los datos del lead.
+- [ ] CA-2: el lead queda registrado en la hoja "Leads".
+- [ ] CA-3: la pantalla de éxito confirma la recepción al prospecto (sin auto-reply por correo).
 
 **Reglas relacionadas**: RN-NT-01, RN-NT-02
 
@@ -139,9 +140,9 @@ Organizadas por **épica** y luego por **historia de usuario** (formato US-NNN).
 **Para** no romper el portfolio al agregar el configurador
 
 **Criterios de aceptación**:
-- [ ] CA-1: `npm run lint` y `npm run build` pasan.
-- [ ] CA-2: el CI verifica que `/configurador` esté en el bundle (o su chunk).
-- [ ] CA-3: se mantiene la verificación de `og:image` y artefactos.
+- [ ] CA-1: `npm run ci` (lint, verificaciones, tests y build) pasa en local y en CI.
+- [ ] CA-2: el CI verifica que el build emita `dist/assets/Configurador-*.js` y que `dist/index.html` no lo referencie.
+- [ ] CA-3: se mantiene la verificación de `og:image` y artefactos (incluye `sitemap.xml`).
 
 **Reglas relacionadas**: —
 

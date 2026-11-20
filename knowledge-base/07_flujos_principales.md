@@ -11,23 +11,21 @@ Cada flujo se documenta extremo a extremo, mostrando interacciones entre compone
 1. El router carga la página `Configurador` (chunk lazy).
 2. `useConfigurador` inicializa el estado: `step = 0`, `serviceId = services[0].id`, `extras` = los marcados como `recommended` en el catálogo (hoy `hosting`), `quantity = 1`.
 3. **Paso 1** — el visitante elige el tipo de sitio (`ServiceCards`). Se actualiza `serviceId`.
-4. **Paso 2** — marca extras (`ExtrasCards`) y ajusta cantidad. `pricing.js` recalcula el total; `SummarySidebar` lo muestra en vivo.
+4. **Paso 2** — marca extras (`ExtrasCards`) y ajusta cantidad. `SummarySidebar` refleja la selección en vivo (sin importes).
 5. **Paso 3** — completa `name`, `email` (y opcionalmente `phone`, `project`). Validación inline.
 6. **Paso 4** — revisa el resumen. Al confirmar, se arma el `LeadPayload`.
-7. Se genera el **PDF** (best-effort) con `pdfGenerator.js`.
-8. `webhook.js` hace `POST` del payload (+ PDF) a `VITE_WEBHOOK_URL`.
+7. El **PDF** no se genera en el envío (generador existente, no integrado; `pdf: null`).
+8. `webhook.js` hace `POST` (`text/plain`, timeout de 20 s) del payload a `VITE_WEBHOOK_URL`.
 9. En 2xx → `status = "success"` → pantalla de confirmación. En error → `status = "error"` + alternativa mailto/WhatsApp.
 
 **Diagrama de secuencia**:
 ```
-Visitante → Wizard(React) → pricing.js → (total en vivo)
+Visitante → Wizard(React) → summary.js → (selección en vivo)
 Visitante → FormStep      → validación
 Visitante → ReviewStep    → confirmar
-                          → pdfGenerator.js  (blob PDF)
-                          → webhook.js ──POST──► [n8n/Zapier/Make]
-                                                    ├─ Sheets/Notion
-                                                    ├─ Email a Facundo (+PDF)
-                                                    └─ Auto-reply (+PDF)
+                          → webhook.js ──POST──► [Google Apps Script]
+                                                    ├─ Hoja "Leads"
+                                                    └─ Email a Facundo
                           ← 2xx / error
             SuccessStep / ErrorStep
 ```
@@ -35,7 +33,6 @@ Visitante → ReviewStep    → confirmar
 **Casos de error**:
 - Webhook caído / 5xx → `ErrorStep` con `mailto:` y WhatsApp de respaldo.
 - `VITE_WEBHOOK_URL` ausente → se cae a `mailto:` con el resumen serializado.
-- Generación de PDF falla → se envía igual, con `pdf: false`.
 - Doble click en enviar → bloqueado por `status === "submitting"`.
 
 ---
@@ -55,7 +52,9 @@ Visitante → ReviewStep    → confirmar
 
 ---
 
-## Flujo 3: Generación del PDF del presupuesto
+## Flujo 3: Generación del PDF del presupuesto (no integrado)
+
+> Estado: el generador existe pero no se invoca en el envío. Flujo previsto para cuando se integre (requiere `'wasm-unsafe-eval'` en la CSP).
 
 **Disparador**: el visitante confirma el envío en el paso 4.
 **Actor**: visitante (en su navegador).
@@ -71,17 +70,15 @@ Visitante → ReviewStep    → confirmar
 
 ---
 
-## Flujo 4: Notificación y auto-reply (externo)
+## Flujo 4: Registro y notificación (externo)
 
 **Disparador**: el webhook recibe el POST.
-**Actor**: sistema externo (n8n/Zapier/Make).
+**Actor**: sistema externo (Google Apps Script).
 
 **Pasos**:
-1. Valida el payload (y rate-limita por IP).
-2. Persiste el lead en Google Sheets / Notion / Airtable.
-3. Envía email a Facundo con datos + PDF adjunto.
-4. Envía auto-reply al prospecto con el PDF y expectativa de respuesta.
-5. (Opcional) notifica por Telegram/Slack.
+1. Valida el payload: guard v3 (descarta por `source`), límites de longitud y rate limit (3/h por email, 30/h global).
+2. Persiste el lead en la hoja "Leads".
+3. Envía email a Facundo con los datos.
 
 **Casos de error**:
 - Payload inválido → responde 4xx (el front muestra error).
@@ -95,10 +92,9 @@ Visitante → ReviewStep    → confirmar
 **Actor**: visitante.
 
 **Pasos**:
-1. `custom` tiene `priceARS: null` → la card muestra "A cotizar" y el total agrega el aviso "+ Sistema a medida (a cotizar)".
-2. `hasQuotable: true` en el payload.
-3. El PDF incluye la línea "Sistema a medida — a cotizar".
-4. Facundo cierra el precio manualmente tras la conversación.
+1. `custom` es un tipo de sitio más del catálogo (sin precio, como todos).
+2. El payload lleva `service.id = "custom"`.
+3. Facundo cotiza por email tras la conversación (todos los servicios se cotizan así).
 
 **Casos de error**:
 - Ninguno bloqueante; es un caso de negocio, no un error.

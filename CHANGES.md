@@ -6,6 +6,10 @@
 
 ---
 
+> **Nota (2026-11-20) — Ajustes post-C-10.** `fix-reintento-envio` (reintento tras error de envío), webhook con `Content-Type: text/plain` y timeout de 20 s (Google Apps Script), rewrite SPA aplicado en `vercel.json` y WhatsApp de respaldo configurado.
+
+---
+
 > **Nota (2026-10-12) — Sistema de precios eliminado.** El configurador dejó de exponer precios: el catálogo no tiene `priceARS`, se eliminaron `pricing.js`/`priceLabels.js`, la spec `calculo-de-presupuesto`, y los importes del resumen, PDF y payload del webhook. Ahora arma una **solicitud de presupuesto** (tipo de sitio + cantidad + extras + contacto) y el precio se confirma por email. Esto revierte **C-04** y ajusta **C-06/C-07/C-09/C-10**. Quedan pendientes **C-11** y **C-12**.
 
 ---
@@ -15,7 +19,7 @@
 1. **Identificá el change** libre en la fase correspondiente (respetá las dependencias de la columna `Dependencias`).
 2. **Leé la KB** listada en su bloque `Leer antes` (archivos de `knowledge-base/`).
 3. **Proponé** el change con `/opsx-propose C-NN-{nombre}` (OpenSpec crea el artefacto en `openspec/changes/`).
-4. Implementá, verificá (`npm run lint && npm run build`) y **archivá** el change (`/opsx-archive`) al quedar verde.
+4. Implementá, verificá (`npm run ci`: lint + verificaciones + tests + build) y **archivá** el change (`/opsx-archive`) al quedar verde.
 5. **Marcá el checkbox** `Estado` de este archivo (`[ ]` → `[x]`) y actualizá el resumen final.
 
 ---
@@ -269,17 +273,16 @@ GATE 5: C-11 antiabuse-and-polish ✓
 ### [C-12] `ci-and-deploy`
 - **Estado**: `[ ]` pendiente
 - **Scope**:
-  - Extender `.github/workflows/ci.yml`: verificar que el build emita el chunk del configurador (y mantener las verificaciones de `og:image`/artefactos).
-  - Verificar `.env.example` documentado; confirmar `VITE_WEBHOOK_URL` en el entorno del hosting.
-  - Configuración de **fallback SPA** en el hosting (Vercel `rewrites` o Netlify `_redirects`) para `/configurador`.
-  - Checklist de deploy (P-01 precios, P-02 webhook, P-03 WhatsApp).
-  - Actualizar `knowledge-base/README.md` y cerrar `CHANGES.md`.
+  - CI: el workflow corre `npm run ci` (incluye `verify:deploy`) y verifica artefactos del build (chunk `Configurador-*.js`, `sitemap.xml`, `og:image`).
+  - Cabeceras de seguridad y CSP en `vercel.json` (rollout Report-Only → enforcing), `public/sitemap.xml` y `Sitemap` en `robots.txt`.
+  - `.env.example` documentado; `VITE_WEBHOOK_URL`, `VITE_WHATSAPP_NUMBER` y `VITE_CONTACT_EMAIL` cargadas en el entorno del hosting.
+  - Alinear la `knowledge-base/` con el sistema vigente (sin precios; webhook Apps Script; P-01, P-02, P-03 y P-07 resueltas) y cerrar `CHANGES.md`.
 - **Dependencias**: `C-11`
 - **Governance**: MEDIO
 - **Leer antes**:
   - `knowledge-base/08_arquitectura_propuesta.md` §Seguridad, §Variables de entorno
-  - `knowledge-base/10_preguntas_abiertas.md` §P-01, P-02, P-03, P-07
-  - `.github/workflows/ci.yml`
+  - `knowledge-base/10_preguntas_abiertas.md` §P-02, P-03, P-07 (resueltas)
+  - `.github/workflows/ci.yml`, `vercel.json`
 
 ---
 
@@ -317,4 +320,4 @@ GATE 5: C-11 antiabuse-and-polish ✓
 
 Para arrancar: `/opsx-propose C-01-foundation-setup`
 
-> **Bloqueantes externos** (no frenan el desarrollo, sí el deploy): confirmar precios ARS (P-01), URL del webhook (P-02) y WhatsApp de respaldo (P-03). Ver `knowledge-base/10_preguntas_abiertas.md`.
+> **Checklist de deploy** (vigente): variables `VITE_WEBHOOK_URL`, `VITE_WHATSAPP_NUMBER` y `VITE_CONTACT_EMAIL` en Vercel (Production); cabeceras y CSP en `vercel.json` (primero Report-Only, luego enforcing); `/sitemap.xml` y `/robots.txt` servidos como estáticos; verificación post-deploy con `curl -I` y recorrido del configurador sin violaciones de CSP. Preguntas P-01 (cerrada), P-02, P-03 y P-07 resueltas: ver `knowledge-base/10_preguntas_abiertas.md`.

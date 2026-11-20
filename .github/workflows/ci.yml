@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Lint + Build
+    name: Lint + verificaciones + tests + build
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -32,11 +32,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
-        run: npm run build
+      - name: Lint, verificaciones, tests y build
+        run: npm run ci
 
       - name: Verify build artifacts
         run: |
@@ -48,12 +45,22 @@ jobs:
             fail=1
           fi
 
-          for asset in og-image.png robots.txt profile.webp project-ecommerce.webp; do
+          for asset in og-image.png robots.txt sitemap.xml profile.webp project-ecommerce.webp; do
             if [ ! -f "dist/$asset" ]; then
               echo "::error::falta dist/$asset en el build"
               fail=1
             fi
           done
+
+          if ! compgen -G 'dist/assets/Configurador-*.js' > /dev/null; then
+            echo "::error::falta el chunk dist/assets/Configurador-*.js (el configurador entró al bundle inicial)"
+            fail=1
+          fi
+
+          if grep -q 'Configurador-' dist/index.html; then
+            echo "::error::dist/index.html referencia el chunk del configurador (la home lo descargaría)"
+            fail=1
+          fi
 
           if ! grep -q 'property="og:image" content="https://www.facucode.dev/og-image.png"' dist/index.html; then
             echo "::error::og:image no es una URL absoluta (rompe la preview en redes)"

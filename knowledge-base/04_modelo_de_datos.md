@@ -6,9 +6,9 @@
 
 | Dominio | Descripción |
 |---------|-------------|
-| Catálogo | Productos (tipos de sitio) y extras disponibles, con precios en ARS |
+| Catálogo | Productos (tipos de sitio) y extras disponibles, sin precios |
 | Configuración | Estado del wizard que arma el visitante paso a paso |
-| Presupuesto | Cálculo de subtotales, cantidad y total |
+| Presupuesto | Selección (servicio, cantidad y extras); sin cálculo de importes |
 | Lead | Payload final que se envía al webhook |
 
 ## ERD (relación lógica)
@@ -26,7 +26,7 @@ QuoteConfig (estado del wizard)
         │
         ▼
    LeadPayload  ──POST──►  Webhook externo
-   (incluye items[], subtotal, total, metadata)
+   (servicio, cantidad, extras, contacto y meta; sin importes)
 ```
 
 ## Entidades
@@ -35,45 +35,41 @@ QuoteConfig (estado del wizard)
 - `id`: string (kebab-case, único) — ej. `"ecommerce"`
 - `name`: string — ej. `"E-commerce"`
 - `description`: string — qué incluye y para quién
-- `priceARS`: number | null — `null` cuando es "a cotizar" (Sistema a medida)
-- `quotable`: boolean — `true` si el precio es "a cotizar"
 - `tag`: string (opcional) — ej. `"Más elegido"`
 - `icon`: string — nombre del icono lucide-react
 
-**Catálogo v1.0** (precios de referencia, ver `10_preguntas_abiertas.md`):
+**Catálogo vigente** (sin precios; ver `openspec/specs/catalogo-del-configurador`):
 
-| id | name | priceARS | tag |
-|----|------|----------|-----|
-| `landing` | Landing Page | 250000 | Más elegido |
-| `onepage` | One Page | 180000 | — |
-| `ecommerce` | E-commerce | 600000 | — |
-| `corporate` | Web Corporativa | 450000 | — |
-| `blog` | Blog | 300000 | — |
-| `portfolio` | Portfolio | 220000 | — |
-| `custom` | Sistema a medida | null | A cotizar |
+| id | name | tag |
+|----|------|-----|
+| `landing` | Landing Page | Más elegido |
+| `onepage` | One Page | — |
+| `ecommerce` | E-commerce | — |
+| `corporate` | Web Corporativa | — |
+| `blog` | Blog | — |
+| `portfolio` | Portfolio | — |
+| `custom` | Sistema a medida | — |
 
 ### Extra (add-on)
 - `id`: string (kebab-case, único)
 - `name`: string
 - `description`: string
-- `priceARS`: number — `0` para "sin costo" (hosting/dominio)
 - `category`: enum — `"contenido" | "tecnico" | "crecimiento" | "soporte" | "infra"`
-- `recurring`: boolean — `true` si es mensual (Mantenimiento)
 - `disclaimer`: string (opcional) — texto legal/aclaratorio (Hosting/dominio)
-- `recommended`: boolean — para preselección sugerida
+- `recommended`: boolean — para preselección sugerida (solo `hosting`)
 
-**Catálogo v1.0** (precios de referencia):
+**Catálogo vigente** (sin precios ni recurrencia):
 
-| id | name | priceARS | category | notas |
-|----|------|----------|----------|-------|
-| `seo` | SEO inicial | 120000 | crecimiento | — |
-| `copy` | Copywriting | 90000 | contenido | — |
-| `cms` | CMS / Blog | 150000 | tecnico | — |
-| `i18n` | Multi-idioma | 180000 | tecnico | — |
-| `clients` | Área de clientes (auth) | 250000 | tecnico | — |
-| `whatsapp` | Integración WhatsApp/CRM | 80000 | crecimiento | — |
-| `maintenance` | Mantenimiento mensual | 60000 | soporte | `recurring: true` |
-| `hosting` | Hosting + Dominio | 0 | infra | `disclaimer` (ver RN-HD) |
+| id | name | category | notas |
+|----|------|----------|-------|
+| `seo` | SEO inicial | crecimiento | — |
+| `copy` | Copywriting | contenido | — |
+| `cms` | CMS / Blog | tecnico | — |
+| `i18n` | Multi-idioma | tecnico | — |
+| `clients` | Área de clientes (auth) | tecnico | — |
+| `whatsapp` | Integración WhatsApp/CRM | crecimiento | — |
+| `maintenance` | Mantenimiento mensual | soporte | — |
+| `hosting` | Hosting + Dominio | infra | `disclaimer` (ver RN-HD), `recommended: true` |
 
 ### QuoteConfig (estado del wizard)
 - `step`: number (0..3) — paso actual
@@ -89,15 +85,11 @@ QuoteConfig (estado del wizard)
 {
   "submittedAt": "ISO-8601",          // timestamp de envío
   "source": "facucode.dev/configurador",
-  "service": { "id": "ecommerce", "name": "E-commerce", "priceARS": 600000 },
+  "service": { "id": "ecommerce", "name": "E-commerce" },
   "quantity": 1,
   "extras": [
-    { "id": "seo", "name": "SEO inicial", "priceARS": 120000, "recurring": false }
+    { "id": "seo", "name": "SEO inicial" }
   ],
-  "hasQuotable": false,                // true si incluyó "Sistema a medida"
-  "subtotal": 720000,
-  "total": 720000,
-  "currency": "ARS",
   "contact": { "name": "Martina", "email": "m@marca.com", "phone": "+54...", "project": "..." },
   "meta": { "userAgent": "...", "referrer": "..." }
 }
@@ -109,7 +101,7 @@ QuoteConfig (estado del wizard)
 - `quantity >= 1` (entero). El botón "-" se deshabilita en 1.
 - `extras` no admite duplicados (selección por toggle).
 - `email` debe ser válido antes de permitir el envío (paso 3).
-- El total nunca es negativo; extras con `priceARS: 0` no alteran el total.
+- El payload no lleva importes (`priceARS`, `subtotal`, `total`, `currency`, `hasQuotable` y `recurring` no existen).
 
 ## Seed data inicial
 

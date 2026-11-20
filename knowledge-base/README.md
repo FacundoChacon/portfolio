@@ -10,7 +10,7 @@ Base de conocimiento del portfolio profesional de **Facundo Chacón** (facucode.
 | [02_descripcion_general.md](02_descripcion_general.md) | Stack, arquitectura general, integraciones externas |
 | [03_actores_y_roles.md](03_actores_y_roles.md) | Actores, matriz de permisos, rutas públicas |
 | [04_modelo_de_datos.md](04_modelo_de_datos.md) | Entidades (catálogo, estado del wizard, payload del lead) |
-| [05_reglas_de_negocio.md](05_reglas_de_negocio.md) | Reglas RN-XX por dominio (precios, cotización, hosting, validación, anti-abuso, PDF) |
+| [05_reglas_de_negocio.md](05_reglas_de_negocio.md) | Reglas RN-XX por dominio (hosting, cantidad, validación, anti-abuso, notificaciones; precios y cotización derogados) |
 | [06_funcionalidades.md](06_funcionalidades.md) | 4 épicas, 12 historias de usuario con criterios de aceptación |
 | [07_flujos_principales.md](07_flujos_principales.md) | 5 flujos extremo a extremo |
 | [08_arquitectura_propuesta.md](08_arquitectura_propuesta.md) | Patrones, estructura de directorios, seguridad, env vars |
@@ -28,6 +28,6 @@ Base de conocimiento del portfolio profesional de **Facundo Chacón** (facucode.
 
 ## Resumen Ejecutivo
 
-El proyecto es el **portfolio estático** (React 18 + Vite + Tailwind 3) de Facundo Chacón, al que se le suma un **configurador autoservicio de presupuestos** en `/configurador`. El visitante elige uno de 7 tipos de sitio y suma extras, viendo un total en ARS en vivo, y envía la solicitud. No hay backend: el lead se despacha por un **webhook externo** (n8n/Zapier/Make) que persiste en Sheets/Notion, notifica por email y responde con un **PDF** generado en el cliente. Se incorporan `react-router-dom` (routing) y `@react-pdf/renderer` (PDF). El comodín "Sistema a medida" queda **a cotizar** y el hosting/dominio es **gestión técnica sin costo monetario** (titularidad del cliente).
+El proyecto es el **portfolio estático** (React 18 + Vite + Tailwind 3) de Facundo Chacón, al que se le suma un **configurador autoservicio de presupuestos** en `/configurador`. El visitante elige uno de 7 tipos de sitio y suma extras, y envía la solicitud **sin ver precios**: el presupuesto a medida se confirma por email. No hay backend: el lead se despacha por un **webhook externo** (Google Apps Script: hoja "Leads" + email al dueño). El generador de PDF (`@react-pdf/renderer`) existe pero **no está integrado al envío**. Se incorpora `react-router-dom` (routing). El hosting/dominio es **gestión técnica** (titularidad y costo del cliente). El sitio se sirve desde Vercel con cabeceras de seguridad y CSP (ver `08_arquitectura_propuesta.md` §Seguridad).
 
 > El plan de implementación operativo está en [`../CHANGES.md`](../CHANGES.md).

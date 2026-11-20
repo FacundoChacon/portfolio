@@ -5,12 +5,12 @@
 | Patrón | Dónde se usa | Por qué |
 |--------|--------------|---------|
 | SPA + routing cliente | `react-router-dom` con `BrowserRouter` | Habilitar `/configurador` como página aparte sin recargar |
-| Lazy loading por ruta | `React.lazy` + `Suspense` en la ruta del configurador | No cargar el configurador (ni su PDF lib) en la home |
+| Lazy loading por ruta | `React.lazy` + `Suspense` en la ruta del configurador | No cargar el configurador en la home (el CI verifica el chunk `Configurador-*.js`) |
 | State machine simple | `useConfigurador` (`step`, `status`) | Wizard predecible y testeable |
-| Catálogo como dato | `data/configurador.js` | Precios y textos separados de la UI (fácil edición) |
-| Cálculo puro aislado | `utils/pricing.js` | Lógica de totales testeable sin React |
-| Adapter de integración | `utils/webhook.js` | Aislar el proveedor (n8n/Zapier/Make) para migrar sin tocar UI |
-| Best-effort side-effect | `utils/pdfGenerator.js` | El PDF no debe bloquear el envío |
+| Catálogo como dato | `data/configurador.js` | Textos separados de la UI (fácil edición); sin precios |
+| Lógica pura aislada | `utils/wizard.js`, `summary.js`, `review.js` | Estado y resumen testeables sin React |
+| Adapter de integración | `utils/webhook.js` | Aislar el proveedor del webhook (hoy Apps Script) para migrar sin tocar UI |
+| Best-effort side-effect | `utils/pdfGenerator.js` | El PDF no debe bloquear el envío (aún no integrado) |
 | Presentational vs container | `components/configurador/*` | Componentes de card puros + página que orquesta |
 
 ## Estructura de directorios
@@ -21,8 +21,10 @@ portfolio/
 ├── package.json
 ├── vite.config.js
 ├── tailwind.config.js
-├── .env.example                      # NUEVO (VITE_WEBHOOK_URL, VITE_WHATSAPP_NUMBER)
-├── .github/workflows/ci.yml          # EXTENDER: verificar chunk del configurador
+├── .env.example                      # VITE_WEBHOOK_URL, VITE_WHATSAPP_NUMBER, VITE_CONTACT_EMAIL
+├── vercel.json                       # rewrite SPA + cabeceras de seguridad + CSP
+├── scripts/                          # verify-*.mjs, lib/deploy-config.mjs y tests (node:test)
+├── .github/workflows/ci.yml          # npm run ci + verificación de artefactos
 ├── CHANGES.md                        # NUEVO (índice de changes)
 ├── knowledge-base/                   # NUEVO (esta KB)
 └── src/
@@ -41,15 +43,15 @@ portfolio/
     │       ├── QuantityControl.jsx   # +/- cantidad
     │       ├── FormStep.jsx          # datos de contacto + validación
     │       ├── ReviewStep.jsx        # resumen del paso 4
-    │       ├── SummarySidebar.jsx    # "carrito" total en vivo
+    │       ├── SummarySidebar.jsx    # resumen en vivo de la selección
     │       ├── SuccessStep.jsx       # confirmación
     │       └── ErrorStep.jsx         # fallback mailto/WhatsApp
     ├── hooks/
     │   ├── useReveal.js              # existente
     │   └── useConfigurador.js        # NUEVO — estado del wizard
-    ├── utils/                        # NUEVO
-    │   ├── pricing.js
-    │   ├── pdfGenerator.js
+    ├── utils/
+    │   ├── wizard.js, wizardView.js, summary.js, review.js, contact.js, motion.js
+    │   ├── pdfGenerator.js, pdfDocument.js   # no integrados al envío
     │   └── webhook.js
     └── data/
         └── configurador.js           # NUEVO — catálogo (servicios + extras)
@@ -62,27 +64,30 @@ portfolio/
 - **Validación de input**: en el cliente (formato email, campos obligatorios, honeypot). El webhook **revalida** el payload (nunca confiar solo en el front).
 - **Secrets management**: `VITE_*` es **público** por definición en Vite. No poner tokens/credenciales ahí. El webhook debe usar su propia auth (secret en el query param o header), asumiendo que la URL es descubrible.
 - **Anti-abuso**: honeypot + bloqueo de doble submit + rate limiting en el webhook.
+- **Cabeceras HTTP** (`vercel.json`, bloque `source: "/(.*)"`, validado por `npm run verify:deploy` en CI): `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`.
+- **CSP**: `default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`. Sin `'unsafe-inline'` ni `'unsafe-eval'`.
+- **Rollout de la CSP**: Deploy 1 como `Content-Security-Policy-Report-Only`; Deploy 2 (tras verificar producción sin violaciones) con la clave `Content-Security-Policy` enforcing. Mientras esté en Report-Only, `verify:deploy` muestra una advertencia.
+- **Cómo actualizarla**: si se cambia el proveedor del webhook, ajustar `connect-src` en `vercel.json` y las constantes de `scripts/lib/deploy-config.mjs` (con sus tests); si se integra el PDF (`yoga-layout` compila WebAssembly), agregar `'wasm-unsafe-eval'` a `script-src`.
 - **Datos personales**: solo nombre/email/teléfono/descripción; se transmiten por HTTPS al webhook. No se persisten en el front ni en `localStorage`.
 
 ## Variables de entorno
 
 | Variable | Descripción | Ejemplo | Sensible |
 |----------|-------------|---------|----------|
-| `VITE_WEBHOOK_URL` | Endpoint del webhook que recibe el lead | `https://hook.n8n.cloud/xxxx` | N (pública) |
-| `VITE_WHATSAPP_NUMBER` | Número de WhatsApp de respaldo | `+5492612345678` | N |
-| `VITE_CONTACT_EMAIL` | Email de respaldo (`mailto:`) | `chaconfacu2006@gmail.com` | N |
-| `VITE_APP_URL` | URL canónica para el PDF/meta | `https://www.facucode.dev` | N |
+| `VITE_WEBHOOK_URL` | Endpoint del webhook (Apps Script) que recibe el lead | `https://script.google.com/macros/s/<id>/exec` | N (pública) |
+| `VITE_WHATSAPP_NUMBER` | WhatsApp de respaldo, dígitos internacionales sin `+` | `549261XXXXXXX` | N |
+| `VITE_CONTACT_EMAIL` | Email de respaldo (`mailto:`); si falta, el código usa un fallback | `tu@email.com` | N |
 
 > Si `VITE_WEBHOOK_URL` no está definida, el flujo cae a `mailto:` con el resumen serializado (modo degradado).
 
 ## Rendimiento
 
-- El `@react-pdf/renderer` se importa **dinámicamente** solo al confirmar el envío (no engorda el bundle inicial).
-- La ruta `/configurador` se carga con `React.lazy`, creando un chunk separado.
-- El CI actual ya verifica artefactos; se extiende para verificar que exista el chunk del configurador.
+- `@react-pdf/renderer` no está integrado al envío; su chunk no entra al build actual.
+- La ruta `/configurador` se carga con `React.lazy`, creando el chunk `dist/assets/Configurador-*.js`.
+- El CI corre `npm run ci` y verifica que el build emita ese chunk, que `dist/index.html` no lo referencie y que existan `sitemap.xml` y `robots.txt`.
 
 ## Testing (mínimo esperado)
 
-- **Unit**: `pricing.js` (totales, recurring, quotable, quantity), `webhook.js` (serialización), validación del form.
+- **Unit** (`node --test "scripts/**/*.test.mjs"`, parte de `npm run ci`): `wizard.js`, `summary.js`, `review.js`, `webhook.js` (payload sin importes, `text/plain`, timeout), validación del form y `scripts/lib/deploy-config.mjs` (cabeceras, CSP, sitemap y robots).
 - **Component**: selección de servicio/extras, recalculo en vivo, bloqueo de avance sin nombre/email.
 - **E2E (opcional, futuro)**: recorrido completo hasta el success con webhook mockeado.

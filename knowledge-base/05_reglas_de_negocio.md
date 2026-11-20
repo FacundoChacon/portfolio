@@ -2,7 +2,9 @@
 
 Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad.
 
-## Dominio: Precios (RN-PR)
+## Dominio: Precios (RN-PR) — Derogada (2026-10-12)
+
+> Derogada (2026-10-12): el configurador no expone precios; se conserva por trazabilidad con los changes archivados C-03 a C-10.
 
 - **RN-PR-01**: todos los precios se expresan y muestran en **ARS** (`Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' })`).
 - **RN-PR-02**: el total del servicio = `service.priceARS × quantity`.
@@ -12,7 +14,9 @@ Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad.
 - **RN-PR-06**: cambiar de servicio **no** limpia los extras seleccionados (persisten entre pasos).
 - **RN-PR-07**: los precios son valores de referencia editables en `data/configurador.js`; no son vinculantes hasta que Facundo confirma por email.
 
-## Dominio: Cotización especial (RN-CO)
+## Dominio: Cotización especial (RN-CO) — Derogada (2026-10-12)
+
+> Derogada (2026-10-12): el configurador no expone precios; se conserva por trazabilidad con los changes archivados C-03 a C-10.
 
 - **RN-CO-01**: "Sistema a medida" tiene `priceARS: null` y `quotable: true` → se muestra como **"A cotizar"**, nunca como un número.
 - **RN-CO-02**: si el visitante incluye "Sistema a medida", el total mostrado incluye el aviso **"+ Sistema a medida (a cotizar)"** y `hasQuotable: true` en el payload.
@@ -21,9 +25,9 @@ Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad.
 
 ## Dominio: Hosting y Dominio (RN-HD)
 
-- **RN-HD-01**: el extra **Hosting + Dominio** tiene `priceARS: 0` y **no** altera el total.
+- **RN-HD-01**: el extra **Hosting + Dominio** no tiene precio (el catálogo no expone precios) y se marca `recommended`.
 - **RN-HD-02**: se muestra con el disclaimer textual: *"Me encargo de la **gestión técnica** (configuración, deploy, SSL, DNS). El **costo del hosting y el dominio está a cargo del cliente** y se contrata a su nombre (por una cuestión de propiedad)."*
-- **RN-HD-03**: el disclaimer debe ser visible en la card del extra **y** en el PDF del presupuesto; nunca se oculta detrás de un tooltip únicamente.
+- **RN-HD-03**: el disclaimer debe ser visible en la card del extra (y en el PDF, cuando se integre); nunca se oculta detrás de un tooltip únicamente.
 - **RN-HD-04**: el sistema **no** procesa pagos ni factura el hosting/dominio; solo se documenta la gestión técnica.
 - **RN-HD-05**: la titularidad de la cuenta de hosting/dominio recae siempre en el cliente.
 
@@ -31,7 +35,7 @@ Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad.
 
 - **RN-QT-01**: `quantity` entero, mínimo 1, sin máximo duro (orientativo).
 - **RN-QT-02**: la cantidad aplica **solo al servicio principal**, no a los extras.
-- **RN-QT-03**: el resumen refleja `servicio × cantidad` cuando `quantity > 1`.
+- **RN-QT-03**: el resumen refleja la cantidad del servicio cuando `quantity > 1` (sin importes).
 
 ## Dominio: Validación del formulario (RN-VL)
 
@@ -44,20 +48,22 @@ Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad.
 
 - **RN-AB-01**: incluir un campo **honeypot** oculto; si viene completo, se descarta el envío silenciosamente.
 - **RN-AB-02**: el botón "Enviar" se deshabilita mientras `status === "submitting"` (evita doble submit).
-- **RN-AB-03**: el rate limiting por IP se delega al webhook externo (no se implementa en el front).
+- **RN-AB-03**: el rate limiting se delega al webhook (Apps Script: 3/h por email y 30/h global); no se implementa en el front.
 - **RN-AB-04**: no exponer la URL del webhook de forma explotable más allá de `VITE_WEBHOOK_URL` (es pública por naturaleza en un sitio estático; el webhook debe validar).
 
 ## Dominio: PDF y entrega (RN-PD)
 
+> Estado: el generador existe (`utils/pdfGenerator.js`) pero **no está integrado al envío** (`sendLead(payload, { pdf: null })`). Las reglas aplican cuando se integre; el documento no lleva totales.
+
 - **RN-PD-01**: el PDF se genera **en el cliente** con `@react-pdf/renderer` a partir del `LeadPayload`.
-- **RN-PD-02**: el PDF incluye: encabezado (Facundo Chacón), fecha, servicio, extras, totales, disclaimer de hosting y nota "estimación no vinculante".
+- **RN-PD-02**: el PDF incluye: encabezado (Facundo Chacón), fecha, servicio, extras, disclaimer de hosting y nota "estimación no vinculante".
 - **RN-PD-03**: si la generación de PDF falla, el envío al webhook **igual procede** (el PDF es best-effort; se marca `pdf: false` en el payload).
 - **RN-PD-04**: el PDF nunca expone datos de otros leads (se genera 100% en el navegador del visitante).
 
 ## Dominio: Notificaciones (RN-NT)
 
 - **RN-NT-01**: al enviar, el webhook dispara un email a Facundo con los datos y (si existe) el PDF adjunto.
-- **RN-NT-02**: el webhook dispara un **auto-reply** al prospecto confirmando recepción y prometiendo respuesta.
+- **RN-NT-02**: la pantalla de éxito confirma la recepción al prospecto y promete respuesta por email (no hay auto-reply por correo).
 - **RN-NT-03**: la UI muestra un estado de éxito **solo** si el POST al webhook responde OK (HTTP 2xx); si falla, muestra estado de error con alternativa (`mailto:`/WhatsApp de respaldo).
 
 ## Dominio: Excepciones globales

@@ -3,7 +3,7 @@
 ## Decisiones documentadas
 
 ### DD-01 — Sin backend propio: frontend estático + webhook externo
-**Decisión**: el configurador corre 100% en el navegador y envía el lead por POST a un webhook (n8n/Zapier/Make).
+**Decisión**: el configurador corre 100% en el navegador y envía el lead por POST a un webhook (Google Apps Script).
 **Contexto**: el portfolio ya es estático (Vite → `dist/`) y no tiene API ni DB.
 **Alternativas consideradas**: (a) backend propio Node/Express + DB; (b) backend Java/Spring Boot + MySQL.
 **Justificación**: cero costo de infraestructura, sin mantenimiento de servidor, coherente con el CI actual.
@@ -16,14 +16,16 @@
 **Justificación**: URLs limpias y patrón estándar; Vercel/Netlify resuelven el fallback por defecto.
 **Trade-offs aceptados**: se agrega una dependencia y se debe garantizar el fallback en el hosting.
 
-### DD-03 — Precios fijos en ARS
+### DD-03 — Precios fijos en ARS — Derogada (2026-10-12)
+**Estado**: Derogada (2026-10-12): el configurador no expone precios; se conserva por trazabilidad con los changes archivados C-03 a C-10.
 **Decisión**: todos los precios en pesos argentinos, fijos y editables en `data/configurador.js`.
 **Contexto**: preferencia del dueño por facturar en moneda local.
 **Alternativas consideradas**: USD, rangos "desde", doble moneda.
 **Justificación**: simple de entender para el cliente local.
 **Trade-offs aceptados**: los precios requieren actualización periódica por inflación (edición de datos + deploy).
 
-### DD-04 — "Sistema a medida" a cotizar
+### DD-04 — "Sistema a medida" a cotizar — Derogada (2026-10-12)
+**Estado**: Derogada (2026-10-12): el configurador no expone precios; se conserva por trazabilidad con los changes archivados C-03 a C-10.
 **Decisión**: el comodín no tiene precio fijo; se muestra "A cotizar" y no suma al total.
 **Contexto**: un sistema a medida no puede estimarse con un catálogo fijo.
 **Justificación**: evita comprometer un precio incorrecto y fuerza la conversación.
@@ -53,7 +55,8 @@
 **Riesgo si es falso**: si crece mucho, el webhook free puede tener límites.
 **Cómo validar**: medir leads/mes y ajustar el plan del proveedor.
 
-### SU-02 — Precios de referencia provisorios
+### SU-02 — Precios de referencia provisorios — Derogada (2026-10-12)
+**Estado**: Derogada (2026-10-12): el configurador no expone precios; se conserva por trazabilidad con los changes archivados C-03 a C-10.
 **Supuesto**: los 7 precios de servicio y 8 de extras son **placeholders** plausibles en ARS.
 **Origen**: inferidos del prototipo USD de "estudio norte", convertidos a magnitudes ARS.
 **Riesgo si es falso**: se muestran precios incorrectos al público.
@@ -66,12 +69,12 @@
 **Cómo validar**: confirmar `VITE_WHATSAPP_NUMBER`.
 
 ### SU-04 — Proveedor de webhook disponible
-**Supuesto**: Facundo tiene o puede crear una cuenta en n8n/Zapier/Make.
+**Supuesto**: Facundo puede publicar un Google Apps Script como webhook (cumplido: es el proveedor en uso).
 **Riesgo si es falso**: no hay destino para el POST.
 **Cómo validar**: crear el webhook antes del deploy (ver `10_preguntas_abiertas.md`).
 
-### SU-05 — Deploy en Vercel o Netlify
-**Supuesto**: el hosting soporta SPA fallback nativo.
+### SU-05 — Deploy en Vercel
+**Supuesto**: el hosting soporta SPA fallback (cumplido: Vercel con `rewrites` en `vercel.json`).
 **Origen**: el `og:image` apunta a `facucode.dev` con CI en GitHub Actions.
 **Riesgo si es falso**: `/configurador` daría 404 en recarga directa.
 **Cómo validar**: probar recarga directa tras el deploy.
