@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react'
 
@@ -16,6 +17,10 @@ import { buildWhatsAppUrl } from '../utils/contact.js'
 import { buildReview } from '../utils/review.js'
 import { buildSummary } from '../utils/summary.js'
 import { FIRST_STEP, LAST_STEP, STEPS } from '../utils/wizard.js'
+import { getLiveMessage, getViewKey, shouldMoveFocus } from '../utils/wizardView.js'
+
+/** Email de contacto: variable de entorno o el de respaldo. */
+const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || 'chaconfacu2006@gmail.com'
 
 const stepTitle = {
   [STEPS.SERVICE]: '1. Elegí el tipo de sitio',
@@ -25,7 +30,7 @@ const stepTitle = {
 }
 
 /** Cuerpo del paso actual del wizard. */
-function StepBody({ step, wizard }) {
+function StepBody({ step, wizard, contactEmail }) {
   if (step === STEPS.SERVICE) {
     return (
       <div className="space-y-6">
@@ -63,6 +68,7 @@ function StepBody({ step, wizard }) {
       onSubmit={wizard.submit}
       submitting={wizard.submitting}
       submitted={wizard.submitted}
+      contactEmail={contactEmail}
     />
   )
 }
@@ -81,6 +87,16 @@ const primaryButton =
 export default function Configurador() {
   const wizard = useConfigurador({ services, extras })
   const summary = buildSummary(wizard, services, extras)
+
+  // Al cambiar de vista (paso, éxito o error) el foco va al título; la carga
+  // inicial no lo mueve porque la ref arranca con la clave actual.
+  const headingRef = useRef(null)
+  const viewKey = getViewKey(wizard)
+  const prevKeyRef = useRef(viewKey)
+  useEffect(() => {
+    if (shouldMoveFocus(prevKeyRef.current, viewKey)) headingRef.current?.focus()
+    prevKeyRef.current = viewKey
+  }, [viewKey])
 
   return (
     <div className="min-h-screen bg-dark">
@@ -111,15 +127,20 @@ export default function Configurador() {
           <WizardSteps current={wizard.step} />
         </div>
 
+        <p role="status" aria-live="polite" className="sr-only">
+          {getLiveMessage(wizard)}
+        </p>
+
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <section className="min-w-0">
             {wizard.status === 'success' ? (
-              <SuccessStep name={wizard.form?.name} />
+              <SuccessStep name={wizard.form?.name} headingRef={headingRef} />
             ) : wizard.status === 'error' ? (
               <ErrorStep
                 onRetry={wizard.submit}
                 onEdit={wizard.clearSubmitError}
-                contactEmail={import.meta.env.VITE_CONTACT_EMAIL || 'chaconfacu2006@gmail.com'}
+                contactEmail={CONTACT_EMAIL}
+                headingRef={headingRef}
                 whatsappUrl={buildWhatsAppUrl(
                   import.meta.env.VITE_WHATSAPP_NUMBER,
                   'Hola Facundo, te quería consultar por el presupuesto del configurador',
@@ -127,10 +148,14 @@ export default function Configurador() {
               />
             ) : (
               <>
-                <h2 className="mb-4 font-display text-lg font-bold text-white">
+                <h2
+                  ref={headingRef}
+                  tabIndex={-1}
+                  className="mb-4 font-display text-lg font-bold text-white outline-none"
+                >
                   {stepTitle[wizard.step]}
                 </h2>
-                <StepBody step={wizard.step} wizard={wizard} />
+                <StepBody step={wizard.step} wizard={wizard} contactEmail={CONTACT_EMAIL} />
               </>
             )}
 

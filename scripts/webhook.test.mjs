@@ -8,6 +8,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
+import { HONEYPOT_FIELD } from '../src/utils/wizard.js'
 import { extras, services } from '../src/data/configurador.js'
 import {
   buildLeadPayload,
@@ -50,8 +51,44 @@ test('buildLeadPayload: mapea servicio, cantidad, extras, contacto, source e ISO
   assert.equal(payload.contact.project, 'Tienda online')
   assert.ok(typeof payload.submittedAt === 'string')
   assert.ok(!Number.isNaN(Date.parse(payload.submittedAt)))
-  assert.equal(payload.meta.userAgent, 'node:test')
   assert.equal(payload.meta.referrer, '')
+})
+
+/** Ejecuta `fn` con `globalThis.navigator` reemplazado y restaura el descriptor original. */
+function withNavigator(value, fn) {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
+  Object.defineProperty(globalThis, 'navigator', { value, configurable: true, writable: true })
+  try {
+    return fn()
+  } finally {
+    if (original) Object.defineProperty(globalThis, 'navigator', original)
+    else delete globalThis.navigator
+  }
+}
+
+test('buildLeadPayload: meta.userAgent es el del navegador real', () => {
+  withNavigator({ userAgent: 'Mozilla/5.0 Test' }, () => {
+    assert.equal(buildLeadPayload({ form: {} }, services, extras).meta.userAgent, 'Mozilla/5.0 Test')
+  })
+  withNavigator({ userAgent: 'Otro/1.0' }, () => {
+    assert.equal(buildLeadPayload({ form: {} }, services, extras).meta.userAgent, 'Otro/1.0')
+  })
+})
+
+test('buildLeadPayload: sin navigator, meta.userAgent es cadena vacía y no lanza', () => {
+  withNavigator(undefined, () => {
+    assert.equal(buildLeadPayload({ form: {} }, services, extras).meta.userAgent, '')
+  })
+})
+
+test('buildLeadPayload: no incluye el campo trampa ni su valor', () => {
+  const state = {
+    serviceId: LANDING.id,
+    form: { name: 'Ana', email: 'ana@example.com', [HONEYPOT_FIELD]: 'spam-value' },
+  }
+  const json = JSON.stringify(buildLeadPayload(state, services, extras))
+  assert.equal(json.includes(HONEYPOT_FIELD), false)
+  assert.equal(json.includes('spam-value'), false)
 })
 
 test('buildLeadPayload: no incluye ningún campo de precio', () => {

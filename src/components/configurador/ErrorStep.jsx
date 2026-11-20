@@ -4,12 +4,14 @@
  * Muestra mensaje de error con alternativas de contacto (mailto/WhatsApp)
  * según RN-AB-04. Si recibe `onEdit`, ofrece volver a revisar los datos.
  * El botón de WhatsApp solo se muestra si hay `whatsappUrl` (número configurado).
+ * Recibe `headingRef` para que la página le dé el foco al aparecer (C-11).
  */
 export default function ErrorStep({
   onRetry,
   onEdit,
   contactEmail = 'chaconfacu2006@gmail.com',
   whatsappUrl = null,
+  headingRef = null,
 }) {
   const subject = encodeURIComponent('Presupuesto web - Configurador')
   const body = encodeURIComponent(
@@ -19,7 +21,13 @@ export default function ErrorStep({
 
   return (
     <div className="glass p-6">
-      <h2 className="font-display text-xl font-bold text-white">No se pudo enviar</h2>
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        className="font-display text-xl font-bold text-white outline-none"
+      >
+        No se pudo enviar
+      </h2>
       <p className="mt-2 text-sm text-gray-300">
         Ocurrió un error al enviar tu solicitud. Podés reintentar, o contactarme directamente por email o WhatsApp.
       </p>

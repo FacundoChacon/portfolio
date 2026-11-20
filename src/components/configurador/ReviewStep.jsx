@@ -5,7 +5,8 @@ import { PencilLine } from 'lucide-react'
  *
  * Presentacional: recibe el modelo de `buildReview` (bloques + summary), el
  * callback de edición (`onEdit(editStep)`), el callback de envío (`onSubmit`) y
- * estados de envío (`submitting`, `submitted`). Mientras `submitting`, los botones
+ * estados de envío (`submitting`, `submitted`) y el email de contacto que se
+ * muestra en el aviso de privacidad (C-11). Mientras `submitting`, los botones
  * "Editar" quedan deshabilitados.
  */
 const editButton =
@@ -14,7 +15,14 @@ const editButton =
 const submitButton =
   'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark disabled:cursor-not-allowed disabled:opacity-50'
 
-export default function ReviewStep({ review, onEdit, onSubmit, submitting = false, submitted = false }) {
+export default function ReviewStep({
+  review,
+  onEdit,
+  onSubmit,
+  submitting = false,
+  submitted = false,
+  contactEmail = '',
+}) {
   const { blocks } = review
   const disabled = submitting || submitted
   const label = submitting ? 'Enviando...' : 'Enviar solicitud'
@@ -46,8 +54,20 @@ export default function ReviewStep({ review, onEdit, onSubmit, submitting = fals
         </section>
       ))}
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-400">
         Es una solicitud sin cargo: te paso el presupuesto por email.
+      </p>
+
+      <p className="text-xs text-gray-400">
+        Uso tus datos solo para responder esta solicitud. No los comparto ni los uso para
+        publicidad. Si querés que los borre, escribime a{' '}
+        <a
+          href={`mailto:${contactEmail}`}
+          className="underline underline-offset-2 hover:text-accent-green focus-visible:text-accent-green"
+        >
+          {contactEmail}
+        </a>
+        .
       </p>
 
       <div className="flex justify-end">

@@ -8,7 +8,9 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import {
+  FIELD_MAX_LENGTH,
   FIRST_STEP,
+  HONEYPOT_FIELD,
   LAST_STEP,
   STATUS,
   STEPS,
@@ -18,6 +20,7 @@ import {
   getSelectedExtras,
   getService,
   goToStep,
+  isLikelyBot,
   nextStep,
   prevStep,
   resolveSubmit,
@@ -121,6 +124,38 @@ test('setForm: actualiza un campo sin pisar el resto', () => {
 
 // --- 3.4 Validación y navegación --------------------------------------------
 
+test('FIELD_MAX_LENGTH: coincide con los límites del Apps Script desplegado (v2/v3)', () => {
+  assert.deepEqual(FIELD_MAX_LENGTH, { name: 120, email: 254, phone: 40, project: 2000 })
+})
+
+const VALID = { name: 'Ana', email: 'ana@b.com', phone: '', project: '' }
+
+test('validateForm: nombre pasado del límite da error y en el límite no', () => {
+  assert.equal(validateForm({ ...VALID, name: 'a'.repeat(120) }).name, undefined)
+  assert.equal(validateForm({ ...VALID, name: 'a'.repeat(121) }).name, 'Máximo 120 caracteres.')
+})
+
+test('validateForm: email pasado del límite da error y en el límite no', () => {
+  const emailOf = (len) => `${'a'.repeat(len - 6)}@b.com`
+  assert.equal(validateForm({ ...VALID, email: emailOf(254) }).email, undefined)
+  assert.equal(validateForm({ ...VALID, email: emailOf(255) }).email, 'Máximo 254 caracteres.')
+})
+
+test('validateForm: teléfono pasado del límite da error y en el límite no', () => {
+  assert.equal(validateForm({ ...VALID, phone: '1'.repeat(40) }).phone, undefined)
+  assert.equal(validateForm({ ...VALID, phone: '1'.repeat(41) }).phone, 'Máximo 40 caracteres.')
+})
+
+test('validateForm: descripción pasada del límite da error y en el límite no', () => {
+  assert.equal(validateForm({ ...VALID, project: 'x'.repeat(2000) }).project, undefined)
+  assert.equal(validateForm({ ...VALID, project: 'x'.repeat(2001) }).project, 'Máximo 2000 caracteres.')
+})
+
+test('validateForm: el largo se mide sobre el valor recortado (igual que el payload)', () => {
+  assert.equal(validateForm({ ...VALID, project: `  ${'x'.repeat(2000)}  ` }).project, undefined)
+  assert.equal(validateForm({ ...VALID, name: `${'a'.repeat(121)}   ` }).name, 'Máximo 120 caracteres.')
+})
+
 test('validateForm: nombre vacío y email inválido', () => {
   assert.ok(validateForm({ name: '   ', email: 'a@b.com' }).name)
   assert.equal(validateForm({ name: '   ', email: 'a@b.com' }).email, undefined)
@@ -217,6 +252,64 @@ test('submit: con datos válidos pasa a submitting sin marcar enviado', () => {
   assert.equal(result.submitting, true)
   assert.equal(result.status, STATUS.SUBMITTING)
   assert.deepEqual(result.errors, {})
+})
+
+test('submit: campo trampa completo descarta en silencio', () => {
+  const state = setForm(validState(), { [HONEYPOT_FIELD]: 'http://spam' })
+  const result = submit(state)
+  assert.equal(result.status, STATUS.SUCCESS)
+  assert.equal(result.submitted, true)
+  assert.equal(result.submitting, false)
+  assert.deepEqual(result.errors, {})
+})
+
+test('submit: campo trampa completo con datos inválidos también devuelve success sin errores', () => {
+  const state = setForm(createInitialState(SERVICES, EXTRAS), { [HONEYPOT_FIELD]: 'spam' })
+  const result = submit(state)
+  assert.equal(result.status, STATUS.SUCCESS)
+  assert.equal(result.submitted, true)
+  assert.deepEqual(result.errors, {})
+})
+
+test('submit: campo trampa vacío, con espacios o ausente sigue el flujo normal', () => {
+  for (const value of ['', '   ']) {
+    const valid = submit(setForm(validState(), { [HONEYPOT_FIELD]: value }))
+    assert.equal(valid.status, STATUS.SUBMITTING)
+    assert.equal(valid.submitting, true)
+
+    const invalid = submit(setForm(createInitialState(SERVICES, EXTRAS), { [HONEYPOT_FIELD]: value }))
+    assert.equal(invalid.status, STATUS.IDLE)
+    assert.ok(invalid.errors.name)
+  }
+  assert.equal(submit(validState()).status, STATUS.SUBMITTING)
+})
+
+test('submit: campo trampa completo respeta los guards de envío en curso y ya enviado', () => {
+  const trap = { [HONEYPOT_FIELD]: 'spam' }
+  const sending = setForm({ ...validState(), submitting: true, status: STATUS.SUBMITTING }, trap)
+  assert.equal(submit(sending), sending)
+  const done = setForm({ ...validState(), submitted: true, status: STATUS.SUCCESS }, trap)
+  assert.equal(submit(done), done)
+})
+
+test('isLikelyBot: solo un string con contenido dispara el descarte', () => {
+  assert.equal(isLikelyBot({ [HONEYPOT_FIELD]: 'http://spam' }), true)
+  assert.equal(isLikelyBot({ [HONEYPOT_FIELD]: '  x  ' }), true)
+  assert.equal(isLikelyBot({ [HONEYPOT_FIELD]: '   ' }), false)
+  assert.equal(isLikelyBot({ [HONEYPOT_FIELD]: 42 }), false)
+  assert.equal(isLikelyBot({ [HONEYPOT_FIELD]: null }), false)
+  assert.equal(isLikelyBot({}), false)
+  assert.equal(isLikelyBot(undefined), false)
+})
+
+test('HONEYPOT_FIELD: no es un nombre que el autocompletado del navegador pueda llenar', () => {
+  const AUTOFILLABLE = [
+    'company', 'organization', 'name', 'email', 'phone', 'tel',
+    'address', 'given-name', 'family-name',
+  ]
+  assert.equal(AUTOFILLABLE.includes(HONEYPOT_FIELD), false)
+  assert.equal(typeof HONEYPOT_FIELD, 'string')
+  assert.ok(HONEYPOT_FIELD.length > 0)
 })
 
 test('submit: con datos inválidos no envía y expone errores', () => {
@@ -403,6 +496,7 @@ test('las acciones no mutan el estado previo', () => {
   prevStep(state)
   goToStep(state, STEPS.REVIEW)
   submit(state)
+  submit(setForm(state, { [HONEYPOT_FIELD]: 'spam' }))
   resolveSubmit(state, 'error')
   clearSubmitError({ ...state, status: 'error' })
 

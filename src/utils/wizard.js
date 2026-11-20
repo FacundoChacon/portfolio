@@ -15,6 +15,8 @@
  * @typedef {Object} FormErrors
  * @property {string} [name]
  * @property {string} [email]
+ * @property {string} [phone]
+ * @property {string} [project]
  *
  * @typedef {'idle'|'submitting'|'success'|'error'} Status
  *
@@ -56,13 +58,23 @@ export const STATUS = {
 
 /**
  * Nombre del campo trampa (honeypot, RN-AB-01). Es la única fuente de verdad:
- * el formulario (C-08) lo renderiza oculto y el guard antiabuso (C-11) lo lee.
+ * el formulario lo renderiza oculto y `isLikelyBot`/`submit` lo leen para
+ * descartar el envío. Se llama `website` y no `company` porque el autocompletado
+ * del navegador puede llenar "organización" y descartaría leads reales.
  * No forma parte del modelo `ContactForm` a propósito (el test de C-05 hace
  * `deepEqual` del formulario vacío); se lee como `form[HONEYPOT_FIELD]`
  * (ausente → `undefined` → no dispara). `setForm` ya hace merge de parches, así
  * que el valor se persiste sin tocar el modelo.
  */
-export const HONEYPOT_FIELD = 'company'
+export const HONEYPOT_FIELD = 'website'
+
+/**
+ * Largo máximo por campo de contacto. DEBE coincidir con `LIMITES` del Apps
+ * Script desplegado: el receptor rechaza en silencio (`{ ok: false }` con HTTP
+ * 200, que el sitio muestra como éxito) cualquier lead que los supere, así que
+ * el formulario tiene que impedirlo antes de enviar (C-11, design D11).
+ */
+export const FIELD_MAX_LENGTH = { name: 120, email: 254, phone: 40, project: 2000 }
 
 /** Formato de email aceptado por RN-VL-01 (no exhaustivo, suficiente por diseño). */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -101,19 +113,26 @@ export function createInitialState(services = [], extras = []) {
 
 /**
  * Valida los datos de contacto (RN-VL-01/02): nombre no vacío y email con
- * formato válido. Teléfono y descripción son opcionales.
+ * formato válido. Teléfono y descripción son opcionales. Además ningún campo
+ * puede superar `FIELD_MAX_LENGTH`, medido sobre el valor recortado (es lo que
+ * viaja en el payload).
  *
  * @param {Partial<ContactForm>} [form]
  * @returns {FormErrors}
  */
 export function validateForm(form = {}) {
   const errors = {}
-  const name = typeof form.name === 'string' ? form.name.trim() : ''
-  const email = typeof form.email === 'string' ? form.email.trim() : ''
+  const value = (field) => (typeof form[field] === 'string' ? form[field].trim() : '')
+  const name = value('name')
+  const email = value('email')
 
   if (!name) errors.name = 'Ingresá tu nombre.'
   if (!email) errors.email = 'Ingresá tu email.'
   else if (!EMAIL_RE.test(email)) errors.email = 'Ingresá un email válido.'
+
+  for (const [field, max] of Object.entries(FIELD_MAX_LENGTH)) {
+    if (!errors[field] && value(field).length > max) errors[field] = `Máximo ${max} caracteres.`
+  }
 
   return errors
 }
@@ -246,17 +265,39 @@ export function goToStep(state, target) {
 }
 
 /**
+ * Indica si el campo trampa (honeypot, RN-AB-01) vino completo: un visitante
+ * real nunca lo ve ni lo llena, un bot sí. Solo cuenta un string con contenido
+ * tras `trim()`; cualquier otro valor (ausente, vacío, no string) es `false`.
+ *
+ * @param {Partial<ContactForm>} [form]
+ * @returns {boolean}
+ */
+export function isLikelyBot(form) {
+  const value = form?.[HONEYPOT_FIELD]
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+/**
  * Inicia el envío. Con datos válidos pasa a `submitting` (envío en curso) sin
  * marcar todavía el presupuesto como enviado: `submitted` significa "enviado
  * con éxito" y lo fija `resolveSubmit`. Con datos inválidos no lo envía y
  * expone los errores. Si ya hay un envío en curso o ya fue enviado con éxito
  * es no-op y devuelve el mismo objeto (RN-AB-02).
  *
+ * Si el campo trampa viene completo (`isLikelyBot`, RN-AB-01) descarta el envío
+ * en silencio: devuelve directamente `success` sin errores ni `submitting`, de
+ * modo que el hook no hace el POST y el bot no recibe ninguna señal. Se evalúa
+ * después de los guards y antes de validar.
+ *
  * @param {WizardState} state
  * @returns {WizardState}
  */
 export function submit(state) {
   if (state.submitting || state.submitted) return state
+
+  if (isLikelyBot(state.form)) {
+    return { ...state, errors: {}, submitted: true, status: STATUS.SUCCESS, submitting: false }
+  }
 
   const errors = validateForm(state.form)
   if (Object.keys(errors).length > 0) {

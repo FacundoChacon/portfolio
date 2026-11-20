@@ -31,7 +31,7 @@ export default function WizardSteps({ current = 0 }) {
                 ? 'border-accent-green/60 text-accent-green box-glow-cyan'
                 : isDone
                   ? 'border-accent-green/25 text-accent-green/70'
-                  : 'border-dark-border text-gray-500'
+                  : 'border-dark-border text-gray-400'
             }`}
           >
             <span
@@ -39,7 +39,7 @@ export default function WizardSteps({ current = 0 }) {
               className={`flex size-5 items-center justify-center rounded-full border text-[10px] ${
                 isCurrent || isDone
                   ? 'border-accent-green/60 text-accent-green'
-                  : 'border-dark-border text-gray-500'
+                  : 'border-dark-border text-gray-400'
               }`}
             >
               {isDone ? <Check className="size-3" /> : index + 1}

@@ -1,12 +1,32 @@
 import { useEffect, useState } from "react"
 
+import { REDUCED_MOTION_QUERY, prefersReducedMotion } from "../utils/motion.js"
+
 const chars = "!<>-_/[]{}—=+*^?#@%"
 
 export default function GlitchText({ text, className, as: Tag = "span", interval = 3000, scrambleDuration = 200 }) {
   const [display, setDisplay] = useState(text)
   const [glitching, setGlitching] = useState(false)
+  const [reduced, setReduced] = useState(() => prefersReducedMotion())
+
+  // Sigue los cambios de la preferencia del sistema mientras la página está abierta.
+  useEffect(() => {
+    if (typeof globalThis.matchMedia !== "function") return undefined
+    const list = globalThis.matchMedia(REDUCED_MOTION_QUERY)
+    if (typeof list?.addEventListener !== "function") return undefined
+    const onChange = (event) => setReduced(event.matches)
+    list.addEventListener("change", onChange)
+    return () => list.removeEventListener("change", onChange)
+  }, [])
 
   useEffect(() => {
+    // Con movimiento reducido el texto queda estático: no se programa el revuelto.
+    if (reduced) {
+      setDisplay(text)
+      setGlitching(false)
+      return undefined
+    }
+
     let timeout, intervalId
 
     const scramble = () => {
@@ -48,11 +68,13 @@ export default function GlitchText({ text, className, as: Tag = "span", interval
       clearTimeout(timeout)
       clearInterval(intervalId)
     }
-  }, [text, interval, scrambleDuration])
+  }, [text, interval, scrambleDuration, reduced])
 
   return (
-    <Tag className={`${className} ${glitching ? "text-glow-magenta" : ""}`} style={{ transition: "text-shadow 0.1s" }}>
-      {display}
+    <Tag className={`${className} ${glitching && !reduced ? "text-glow-magenta" : ""}`} style={{ transition: "text-shadow 0.1s" }}>
+      {/* El texto real es estable para tecnologías de asistencia; el revuelto es solo visual. */}
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">{display}</span>
     </Tag>
   )
 }

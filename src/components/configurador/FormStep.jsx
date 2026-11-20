@@ -1,4 +1,4 @@
-import { HONEYPOT_FIELD } from '../../utils/wizard.js'
+import { FIELD_MAX_LENGTH, HONEYPOT_FIELD } from '../../utils/wizard.js'
 
 /**
  * Paso 3: datos de contacto (C-08).
@@ -8,7 +8,7 @@ import { HONEYPOT_FIELD } from '../../utils/wizard.js'
  * `aria-invalid` + `aria-describedby` + `role="alert"` (RN-VL-04).
  */
 const inputClass = (hasError) =>
-  `w-full rounded-md border bg-dark-card/60 px-3 py-2 text-sm text-white placeholder:text-gray-600 transition-colors focus:outline-none ${
+  `w-full rounded-md border bg-dark-card/60 px-3 py-2 text-sm text-white placeholder:text-gray-400 transition-colors ${
     hasError
       ? 'border-accent-pink/60 focus:border-accent-pink/80'
       : 'border-dark-border focus:border-accent-green/60'
@@ -77,6 +77,7 @@ export default function FormStep({ form = {}, errors = {}, onChange }) {
         label="Nombre"
         required
         autoComplete="name"
+        maxLength={FIELD_MAX_LENGTH.name}
         placeholder="Tu nombre"
         value={form.name ?? ''}
         onChange={set('name')}
@@ -89,6 +90,7 @@ export default function FormStep({ form = {}, errors = {}, onChange }) {
         required
         type="email"
         autoComplete="email"
+        maxLength={FIELD_MAX_LENGTH.email}
         placeholder="tu@email.com"
         value={form.email ?? ''}
         onChange={set('email')}
@@ -101,9 +103,11 @@ export default function FormStep({ form = {}, errors = {}, onChange }) {
           label="Teléfono"
           type="tel"
           autoComplete="tel"
+          maxLength={FIELD_MAX_LENGTH.phone}
           placeholder="+54 9 11 ..."
           value={form.phone ?? ''}
           onChange={set('phone')}
+          error={errors.phone}
         />
         <div className="hidden sm:block" aria-hidden="true" />
       </div>
@@ -113,11 +117,13 @@ export default function FormStep({ form = {}, errors = {}, onChange }) {
         label="Descripción del proyecto"
         placeholder="Contame brevemente qué necesitás..."
         value={form.project ?? ''}
+        maxLength={FIELD_MAX_LENGTH.project}
         onChange={set('project')}
+        error={errors.project}
       />
 
       {/* Campo trampa (RN-AB-01): invisible para personas, presente para bots.
-          El guard activo (descarte silencioso) lo implementa C-11. */}
+          Si viene completo, `submit` descarta el envío en silencio (ver wizard.js). */}
       <div className="sr-only" aria-hidden="true">
         <label htmlFor={HONEYPOT_FIELD}>No completar este campo</label>
         <input

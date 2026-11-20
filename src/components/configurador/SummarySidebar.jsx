@@ -19,12 +19,12 @@ export default function SummarySidebar({ summary, className = '' }) {
             <span className="text-sm text-gray-300">
               {service.name}
               {service.quantity > 1 && (
-                <span className="text-gray-500"> × {service.quantity}</span>
+                <span className="text-gray-400"> × {service.quantity}</span>
               )}
             </span>
           </div>
         ) : (
-          <p className="text-sm text-gray-500">Elegí un tipo de sitio para empezar.</p>
+          <p className="text-sm text-gray-400">Elegí un tipo de sitio para empezar.</p>
         )}
 
         {extras.length > 0 ? (
@@ -36,11 +36,11 @@ export default function SummarySidebar({ summary, className = '' }) {
             ))}
           </ul>
         ) : (
-          service && <p className="border-t border-dark-border pt-3 text-xs text-gray-500">Sin extras</p>
+          service && <p className="border-t border-dark-border pt-3 text-xs text-gray-400">Sin extras</p>
         )}
       </div>
 
-      <p className="mt-6 border-t border-dark-border pt-4 text-xs text-gray-500">
+      <p className="mt-6 border-t border-dark-border pt-4 text-xs text-gray-400">
         Te respondo por email con el presupuesto a medida, sin cargo.
       </p>
     </aside>

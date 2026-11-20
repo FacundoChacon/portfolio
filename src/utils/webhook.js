@@ -51,7 +51,7 @@ export function buildLeadPayload(state, services = [], extras = []) {
   }
 
   const meta = {
-    userAgent: 'node:test',
+    userAgent: String(globalThis.navigator?.userAgent ?? ''),
     referrer: (typeof globalThis !== 'undefined' && globalThis.document && globalThis.document.referrer) || '',
   }
 
