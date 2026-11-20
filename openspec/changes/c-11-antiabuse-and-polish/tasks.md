@@ -66,7 +66,7 @@
 
 ## 10. Receptor Apps Script (manual del usuario, fuera del repo)
 
-- [ ] 10.1 (Manual — Facundo) El guard v2 (design D10) ya está desplegado en producción. Falta pegar el script v3 (`webhook-leads-v3.gs`, ver grupo 11) en el proyecto de Apps Script y redeployar como Nueva versión en la implementación existente (la URL no cambia); verificar enviando una solicitud real desde el configurador (llega a la planilla y el email), un teléfono que empiece con `+` (queda como texto en la celda) y un POST con `source` distinto (no llega)
+- [x] 10.1 (Manual — Facundo) El guard v2 (design D10) ya está desplegado en producción. Falta pegar el script v3 (`webhook-leads-v3.gs`, ver grupo 11) en el proyecto de Apps Script y redeployar como Nueva versión en la implementación existente (la URL no cambia); verificar enviando una solicitud real desde el configurador (llega a la planilla y el email), un teléfono que empiece con `+` (queda como texto en la celda) y un POST con `source` distinto (no llega) — hecho 2026-11-20: v3 desplegado por Facundo; verificado por POST: lead válido con fórmula y teléfono + → ok, source distinto → ok:false, project de 2001 caracteres → ok:false, 4.º envío del mismo email en la hora → ok:false
 
 ## 11. Límites de largo y script v3 (design D11)
 
