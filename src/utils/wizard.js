@@ -25,8 +25,10 @@
  * @property {number} quantity     Unidades del servicio (entero ≥ 1).
  * @property {ContactForm} form    Datos de contacto.
  * @property {FormErrors} errors   Errores de validación vigentes.
- * @property {boolean} submitted   Si el presupuesto fue enviado.
- * @property {boolean} submitting  Si hay un envío en curso (RN-AB-02).
+ * @property {boolean} submitted   Si el presupuesto fue enviado con éxito.
+ * @property {boolean} submitting  Si hay un envío en curso (RN-AB-02). Mientras es true,
+ *   la navegación y la edición (`nextStep`, `prevStep`, `goToStep`, `setForm`,
+ *   `setService`, `toggleExtra`, `setQuantity`) son no-op.
  */
 
 /** Pasos del wizard (0-indexados). */
@@ -117,8 +119,22 @@ export function validateForm(form = {}) {
 }
 
 /**
+ * Aplica `apply(state)` salvo que haya un envío en curso: en ese caso devuelve
+ * el mismo objeto (no-op). Bloquea la navegación y la edición mientras el POST
+ * está en vuelo, para que el visitante no quede en otro paso ni con datos
+ * distintos a los enviados.
+ *
+ * @param {WizardState} state
+ * @param {(state: WizardState) => WizardState} apply
+ * @returns {WizardState}
+ */
+function guardSubmitting(state, apply) {
+  return state.submitting ? state : apply(state)
+}
+
+/**
  * Selecciona un tipo de sitio (exactamente uno). No altera los extras ya
- * seleccionados (RN-PR-06).
+ * seleccionados (RN-PR-06). Es no-op mientras hay un envío en curso.
  *
  * @param {WizardState} state
  * @param {string} serviceId
@@ -126,7 +142,7 @@ export function validateForm(form = {}) {
  */
 export function setService(state, serviceId) {
   if (typeof serviceId !== 'string' || serviceId.length === 0) return state
-  return { ...state, serviceId }
+  return guardSubmitting(state, (current) => ({ ...current, serviceId }))
 }
 
 /**
@@ -138,13 +154,15 @@ export function setService(state, serviceId) {
  */
 export function toggleExtra(state, extraId) {
   if (typeof extraId !== 'string' || extraId.length === 0) return state
-  const selected = state.extras.includes(extraId)
-  return {
-    ...state,
-    extras: selected
-      ? state.extras.filter((id) => id !== extraId)
-      : [...state.extras, extraId],
-  }
+  return guardSubmitting(state, (current) => {
+    const selected = current.extras.includes(extraId)
+    return {
+      ...current,
+      extras: selected
+        ? current.extras.filter((id) => id !== extraId)
+        : [...current.extras, extraId],
+    }
+  })
 }
 
 /**
@@ -157,10 +175,10 @@ export function toggleExtra(state, extraId) {
  */
 export function setQuantity(state, quantity) {
   const normalized = Math.floor(Number(quantity))
-  return {
-    ...state,
+  return guardSubmitting(state, (current) => ({
+    ...current,
     quantity: Number.isFinite(normalized) && normalized >= 1 ? normalized : 1,
-  }
+  }))
 }
 
 /**
@@ -171,7 +189,7 @@ export function setQuantity(state, quantity) {
  * @returns {WizardState}
  */
 export function setForm(state, patch = {}) {
-  return { ...state, form: { ...state.form, ...patch } }
+  return guardSubmitting(state, (current) => ({ ...current, form: { ...current.form, ...patch } }))
 }
 
 /**
@@ -183,15 +201,17 @@ export function setForm(state, patch = {}) {
  * @returns {WizardState}
  */
 export function nextStep(state) {
-  if (state.step >= LAST_STEP) return state
+  return guardSubmitting(state, (current) => {
+    if (current.step >= LAST_STEP) return current
 
-  if (state.step === STEPS.CONTACT) {
-    const errors = validateForm(state.form)
-    if (Object.keys(errors).length > 0) return { ...state, errors }
-    return { ...state, errors: {}, step: state.step + 1 }
-  }
+    if (current.step === STEPS.CONTACT) {
+      const errors = validateForm(current.form)
+      if (Object.keys(errors).length > 0) return { ...current, errors }
+      return { ...current, errors: {}, step: current.step + 1 }
+    }
 
-  return { ...state, step: state.step + 1 }
+    return { ...current, step: current.step + 1 }
+  })
 }
 
 /**
@@ -202,7 +222,10 @@ export function nextStep(state) {
  * @returns {WizardState}
  */
 export function prevStep(state) {
-  return { ...state, step: Math.max(FIRST_STEP, state.step - 1) }
+  return guardSubmitting(state, (current) => ({
+    ...current,
+    step: Math.max(FIRST_STEP, current.step - 1),
+  }))
 }
 
 /**
@@ -219,24 +242,58 @@ export function prevStep(state) {
 export function goToStep(state, target) {
   if (typeof target !== 'number' || !Number.isInteger(target)) return state
   const step = Math.min(LAST_STEP, Math.max(FIRST_STEP, target))
-  return { ...state, step }
+  return guardSubmitting(state, (current) => ({ ...current, step }))
 }
 
 /**
- * Inicia el envío. Con datos válidos marca el presupuesto como enviado y pasa a
- * `submitting`; con datos inválidos no lo envía y expone los errores. La
- * resolución (`success`/`error`) la informa la capa de transporte con
- * `setStatus` (C-10).
+ * Inicia el envío. Con datos válidos pasa a `submitting` (envío en curso) sin
+ * marcar todavía el presupuesto como enviado: `submitted` significa "enviado
+ * con éxito" y lo fija `resolveSubmit`. Con datos inválidos no lo envía y
+ * expone los errores. Si ya hay un envío en curso o ya fue enviado con éxito
+ * es no-op y devuelve el mismo objeto (RN-AB-02).
  *
  * @param {WizardState} state
  * @returns {WizardState}
  */
 export function submit(state) {
+  if (state.submitting || state.submitted) return state
+
   const errors = validateForm(state.form)
   if (Object.keys(errors).length > 0) {
     return { ...state, errors, submitted: false, status: STATUS.IDLE, submitting: false }
   }
-  return { ...state, errors: {}, submitted: true, status: STATUS.SUBMITTING, submitting: true }
+  return { ...state, errors: {}, submitted: false, status: STATUS.SUBMITTING, submitting: true }
+}
+
+/**
+ * Cierra el envío en curso según el resultado de la capa de transporte:
+ * `success` marca el presupuesto como enviado; `error` libera el envío dejándolo
+ * reintentable (los datos se conservan). Cualquier otro valor es no-op.
+ *
+ * @param {WizardState} state
+ * @param {'success'|'error'|string} outcome
+ * @returns {WizardState}
+ */
+export function resolveSubmit(state, outcome) {
+  if (outcome === STATUS.SUCCESS) {
+    return { ...state, submitted: true, submitting: false, status: STATUS.SUCCESS }
+  }
+  if (outcome === STATUS.ERROR) {
+    return { ...state, submitted: false, submitting: false, status: STATUS.ERROR }
+  }
+  return state
+}
+
+/**
+ * Sale del estado `error` y vuelve a `idle` en el paso de revisión, conservando
+ * los datos cargados. Fuera de `error` es no-op.
+ *
+ * @param {WizardState} state
+ * @returns {WizardState}
+ */
+export function clearSubmitError(state) {
+  if (state.status !== STATUS.ERROR) return state
+  return { ...state, status: STATUS.IDLE, step: STEPS.REVIEW }
 }
 
 /**

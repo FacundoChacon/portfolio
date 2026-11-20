@@ -5,10 +5,11 @@ import { PencilLine } from 'lucide-react'
  *
  * Presentacional: recibe el modelo de `buildReview` (bloques + summary), el
  * callback de edición (`onEdit(editStep)`), el callback de envío (`onSubmit`) y
- * estados de envío (`submitting`, `submitted`).
+ * estados de envío (`submitting`, `submitted`). Mientras `submitting`, los botones
+ * "Editar" quedan deshabilitados.
  */
 const editButton =
-  'inline-flex items-center gap-1.5 rounded-md border border-dark-border px-2.5 py-1 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green'
+  'inline-flex items-center gap-1.5 rounded-md border border-dark-border px-2.5 py-1 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green disabled:cursor-not-allowed disabled:opacity-50'
 
 const submitButton =
   'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark disabled:cursor-not-allowed disabled:opacity-50'
@@ -24,7 +25,12 @@ export default function ReviewStep({ review, onEdit, onSubmit, submitting = fals
         <section key={block.id} className="glass p-4">
           <div className="flex items-center justify-between gap-3">
             <h3 className="font-display text-sm font-bold text-white">{block.title}</h3>
-            <button type="button" onClick={() => onEdit(block.editStep)} className={editButton}>
+            <button
+              type="button"
+              onClick={() => onEdit(block.editStep)}
+              className={editButton}
+              disabled={submitting}
+            >
               <PencilLine className="size-3.5" aria-hidden="true" /> Editar
             </button>
           </div>

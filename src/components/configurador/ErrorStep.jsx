@@ -2,10 +2,11 @@
  * Paso de error al enviar el presupuesto (C-10).
  *
  * Muestra mensaje de error con alternativas de contacto (mailto/WhatsApp)
- * según RN-AB-04.
+ * según RN-AB-04. Si recibe `onEdit`, ofrece volver a revisar los datos.
  */
 export default function ErrorStep({
   onRetry,
+  onEdit,
   contactEmail = 'chaconfacu2006@gmail.com',
   whatsappUrl = 'https://wa.me/?text=Hola Facundo, te quería consultar por el presupuesto del configurador',
 }) {
@@ -29,6 +30,15 @@ export default function ErrorStep({
         >
           Reintentar
         </button>
+        {onEdit && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="inline-flex items-center gap-2 rounded-md border border-dark-border px-5 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green"
+          >
+            Revisar mis datos
+          </button>
+        )}
         <a
           href={mailto}
           className="inline-flex items-center gap-2 rounded-md border border-dark-border px-5 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green"

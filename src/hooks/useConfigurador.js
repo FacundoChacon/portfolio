@@ -1,18 +1,20 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 import { extras as catalogExtras, services as catalogServices } from '../data/configurador.js'
 import { buildLeadPayload, sendLead } from '../utils/webhook.js'
 import {
+  STATUS,
+  clearSubmitError,
   createInitialState,
   getSelectedExtras,
   getService,
   goToStep,
   nextStep,
   prevStep,
+  resolveSubmit,
   setForm,
   setQuantity,
   setService,
-  setStatus,
   submit,
   toggleExtra,
 } from '../utils/wizard.js'
@@ -32,29 +34,39 @@ export function useConfigurador({
 } = {}) {
   const [state, setState] = useState(() => createInitialState(services, extras))
 
-  const submitReal = async () => {
-    let pending = false
-    setState((current) => {
-      if (current.submitted || current.submitting) {
-        return current
-      }
-      const validated = submit(current)
-      if (Object.keys(validated.errors ?? {}).length > 0) {
-        return validated
-      }
-      pending = true
-      return { ...validated, submitting: true, status: 'submitting' }
-    })
+  // Bloqueo síncrono contra doble activación antes del re-render, y espejo del
+  // estado vigente para decidir el envío fuera del updater de setState.
+  const inFlightRef = useRef(false)
+  const stateRef = useRef(state)
+  useLayoutEffect(() => {
+    stateRef.current = state
+  }, [state])
 
-    if (!pending) return
+  const submitReal = async () => {
+    if (inFlightRef.current) return
+
+    const current = stateRef.current
+    const next = submit(current)
+    if (next === current) return
+    if (next.status !== STATUS.SUBMITTING) {
+      stateRef.current = next
+      setState(next)
+      return
+    }
+
+    inFlightRef.current = true
+    stateRef.current = next
+    setState(next)
 
     try {
-      const payload = buildLeadPayload(state, services, extras)
+      const payload = buildLeadPayload(next, services, extras)
       await sendLead(payload, { pdf: null })
-      setState((current) => ({ ...current, submitted: true, submitting: false, status: 'success' }))
+      setState((c) => resolveSubmit(c, STATUS.SUCCESS))
     } catch (error) {
       console.error('Error enviando lead:', error)
-      setState((current) => ({ ...current, submitting: false, status: 'error' }))
+      setState((c) => resolveSubmit(c, STATUS.ERROR))
+    } finally {
+      inFlightRef.current = false
     }
   }
 
@@ -70,7 +82,7 @@ export function useConfigurador({
     prevStep: () => setState((current) => prevStep(current)),
     goToStep: (step) => setState((current) => goToStep(current, step)),
     submit: submitReal,
-    setStatus: (status) => setState((current) => setStatus(current, status)),
+    clearSubmitError: () => setState((current) => clearSubmitError(current)),
   }
 }
 

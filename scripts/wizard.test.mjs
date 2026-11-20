@@ -13,12 +13,14 @@ import {
   STATUS,
   STEPS,
   TOTAL_STEPS,
+  clearSubmitError,
   createInitialState,
   getSelectedExtras,
   getService,
   goToStep,
   nextStep,
   prevStep,
+  resolveSubmit,
   setForm,
   setQuantity,
   setService,
@@ -206,13 +208,13 @@ test('goToStep: ignora valores no numéricos', () => {
 
 // --- 3.5 Envío --------------------------------------------------------------
 
-test('submit: con datos válidos marca enviado y pasa a submitting', () => {
-  const state = setForm(createInitialState(SERVICES, EXTRAS), {
-    name: 'Ana',
-    email: 'ana@example.com',
-  })
-  const result = submit(state)
-  assert.equal(result.submitted, true)
+const validState = () =>
+  setForm(createInitialState(SERVICES, EXTRAS), { name: 'Ana', email: 'ana@example.com' })
+
+test('submit: con datos válidos pasa a submitting sin marcar enviado', () => {
+  const result = submit(validState())
+  assert.equal(result.submitted, false)
+  assert.equal(result.submitting, true)
   assert.equal(result.status, STATUS.SUBMITTING)
   assert.deepEqual(result.errors, {})
 })
@@ -220,9 +222,150 @@ test('submit: con datos válidos marca enviado y pasa a submitting', () => {
 test('submit: con datos inválidos no envía y expone errores', () => {
   const result = submit(createInitialState(SERVICES, EXTRAS))
   assert.equal(result.submitted, false)
+  assert.equal(result.submitting, false)
   assert.equal(result.status, STATUS.IDLE)
   assert.ok(result.errors.name)
   assert.ok(result.errors.email)
+})
+
+test('submit: con datos válidos limpia errores previos', () => {
+  const state = { ...validState(), errors: { name: 'x', email: 'y' } }
+  assert.deepEqual(submit(state).errors, {})
+})
+
+test('submit: no-op si ya hay un envío en curso', () => {
+  const state = { ...validState(), submitting: true, status: STATUS.SUBMITTING }
+  assert.equal(submit(state), state)
+})
+
+test('submit: no-op si ya fue enviado con éxito', () => {
+  const state = { ...validState(), submitted: true, status: STATUS.SUCCESS }
+  assert.equal(submit(state), state)
+})
+
+test('submit: con envío en curso y datos inválidos sigue siendo no-op', () => {
+  const state = { ...createInitialState(SERVICES, EXTRAS), submitting: true, status: STATUS.SUBMITTING }
+  const result = submit(state)
+  assert.equal(result, state)
+  assert.deepEqual(result.errors, {})
+})
+
+test('resolveSubmit: success marca enviado y libera el envío en curso', () => {
+  const result = resolveSubmit(submit(validState()), 'success')
+  assert.equal(result.status, STATUS.SUCCESS)
+  assert.equal(result.submitted, true)
+  assert.equal(result.submitting, false)
+})
+
+test('resolveSubmit: error libera el envío, no marca enviado y conserva datos', () => {
+  const sending = submit({ ...validState(), serviceId: 'custom', quantity: 3 })
+  const result = resolveSubmit(sending, 'error')
+  assert.equal(result.status, STATUS.ERROR)
+  assert.equal(result.submitted, false)
+  assert.equal(result.submitting, false)
+  assert.equal(result.serviceId, 'custom')
+  assert.equal(result.quantity, 3)
+  assert.deepEqual(result.extras, sending.extras)
+  assert.deepEqual(result.form, sending.form)
+})
+
+test('resolveSubmit: resultado desconocido devuelve el mismo estado', () => {
+  const sending = submit(validState())
+  assert.equal(resolveSubmit(sending, 'nope'), sending)
+  assert.equal(resolveSubmit(sending, undefined), sending)
+})
+
+test('reintento: tras un error submit vuelve a submitting', () => {
+  const failed = resolveSubmit(submit(validState()), STATUS.ERROR)
+  const retry = submit(failed)
+  assert.equal(retry.status, STATUS.SUBMITTING)
+  assert.equal(retry.submitting, true)
+})
+
+test('reintento: tras un éxito submit es no-op', () => {
+  const done = resolveSubmit(submit(validState()), STATUS.SUCCESS)
+  assert.equal(submit(done), done)
+})
+
+test('clearSubmitError: desde error vuelve a idle en revisión conservando datos', () => {
+  const failed = resolveSubmit(
+    submit({ ...validState(), step: STEPS.CONTACT, quantity: 2 }),
+    STATUS.ERROR,
+  )
+  const result = clearSubmitError(failed)
+  assert.equal(result.status, STATUS.IDLE)
+  assert.equal(result.step, STEPS.REVIEW)
+  assert.equal(result.submitted, false)
+  assert.equal(result.quantity, 2)
+  assert.deepEqual(result.form, failed.form)
+})
+
+test('clearSubmitError: fuera de error devuelve el mismo estado', () => {
+  const idle = validState()
+  const sending = submit(idle)
+  const done = resolveSubmit(sending, STATUS.SUCCESS)
+  for (const state of [idle, sending, done]) {
+    assert.equal(clearSubmitError(state), state)
+  }
+})
+
+// --- Bloqueo de navegación y edición durante el envío (D6) -------------------
+
+const sendingState = (patch = {}) => submit({ ...validState(), step: STEPS.REVIEW, ...patch })
+
+test('bloqueo: nextStep, prevStep y goToStep son no-op (mismo objeto) con submitting', () => {
+  const sending = sendingState()
+  assert.equal(sending.submitting, true)
+  assert.equal(nextStep(sending), sending)
+  assert.equal(prevStep(sending), sending)
+  assert.equal(goToStep(sending, STEPS.SERVICE), sending)
+  const midway = { ...sending, step: STEPS.EXTRAS }
+  assert.equal(nextStep(midway), midway)
+  assert.equal(prevStep(midway), midway)
+})
+
+test('bloqueo: nextStep, prevStep y goToStep siguen funcionando sin envío en curso', () => {
+  const idle = { ...validState(), step: STEPS.EXTRAS }
+  assert.equal(nextStep(idle).step, STEPS.CONTACT)
+  assert.equal(prevStep(idle).step, STEPS.SERVICE)
+  assert.equal(goToStep(idle, STEPS.REVIEW).step, STEPS.REVIEW)
+})
+
+test('bloqueo: setForm, setService, toggleExtra y setQuantity son no-op (mismo objeto) con submitting', () => {
+  const sending = sendingState()
+  assert.equal(setForm(sending, { name: 'Otra' }), sending)
+  assert.equal(setService(sending, 'custom'), sending)
+  assert.equal(toggleExtra(sending, 'seo'), sending)
+  assert.equal(setQuantity(sending, 5), sending)
+  assert.equal(sending.form.name, 'Ana')
+  assert.equal(sending.serviceId, 'landing')
+  assert.deepEqual(sending.extras, ['hosting'])
+  assert.equal(sending.quantity, 1)
+})
+
+test('bloqueo: setForm, setService, toggleExtra y setQuantity siguen funcionando sin envío en curso', () => {
+  const idle = validState()
+  assert.equal(setForm(idle, { name: 'Otra' }).form.name, 'Otra')
+  assert.equal(setService(idle, 'custom').serviceId, 'custom')
+  assert.deepEqual(toggleExtra(idle, 'seo').extras, ['hosting', 'seo'])
+  assert.equal(setQuantity(idle, 5).quantity, 5)
+})
+
+test('bloqueo: tras resolveSubmit con error la navegación y la edición vuelven a funcionar', () => {
+  const failed = resolveSubmit(sendingState(), STATUS.ERROR)
+  assert.equal(prevStep(failed).step, STEPS.CONTACT)
+  assert.equal(goToStep(failed, STEPS.SERVICE).step, STEPS.SERVICE)
+  assert.equal(setForm(failed, { name: 'Otra' }).form.name, 'Otra')
+  assert.equal(setQuantity(failed, 3).quantity, 3)
+})
+
+test('bloqueo: no afecta a submit, resolveSubmit, clearSubmitError ni setStatus', () => {
+  const sending = sendingState()
+  assert.equal(submit(sending), sending)
+  assert.equal(resolveSubmit(sending, STATUS.ERROR).status, STATUS.ERROR)
+  assert.equal(setStatus(sending, STATUS.ERROR).status, STATUS.ERROR)
+  const failed = resolveSubmit(sending, STATUS.ERROR)
+  assert.equal(clearSubmitError(failed).status, STATUS.IDLE)
 })
 
 test('setStatus: resuelve el envío a success o error e ignora valores inválidos', () => {
@@ -260,6 +403,8 @@ test('las acciones no mutan el estado previo', () => {
   prevStep(state)
   goToStep(state, STEPS.REVIEW)
   submit(state)
+  resolveSubmit(state, 'error')
+  clearSubmitError({ ...state, status: 'error' })
 
   assert.deepEqual(state, snapshot)
 })

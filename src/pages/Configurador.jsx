@@ -67,7 +67,7 @@ function StepBody({ step, wizard }) {
 }
 
 const secondaryButton =
-  'inline-flex items-center gap-2 rounded-md border border-dark-border px-4 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green'
+  'inline-flex items-center gap-2 rounded-md border border-dark-border px-4 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green disabled:cursor-not-allowed disabled:opacity-50'
 
 const primaryButton =
   'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark'
@@ -117,6 +117,7 @@ export default function Configurador() {
             ) : wizard.status === 'error' ? (
               <ErrorStep
                 onRetry={wizard.submit}
+                onEdit={wizard.clearSubmitError}
                 contactEmail={import.meta.env.VITE_CONTACT_EMAIL || 'chaconfacu2006@gmail.com'}
                 whatsappUrl={
                   import.meta.env.VITE_WHATSAPP_URL ||
@@ -135,7 +136,12 @@ export default function Configurador() {
             {wizard.status !== 'success' && wizard.status !== 'error' && (
               <div className="mt-6 flex items-center justify-between gap-3">
                 {wizard.step > FIRST_STEP ? (
-                  <button type="button" onClick={wizard.prevStep} className={secondaryButton}>
+                  <button
+                    type="button"
+                    onClick={wizard.prevStep}
+                    className={secondaryButton}
+                    disabled={wizard.submitting}
+                  >
                     <ChevronLeft className="size-4" aria-hidden="true" /> Atrás
                   </button>
                 ) : (
