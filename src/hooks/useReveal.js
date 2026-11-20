@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react"
 
-export function useReveal(options = {}) {
+/**
+ * Revela un elemento la primera vez que entra en el viewport.
+ * Las opciones se reciben desestructuradas (valores primitivos) para que el
+ * efecto dependa de ellas sin re-ejecutarse cuando el llamador pasa un objeto
+ * literal nuevo en cada render (`useReveal({ threshold: 0.1 })`).
+ *
+ * @param {{ threshold?: number|number[], rootMargin?: string, root?: Element|null }} [options]
+ */
+export function useReveal({ threshold = 0.15, rootMargin, root } = {}) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
 
@@ -20,12 +28,12 @@ export function useReveal(options = {}) {
           observer.disconnect()
         }
       },
-      { threshold: options.threshold ?? 0.15, ...options }
+      { threshold, rootMargin, root }
     )
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [threshold, rootMargin, root])
 
   return [ref, visible]
 }
