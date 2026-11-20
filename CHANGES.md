@@ -252,7 +252,7 @@ GATE 5: C-11 antiabuse-and-polish ✓
 ## FASE 5 — Calidad y cierre
 
 ### [C-11] `antiabuse-and-polish`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-11-20)
 - **Scope**:
   - Honeypot activo: descarte silencioso si está completo (RN-AB-01).
   - Bloqueo de doble submit (`status === 'submitting'`) (RN-AB-02).
