@@ -9,7 +9,14 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { extras, services } from '../src/data/configurador.js'
-import { buildLeadPayload, buildLeadRequest, LEAD_SOURCE, isWebhookConfigured } from '../src/utils/webhook.js'
+import {
+  buildLeadPayload,
+  buildLeadRequest,
+  LEAD_SOURCE,
+  SEND_TIMEOUT_MS,
+  isWebhookConfigured,
+  sendLead,
+} from '../src/utils/webhook.js'
 
 const LANDING = services.find((s) => s.id === 'landing')
 const HOSTING = extras.find((e) => e.id === 'hosting')
@@ -99,4 +106,44 @@ test('buildLeadRequest: incluye el pdf cuando se pasa', () => {
   const pdf = { mimeType: 'application/pdf', base64: 'QUJD' }
   const req = buildLeadRequest({ source: 'x' }, { pdf })
   assert.deepEqual(JSON.parse(req.body), { payload: { source: 'x' }, pdf })
+})
+
+// fetch falso que nunca responde, pero respeta la señal de aborto (como el real).
+function hangingFetch() {
+  return (_url, init) =>
+    new Promise((_resolve, reject) => {
+      init.signal.addEventListener('abort', () => reject(init.signal.reason ?? new Error('aborted')))
+    })
+}
+
+function okFetch(body = { ok: true }) {
+  return async (_url, init) => {
+    okFetch.lastInit = init
+    return new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } })
+  }
+}
+
+test('SEND_TIMEOUT_MS: límite razonable de 20 s', () => {
+  assert.equal(SEND_TIMEOUT_MS, 20000)
+})
+
+test('sendLead: si el webhook no responde a tiempo, falla con error de timeout (no queda colgado)', async () => {
+  const started = Date.now()
+  await assert.rejects(
+    sendLead({ source: 'x' }, { url: 'https://hook.test/exec', fetchImpl: hangingFetch(), timeoutMs: 30 }),
+    /no respondió a tiempo/,
+  )
+  assert.ok(Date.now() - started < 1000)
+})
+
+test('sendLead: respuesta a tiempo devuelve el JSON y pasa una señal de aborto a fetch', async () => {
+  const res = await sendLead({ source: 'x' }, { url: 'https://hook.test/exec', fetchImpl: okFetch({ ok: true }), timeoutMs: 1000 })
+  assert.deepEqual(res, { ok: true })
+  assert.ok(okFetch.lastInit.signal instanceof AbortSignal)
+  assert.equal(okFetch.lastInit.headers['Content-Type'], 'text/plain;charset=utf-8')
+})
+
+test('sendLead: un HTTP no-ok sigue fallando con el status', async () => {
+  const fail = async () => new Response('boom', { status: 500 })
+  await assert.rejects(sendLead({}, { url: 'https://hook.test/exec', fetchImpl: fail, timeoutMs: 1000 }), /\(500\)/)
 })

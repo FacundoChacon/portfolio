@@ -91,28 +91,56 @@ export function buildLeadRequest(payload, opts = { pdf: null }) {
 }
 
 /**
+ * Tiempo máximo de espera del webhook. Apps Script a veces deja colgada la
+ * redirección a `script.googleusercontent.com`; sin límite, la UI quedaría en
+ * "Enviando..." para siempre. Tras el timeout se muestra el error con
+ * "Reintentar" (si el script ya había corrido, el lead puede duplicarse).
+ */
+export const SEND_TIMEOUT_MS = 20000
+
+/**
  * Envía el lead al webhook.
  * @param {object} payload LeadPayload
- * @param {{ pdf?: { mimeType: string, base64: string }|null }|undefined} opts
+ * @param {{
+ *   pdf?: { mimeType: string, base64: string }|null,
+ *   url?: string,
+ *   fetchImpl?: typeof fetch,
+ *   timeoutMs?: number,
+ * }} [opts] `url`/`fetchImpl`/`timeoutMs` existen para tests; por defecto usa
+ *   `VITE_WEBHOOK_URL`, el `fetch` global y `SEND_TIMEOUT_MS`.
  * @returns {Promise<object>} Respuesta del webhook
  */
-export async function sendLead(payload, opts = { pdf: null }) {
-  const url = import.meta.env?.VITE_WEBHOOK_URL
+export async function sendLead(payload, opts = {}) {
+  const {
+    url = import.meta.env?.VITE_WEBHOOK_URL,
+    fetchImpl = globalThis.fetch,
+    timeoutMs = SEND_TIMEOUT_MS,
+  } = opts
   if (!url || url.trim().length === 0) {
     throw new Error('Webhook no configurado: VITE_WEBHOOK_URL no está definido')
   }
 
-  const res = await fetch(url, buildLeadRequest(payload, opts))
+  const controller = new AbortController()
+  const timer = setTimeout(
+    () => controller.abort(new Error(`El webhook no respondió a tiempo (${timeoutMs} ms)`)),
+    timeoutMs,
+  )
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`Error al enviar al webhook (${res.status}): ${text}`)
-  }
+  try {
+    const res = await fetchImpl(url, { ...buildLeadRequest(payload, opts), signal: controller.signal })
 
-  // Intentar parsear JSON si existe; si no, devolver vacío
-  const contentType = res.headers.get('content-type') || ''
-  if (contentType.includes('application/json')) {
-    return res.json().catch(() => ({}))
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      throw new Error(`Error al enviar al webhook (${res.status}): ${text}`)
+    }
+
+    // Intentar parsear JSON si existe; si no, devolver vacío
+    const contentType = res.headers.get('content-type') || ''
+    if (contentType.includes('application/json')) {
+      return await res.json().catch(() => ({}))
+    }
+    return {}
+  } finally {
+    clearTimeout(timer)
   }
-  return {}
 }
