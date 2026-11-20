@@ -12,6 +12,7 @@ import ErrorStep from '../components/configurador/ErrorStep.jsx'
 import WizardSteps from '../components/configurador/WizardSteps.jsx'
 import { extras, services } from '../data/configurador.js'
 import { useConfigurador } from '../hooks/useConfigurador.js'
+import { buildWhatsAppUrl } from '../utils/contact.js'
 import { buildReview } from '../utils/review.js'
 import { buildSummary } from '../utils/summary.js'
 import { FIRST_STEP, LAST_STEP, STEPS } from '../utils/wizard.js'
@@ -119,10 +120,10 @@ export default function Configurador() {
                 onRetry={wizard.submit}
                 onEdit={wizard.clearSubmitError}
                 contactEmail={import.meta.env.VITE_CONTACT_EMAIL || 'chaconfacu2006@gmail.com'}
-                whatsappUrl={
-                  import.meta.env.VITE_WHATSAPP_URL ||
-                  'https://wa.me/?text=Hola Facundo, te quería consultar por el presupuesto del configurador'
-                }
+                whatsappUrl={buildWhatsAppUrl(
+                  import.meta.env.VITE_WHATSAPP_NUMBER,
+                  'Hola Facundo, te quería consultar por el presupuesto del configurador',
+                )}
               />
             ) : (
               <>
