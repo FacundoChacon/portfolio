@@ -75,6 +75,22 @@ export function buildLeadPayload(state, services = [], extras = []) {
 }
 
 /**
+ * Arma las opciones de `fetch` para enviar el lead. Usa `text/plain` para que
+ * sea un request "simple" (sin preflight CORS): receptores como Google Apps
+ * Script no responden OPTIONS. El cuerpo sigue siendo JSON.
+ * @param {object} payload LeadPayload
+ * @param {{ pdf?: { mimeType: string, base64: string }|null }|undefined} opts
+ * @returns {{ method: string, headers: Record<string, string>, body: string }}
+ */
+export function buildLeadRequest(payload, opts = { pdf: null }) {
+  return {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ payload, pdf: opts?.pdf ?? null }),
+  }
+}
+
+/**
  * Envía el lead al webhook.
  * @param {object} payload LeadPayload
  * @param {{ pdf?: { mimeType: string, base64: string }|null }|undefined} opts
@@ -86,18 +102,7 @@ export async function sendLead(payload, opts = { pdf: null }) {
     throw new Error('Webhook no configurado: VITE_WEBHOOK_URL no está definido')
   }
 
-  const body = {
-    payload,
-    pdf: opts.pdf ?? null,
-  }
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  })
+  const res = await fetch(url, buildLeadRequest(payload, opts))
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')

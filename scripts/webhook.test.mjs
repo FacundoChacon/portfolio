@@ -9,7 +9,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { extras, services } from '../src/data/configurador.js'
-import { buildLeadPayload, LEAD_SOURCE, isWebhookConfigured } from '../src/utils/webhook.js'
+import { buildLeadPayload, buildLeadRequest, LEAD_SOURCE, isWebhookConfigured } from '../src/utils/webhook.js'
 
 const LANDING = services.find((s) => s.id === 'landing')
 const HOSTING = extras.find((e) => e.id === 'hosting')
@@ -85,4 +85,18 @@ test('buildLeadPayload: extras vacíos y sin servicio → maneja sin romper', ()
 test('isWebhookConfigured: false en test (sin env)', () => {
   // En Node/test no hay import.meta.env → undefined
   assert.equal(isWebhookConfigured(), false)
+})
+
+test('buildLeadRequest: POST como text/plain (request simple, sin preflight CORS) con cuerpo JSON', () => {
+  const payload = { contact: { name: 'Ana', email: 'ana@example.com' } }
+  const req = buildLeadRequest(payload)
+  assert.equal(req.method, 'POST')
+  assert.equal(req.headers['Content-Type'], 'text/plain;charset=utf-8')
+  assert.deepEqual(JSON.parse(req.body), { payload, pdf: null })
+})
+
+test('buildLeadRequest: incluye el pdf cuando se pasa', () => {
+  const pdf = { mimeType: 'application/pdf', base64: 'QUJD' }
+  const req = buildLeadRequest({ source: 'x' }, { pdf })
+  assert.deepEqual(JSON.parse(req.body), { payload: { source: 'x' }, pdf })
 })
