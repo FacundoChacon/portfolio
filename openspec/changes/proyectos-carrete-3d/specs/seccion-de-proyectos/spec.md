@@ -8,11 +8,11 @@
 
 La sección SHALL presentar los proyectos del portfolio en el orden de los datos. En el carrete 3D, cada proyecto SHALL mostrarse con su imagen de vista previa, y su título, estado (demo, en el mercado o en curso) y descripción SHALL estar disponibles como texto accesible. En el carrusel de respaldo, cada card SHALL mostrar título, descripción, imagen con texto alternativo, etiquetas de tecnología, estado en texto y los enlaces de demo y repositorio que tenga.
 
-#### Scenario: Proyecto con demo y repositorio en el carrusel de respaldo
+#### Scenario: Proyecto con demo y repositorio
 - **WHEN** el visitante ve, en el carrusel de respaldo, la card de "Tienda-Electronica"
 - **THEN** ve su título, descripción, imagen, etiquetas, el estado "Demo" en texto y los enlaces a la demo y al repositorio
 
-#### Scenario: Proyecto sin repositorio en el carrusel de respaldo
+#### Scenario: Proyecto sin repositorio
 - **WHEN** el visitante ve, en el carrusel de respaldo, la card de un proyecto que no tiene repositorio público (por ejemplo "3-Esquinas")
 - **THEN** la card muestra el enlace a la demo y no muestra un enlace de repositorio
 
@@ -44,6 +44,14 @@ En el carrusel de respaldo, cada card de proyecto SHALL funcionar como un único
 
 En el carrete 3D, la sección SHALL ofrecer un enlace chico "Más en GitHub" debajo del carrete, que abre el perfil de GitHub en una pestaña nueva. En el carrusel de respaldo, el cierre SHALL ser una card con aspecto de panel de sistema al final del carrusel que enlaza al perfil de GitHub (pestaña nueva) y a la sección de contacto de la home.
 
+#### Scenario: Hueco en la última página
+- **WHEN** hay 5 proyectos (no múltiplo de tres)
+- **THEN** no existen páginas ni huecos: en el carrete el enlace "Más en GitHub" va debajo del lienzo y en el carrusel de respaldo el cierre es simplemente la card que sigue al quinto proyecto
+
+#### Scenario: Cantidad múltiplo de tres
+- **WHEN** hay 6 proyectos
+- **THEN** el carrete gira por los seis proyectos y el cierre (enlace o card de respaldo) aparece después de ellos, sin una página adicional
+
 #### Scenario: Enlace a GitHub en el carrete
 - **WHEN** el visitante ve el carrete a 1440×900
 - **THEN** debajo del carrete hay un enlace "Más en GitHub" que no es una card ni forma parte de la rotación, y abre el perfil en una pestaña nueva
@@ -63,6 +71,10 @@ La sección SHALL exponer los proyectos como una lista en el orden de los datos,
 #### Scenario: Lector de pantalla en el carrete
 - **WHEN** un lector de pantalla recorre la sección con el primer proyecto al frente
 - **THEN** encuentra una lista de cinco enlaces, uno por proyecto, en el orden de los datos
+
+#### Scenario: Lector de pantalla en la segunda página
+- **WHEN** un lector de pantalla recorre la sección con el cuarto proyecto al frente del carrete
+- **THEN** la lista sigue exponiendo los cinco enlaces de proyecto en el orden de los datos, sin ninguno oculto por estar fuera de pantalla
 
 #### Scenario: Lector de pantalla en el carrusel de respaldo
 - **WHEN** un lector de pantalla recorre el carrusel de respaldo con la primera card en pantalla
@@ -84,6 +96,10 @@ Cuando el foco de teclado llega al enlace de un proyecto del carrete, la secció
 - **WHEN** el foco está en el último enlace de proyecto y el visitante pulsa Tab
 - **THEN** el foco pasa al enlace "Más en GitHub" y, con otro Tab, a la sección siguiente
 
+#### Scenario: Tab hacia la segunda página
+- **WHEN** en el carrusel de respaldo el visitante recorre con Tab los enlaces hasta la cuarta card
+- **THEN** el carrusel se desplaza hasta que la cuarta card y su contorno de foco son visibles
+
 #### Scenario: Foco en el carrusel de respaldo
 - **WHEN** en el carrusel de respaldo el foco llega a una card fuera de la vista
 - **THEN** el carrusel se desplaza hasta que el elemento enfocado y su contorno de foco son visibles
@@ -96,12 +112,16 @@ El ancla `#proyectos` SHALL llevar al comienzo de la sección con el primer proy
 - **WHEN** el visitante usa el enlace "Proyectos" de la navegación
 - **THEN** ve el título de la sección y el primer proyecto al frente debajo de la barra fija, y el enlace "Proyectos" del nav queda marcado como sección activa
 
+#### Scenario: Entrada directa por el ancla
+- **WHEN** el visitante carga la home directamente con `/#proyectos` (o cualquier `#id` de sección de la home) en la URL
+- **THEN** una vez montada la página, esta se desplaza a esa sección sin animación y sin quedar tapada por la navegación fija; un hash que no corresponde a ningún elemento no provoca ningún desplazamiento
+
 #### Scenario: Volver atrás a mitad del tramo
 - **WHEN** el visitante deja la home con el tercer proyecto al frente, abre otra página y vuelve con Atrás
 - **THEN** el carrete muestra el proyecto que corresponde a la posición de scroll restaurada, no el primero
 
-#### Scenario: Historial sin entradas por proyecto
-- **WHEN** el visitante recorre los cinco proyectos y luego usa Atrás
+#### Scenario: Historial sin entradas por página
+- **WHEN** el visitante recorre los cinco proyectos (el carrete no tiene páginas) y luego usa Atrás
 - **THEN** el navegador sale de la home (o vuelve a la entrada anterior) sin pasar por estados intermedios de la sección
 
 ### Requirement: Rendimiento del recorrido
@@ -162,15 +182,19 @@ Cuando el carrete puede mostrarse, la sección SHALL quedar fijada bajo la barra
 
 ### Requirement: Paradas suaves por proyecto
 
-Durante el tramo fijado, cada proyecto SHALL quedar al frente y quieto durante un tramo del scroll antes de pasar al siguiente. Si el scroll se detiene a mitad de un giro, la sección SHALL completar el giro hasta el proyecto más cercano; cualquier nueva entrada del usuario (rueda, toque, tecla o arrastre) SHALL cancelar ese asentamiento. El scroll vertical de la página no SHALL usar ajuste obligatorio.
+Durante el tramo fijado, cada proyecto SHALL quedar al frente y quieto durante un tramo del scroll antes de pasar al siguiente. Si el scroll se detiene a mitad de un giro, la sección SHALL completar el giro hacia el proyecto más cercano o, si el scroll salió de la meseta en más de una fracción mínima de la transición, hacia el proyecto en el sentido del último movimiento; cualquier nueva entrada del usuario (rueda, toque, tecla o arrastre) SHALL cancelar ese asentamiento. El scroll vertical de la página no SHALL usar ajuste obligatorio.
 
 #### Scenario: Meseta del primer proyecto
 - **WHEN** el visitante baja un poco al comenzar el tramo fijado
 - **THEN** el primer proyecto permanece al frente sin girar
 
 #### Scenario: Asentamiento al quedar quieto
-- **WHEN** el visitante deja de scrollear con el carrete entre el segundo y el tercer proyecto, más cerca del tercero
+- **WHEN** el visitante deja de scrollear (unos 300 ms sin entradas) con el carrete entre el segundo y el tercer proyecto, más cerca del tercero
 - **THEN** el carrete se asienta suavemente con el tercer proyecto al frente
+
+#### Scenario: Asentamiento en el sentido del movimiento
+- **WHEN** el visitante avanza con la rueda a intervalos largos (más de 150 ms entre muescas) y una muesca saca al carrete de la meseta del proyecto actual en una fracción mínima del giro (más de 0,05 de la transición), aunque no llegue a la mitad
+- **THEN** el asentamiento completa el giro hacia el proyecto siguiente en lugar de volver al anterior, de modo que scrollear despacio avanza proyecto por proyecto
 
 #### Scenario: Cancelación por el usuario
 - **WHEN** durante un asentamiento el visitante vuelve a mover la rueda

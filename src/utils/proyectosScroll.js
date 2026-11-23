@@ -7,8 +7,14 @@
 export const PLATEAU_VH = 15
 /** Tramo de scroll (vh) en que se pasa de un proyecto al siguiente. */
 export const TRANSITION_VH = 45
-/** Espera (ms) sin scroll antes de asentar en el proyecto más cercano. */
-export const SETTLE_IDLE_MS = 150
+/** Espera (ms) sin scroll antes de asentar; supera el intervalo típico entre muescas de la rueda. */
+export const SETTLE_IDLE_MS = 300
+/**
+ * Fracción (lineal, 0..1) del tramo de transición que el scroll debe haber salido de la meseta
+ * para asentar en el sentido del movimiento. Es chica a propósito: una muesca de rueda (~100 px)
+ * desde el centro de la meseta apenas supera el borde y debe bastar para avanzar.
+ */
+export const SETTLE_DIRECTION_THRESHOLD = 0.05
 
 const EPSILON = 1e-6
 const CYCLE_VH = PLATEAU_VH + TRANSITION_VH
@@ -119,6 +125,28 @@ export function settleTarget(progress, pages) {
   const position = pagePosition(progress, pages)
   const target = Math.round(position)
   return Math.abs(position - target) < EPSILON ? null : target
+}
+
+/**
+ * Como `settleTarget`, pero en el sentido del último movimiento (`direction` > 0 avanza,
+ * < 0 retrocede, 0 = más cercano). Si el scroll salió de la meseta en más de
+ * `SETTLE_DIRECTION_THRESHOLD` de la transición, completa el giro hacia donde iba; si no, vuelve a la meseta.
+ * Así scrollear despacio (muescas separadas por más que la espera) no devuelve al anterior.
+ * @param {number} progress
+ * @param {number} pages
+ * @param {number} direction
+ * @returns {number|null}
+ */
+export function settleTargetDirectional(progress, pages, direction) {
+  if (!(pages > 1)) return null
+  const position = pagePosition(progress, pages)
+  const lower = Math.floor(position)
+  const fraction = position - lower
+  if (fraction < EPSILON || 1 - fraction < EPSILON) return null
+  if (!direction) return Math.round(position)
+  const t = smoothstepInverse(fraction)
+  if (direction > 0) return t > SETTLE_DIRECTION_THRESHOLD ? lower + 1 : lower
+  return 1 - t > SETTLE_DIRECTION_THRESHOLD ? lower : lower + 1
 }
 
 /**

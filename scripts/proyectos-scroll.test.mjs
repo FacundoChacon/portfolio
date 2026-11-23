@@ -14,7 +14,10 @@ import {
   scrollProgress,
   scrollTopForPage,
   scrollTopForPosition,
+  SETTLE_DIRECTION_THRESHOLD,
+  SETTLE_IDLE_MS,
   settleTarget,
+  settleTargetDirectional,
   smoothstep,
   smoothstepInverse,
 } from '../src/utils/proyectosScroll.js'
@@ -155,4 +158,80 @@ test('projectsMode: cada condición sola manda al carrusel; todo bien → reel',
 test('projectLabel', () => {
   assert.equal(projectLabel(0, 5), 'Proyecto 1 de 5')
   assert.equal(projectLabel(3, 5), 'Proyecto 4 de 5')
+})
+
+// Progreso (de 5 paradas) en que la posición fraccional vale `position`.
+const at = (position) => progressForPosition(position, 5)
+
+test('settleTargetDirectional: constantes (umbral 0,05 de la transición y espera ~300 ms)', () => {
+  assert.equal(SETTLE_DIRECTION_THRESHOLD, 0.05)
+  assert.equal(SETTLE_IDLE_MS, 300)
+})
+
+test('settleTargetDirectional hacia adelante: sale de la meseta más que el umbral y avanza aunque no llegue a la mitad', () => {
+  assert.equal(settleTargetDirectional(at(1.2), 5, 1), 2)
+  assert.equal(settleTargetDirectional(at(1.4), 5, 1), 2)
+  assert.equal(settleTargetDirectional(at(0.3), 5, 1), 1)
+  assert.equal(settleTargetDirectional(at(3.9), 5, 1), 4)
+})
+
+test('settleTargetDirectional hacia atrás: retrocede si se alejó del proyecto de arriba más que el umbral', () => {
+  assert.equal(settleTargetDirectional(at(1.8), 5, -1), 1)
+  assert.equal(settleTargetDirectional(at(1.6), 5, -1), 1)
+  assert.equal(settleTargetDirectional(at(3.7), 5, -1), 3)
+})
+
+test('settleTargetDirectional bajo el umbral: vuelve al proyecto actual (el de la meseta de la que casi no salió)', () => {
+  assert.equal(settleTargetDirectional(at(1.001), 5, 1), 1)
+  assert.equal(settleTargetDirectional(at(1.003), 5, 1), 1)
+  assert.equal(settleTargetDirectional(at(1.997), 5, -1), 2)
+  assert.equal(settleTargetDirectional(at(1.999), 5, -1), 2)
+  // justo por encima del umbral ya sigue el movimiento
+  assert.equal(settleTargetDirectional(at(1.01), 5, 1), 2)
+  assert.equal(settleTargetDirectional(at(1.99), 5, -1), 1)
+})
+
+test('settleTargetDirectional sin dirección: igual que el más cercano (settleTarget)', () => {
+  for (let i = 0; i <= 100; i++) assert.equal(settleTargetDirectional(i / 100, 5, 0), settleTarget(i / 100, 5))
+})
+
+test('settleTargetDirectional extremos: null en mesetas y bordes, destino siempre dentro de rango', () => {
+  for (let k = 0; k < 5; k++) for (const d of [-1, 0, 1]) assert.equal(settleTargetDirectional(progressForPage(k, 5), 5, d), null)
+  for (const d of [-1, 0, 1]) {
+    assert.equal(settleTargetDirectional(0, 5, d), null)
+    assert.equal(settleTargetDirectional(1, 5, d), null)
+    assert.equal(settleTargetDirectional(0.3, 1, d), null)
+    assert.equal(settleTargetDirectional(0.3, 0, d), null)
+  }
+  for (let i = 0; i <= 200; i++) for (const d of [-1, 0, 1]) {
+    const t = settleTargetDirectional(i / 200, 5, d)
+    if (t !== null) assert.ok(Number.isInteger(t) && t >= 0 && t <= 4)
+  }
+})
+
+test('settleTargetDirectional: asentar no vuelve a asentar (sin bucle) en ninguna dirección', () => {
+  for (let i = 0; i <= 200; i++) for (const d of [-1, 0, 1]) {
+    const t = settleTargetDirectional(i / 200, 5, d)
+    if (t !== null) assert.equal(settleTargetDirectional(progressForPage(t, 5), 5, d), null)
+  }
+})
+
+test('settleTargetDirectional: scroll lento (muescas de 100 px a 900 px de alto) avanza proyecto por proyecto', () => {
+  const vh = 9 // px por vh a 900 px de alto
+  const range = (pinRangeVh(5) * vh)
+  let k = 0
+  for (let n = 0; n < 4; n++) {
+    // desde el centro de la meseta de k, una muesca de 100 px hacia adelante
+    const y = progressForPage(k, 5) * range + 100
+    const t = settleTargetDirectional(y / range, 5, 1)
+    assert.equal(t, k + 1)
+    k = t
+  }
+  // y hacia atrás, desde el centro de la meseta de 4
+  for (let n = 0; n < 4; n++) {
+    const y = progressForPage(k, 5) * range - 100
+    const t = settleTargetDirectional(y / range, 5, -1)
+    assert.equal(t, k - 1)
+    k = t
+  }
 })
