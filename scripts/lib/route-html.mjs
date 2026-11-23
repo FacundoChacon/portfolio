@@ -86,6 +86,26 @@ function readManaged(html, id) {
   return tag ? readAttr(tag, spec.attr) : null
 }
 
+/** Valor opcional de un atributo: entre comillas dobles, simples o sin comillas. */
+const ATTR_VALUE = String.raw`(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>\x60]+))?`
+
+/** Etiqueta de apertura; consume los atributos respetando comillas (un `>` dentro de un valor no la corta). */
+const OPEN_TAG_REGEX = new RegExp(String.raw`<[a-zA-Z][\w:-]*((?:\s+[^\s"'>/=]+${ATTR_VALUE})*)\s*/?>`, 'g')
+
+/** Un atributo (nombre y valor opcional) dentro del grupo de atributos de una etiqueta. */
+const ATTR_REGEX = new RegExp(String.raw`([^\s"'>/=]+)${ATTR_VALUE}`, 'g')
+
+/** Nombres de atributo `on*` (en minúsculas) de las etiquetas del HTML; ignora lo que haya dentro de valores. */
+function findInlineHandlers(html) {
+  const handlers = []
+  for (const [, attrs] of html.matchAll(OPEN_TAG_REGEX)) {
+    for (const [, name] of attrs.matchAll(ATTR_REGEX)) {
+      if (/^on./i.test(name)) handlers.push(name.toLowerCase())
+    }
+  }
+  return handlers
+}
+
 /**
  * Lectura inversa para la verificación del build: metadatos declarados en el
  * HTML, scripts inline, atributos `on*` y URLs de assets (script src y links
@@ -106,7 +126,7 @@ export function extractHeadMeta(html) {
       if (href !== null) assetUrls.push(href)
     }
   }
-  const inlineHandlers = [...html.matchAll(/<[a-zA-Z][^>]*?\s(on[a-z]+)\s*=/g)].map((m) => m[1].toLowerCase())
+  const inlineHandlers = findInlineHandlers(html)
   return {
     title: title ? unescapeHtml(title[1]) : null,
     description: readManaged(html, 'description'),

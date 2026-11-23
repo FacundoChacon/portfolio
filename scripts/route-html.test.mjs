@@ -203,3 +203,19 @@ test('plantilla index.html: la home renderizada conserva los valores actuales de
   assert.equal(head.ogImage, home.image)
   assert.equal(head.twitterImage, home.image)
 })
+
+test('extractHeadMeta: no confunde texto "on…=" dentro de valores de atributo con manejadores', () => {
+  const casos = [
+    '<meta name="description" content="Guía de onboarding=fácil">',
+    '<a href="/x?on=1&onda=2">x</a>',
+    '<meta content="a > b onfoo=1">',
+  ]
+  for (const caso of casos) {
+    assert.deepEqual(extractHeadMeta(`${FIXTURE}${caso}`).inlineHandlers, [], caso)
+  }
+})
+
+test('extractHeadMeta: detecta manejadores reales con espacios, sin comillas y en mayúsculas', () => {
+  const html = `${FIXTURE}<button onclick="x()">a</button><img onload = "x()"><img src="/a.png" onerror=x><a ONCLICK="x()">b</a>`
+  assert.deepEqual(extractHeadMeta(html).inlineHandlers.sort(), ['onclick', 'onclick', 'onerror', 'onload'])
+})

@@ -6,6 +6,7 @@
  * se ocupa de leer los archivos y de fijar el código de salida.
  */
 import { extractHeadMeta } from './route-html.mjs'
+import { resolveRouteMeta } from '../../src/data/seo.js'
 
 /** Hosts de Google Apps Script que el webhook necesita en `connect-src` (envío + redirección 302). */
 export const WEBHOOK_HOSTS = ['https://script.google.com', 'https://script.googleusercontent.com']
@@ -276,12 +277,13 @@ export function checkBuiltPages(pages) {
     ]) {
       if (value !== url) errors.push(`${url}: ${file} declara ${label} "${value}" (debe ser ${url})`)
     }
+    const expectedImage = resolveRouteMeta(new URL(url).pathname).image
     for (const [label, value] of [
       ['og:image', meta.ogImage],
       ['twitter:image', meta.twitterImage],
     ]) {
-      if (!value || !value.startsWith(SITE_ORIGIN)) {
-        errors.push(`${url}: ${file} debe declarar ${label} como URL absoluta de ${SITE_ORIGIN} (es "${value}")`)
+      if (value !== expectedImage) {
+        errors.push(`${url}: ${file} declara ${label} "${value}" (debe ser ${expectedImage}, definida en src/data/seo.js)`)
       }
     }
     if (meta.twitterCard !== 'summary_large_image') {

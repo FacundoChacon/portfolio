@@ -64,18 +64,8 @@ jobs:
             fail=1
           fi
 
-          if ! grep -q 'property="og:image" content="https://www.facucode.dev/og-image.png"' dist/index.html; then
-            echo "::error::og:image no es una URL absoluta (rompe la preview en redes)"
-            fail=1
-          fi
-
           if grep -qE 'og:image" content="/' dist/index.html dist/configurador/index.html; then
             echo "::error::og:image relativo detectado"
-            fail=1
-          fi
-
-          if ! grep -q 'rel="canonical" href="https://www.facucode.dev/configurador"' dist/configurador/index.html; then
-            echo "::error::dist/configurador/index.html no declara su propio canonical"
             fail=1
           fi
 

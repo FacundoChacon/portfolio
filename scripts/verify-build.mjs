@@ -2,7 +2,8 @@
 /**
  * Verifica el build (después de `vite build`): cada URL de `dist/sitemap.xml`
  * debe tener su HTML en `dist/` con `canonical` y `og:url` iguales a esa URL,
- * imágenes sociales absolutas y sin scripts inline.
+ * imágenes sociales iguales a la de `src/data/seo.js` (fuente única del
+ * dominio) y sin scripts inline.
  *
  * La lógica vive en `scripts/lib/deploy-config.mjs` (`checkBuiltPages`, con
  * tests) y `scripts/lib/route-html.mjs`. Este CLI solo lee `dist/`.

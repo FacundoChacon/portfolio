@@ -414,3 +414,14 @@ test('checkBuiltPages: asset propio con ruta relativa falla; absolutas y externa
   assert.ok(checkBuiltPages([relativa]).some((e) => e.includes('assets/index.js') && /relativ/i.test(e)))
   assert.deepEqual(checkBuiltPages(validPages()), [])
 })
+
+test('checkBuiltPages: og:image o twitter:image absolutas del dominio pero distintas de seo.js fallan con el valor esperado', () => {
+  const otra = 'https://www.facucode.dev/otra.png'
+  const og = builtPage('/', (html) => html.replace(/(og:image" content=")[^"]*/, `$1${otra}`))
+  const ogErrors = checkBuiltPages([og])
+  assert.ok(ogErrors.some((e) => e.includes('og:image') && e.includes(otra) && e.includes(resolveRouteMeta('/').image)))
+  const tw = builtPage('/configurador', (html) => html.replace(/(twitter:image" content=")[^"]*/, `$1${otra}`))
+  const twErrors = checkBuiltPages([tw])
+  assert.ok(twErrors.some((e) => e.includes(CONFIGURADOR) && e.includes('twitter:image') && e.includes(otra)))
+  assert.ok(!twErrors.some((e) => e.includes('og:image')))
+})
