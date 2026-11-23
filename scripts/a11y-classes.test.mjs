@@ -10,7 +10,7 @@ import test from 'node:test'
 
 const DIR = new URL('../src/components/configurador/', import.meta.url)
 const PAGE = new URL('../src/pages/Configurador.jsx', import.meta.url)
-const NAV_COMPONENTS = ['SiteNav.jsx', 'NavBrand.jsx']
+const NAV_COMPONENTS = ['SiteNav.jsx', 'NavBrand.jsx', 'Hero.jsx'] // también inspecciona el hero (hero-brutalista)
 
 /**
  * Clases prohibidas en `src/components/configurador/*.jsx` y `src/pages/Configurador.jsx` (design D6/D7).

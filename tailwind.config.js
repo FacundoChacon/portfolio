@@ -42,6 +42,7 @@ export default {
         'slide-up': 'slideUp 0.6s ease-out forwards',
         'pulse-slow': 'pulse 3s ease-in-out infinite',
         flicker: 'flicker 4s infinite',
+        'eva-boot': 'evaBoot 0.36s steps(6, end) backwards',
       },
       keyframes: {
         fadeIn: {
@@ -58,6 +59,10 @@ export default {
           '94%': { opacity: '0.4' },
           '96%': { opacity: '1' },
           '98%': { opacity: '0.7' },
+        },
+        evaBoot: {
+          '0%': { 'clip-path': 'inset(0 100% 0 0)' },
+          '100%': { 'clip-path': 'inset(0 0 0 0)' },
         },
       },
     },

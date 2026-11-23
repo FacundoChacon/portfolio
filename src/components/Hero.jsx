@@ -1,79 +1,131 @@
 import { ArrowDown } from "lucide-react"
 import { GithubIcon, LinkedinIcon } from "./BrandIcons"
+import {
+  ENLACES_PERFIL,
+  FICHA,
+  PERFIL,
+  RETRATO,
+  externalLinkProps,
+  nombreCompleto,
+} from "../data/presentacion"
+
+const ICONOS = { github: GithubIcon, linkedin: LinkedinIcon }
+
+/** Entrada escalonada (solo con movimiento permitido); nunca en el retrato ni en el h1. */
+const BOOT = "motion-safe:animate-eva-boot"
 
 export default function Hero() {
   return (
     <section
       id="presentacion"
-      className="relative flex min-h-screen items-center overflow-hidden pt-24"
+      className="eva-hex-grid relative flex min-h-screen flex-col overflow-x-clip bg-eva-black pt-24"
     >
-      <div className="cyber-grid pointer-events-none absolute inset-0 opacity-60" />
-      <div className="pointer-events-none absolute -left-20 top-1/3 h-72 w-72 rounded-full bg-accent-green/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-20 bottom-1/4 h-72 w-72 rounded-full bg-accent-pink/20 blur-[120px]" />
-
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
-        <div className="order-2 flex justify-center md:order-1">
-          <div className="group relative">
-            <div className="absolute -inset-1 rounded-lg bg-gradient-to-tr from-accent-green/60 to-accent-pink/60 opacity-70 blur-sm transition-opacity group-hover:opacity-100" />
-            <div className="box-glow-cyan relative overflow-hidden rounded-lg border border-accent-green/40">
-              <img
-                src="/profile.webp"
-                alt="Retrato de Facundo Chacón"
-                className="h-[420px] w-[340px] object-cover md:h-[520px] md:w-[440px]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark via-transparent to-transparent" />
-              <span className="absolute bottom-4 left-4 font-mono text-xs uppercase tracking-widest text-accent-green text-glow-cyan">
-                {"// online"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="order-1 md:order-2">
-          <h1 className="font-display text-4xl font-bold leading-tight text-balance text-white sm:text-5xl lg:text-6xl">
-            Facundo
-            <br />
-            <span className="text-accent-green text-glow-cyan animate-flicker">Chacón</span>
-          </h1>
-          <p className="mt-4 font-mono text-base uppercase tracking-widest text-gray-400">
-            Full Stack Developer{" · "}Java / React
+      <div className="mx-auto grid w-full max-w-6xl flex-1 content-center gap-y-12 px-4 pb-16 md:grid-cols-12 md:gap-x-8 md:px-6">
+        <div className="md:col-span-7">
+          <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-orange">
+            01 {"//"} Presentación
           </p>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-400 text-pretty">
+          <h1
+            aria-label={nombreCompleto(PERFIL)}
+            className="mt-4 font-eva-display text-[15vw] font-black uppercase leading-[0.86] tracking-tight text-eva-paper font-stretch-extra-condensed md:text-[9vw] xl:text-[7.25rem]"
+          >
+            <span className="block whitespace-nowrap">{PERFIL.nombre}</span>
+            <span className="block whitespace-nowrap text-eva-orange">{PERFIL.apellido}</span>
+          </h1>
+          <p className="mt-6 font-mono text-base uppercase tracking-widest text-eva-paper">
+            {PERFIL.rol}
+            {" · "}
+            {PERFIL.especialidad}
+          </p>
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-eva-gray text-pretty">
             Construyo experiencias full stack de punta a punta: APIs robustas con
             Java 17 y Spring Boot, interfaces reactivas con React y Tailwind CSS. Actualmente
             buscando mi primera oportunidad profesional.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className={`mt-10 flex flex-wrap items-center gap-4 ${BOOT} motion-safe:[animation-delay:240ms]`}>
             <a
               href="#proyectos"
-              className="box-glow-cyan inline-flex items-center gap-2 rounded-md bg-accent-green px-6 py-3 font-mono text-sm font-semibold uppercase tracking-widest text-dark transition-transform hover:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-orange bg-eva-orange px-6 py-3 font-mono text-sm font-bold uppercase tracking-[0.2em] text-eva-black shadow-[6px_6px_0_0_var(--eva-purple)] hover:shadow-[8px_8px_0_0_var(--eva-purple)] focus-visible:shadow-[8px_8px_0_0_var(--eva-purple)] motion-safe:transition-[transform,box-shadow,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5"
             >
-              Ver proyectos <ArrowDown className="size-4" />
+              Ver proyectos <ArrowDown className="size-4" aria-hidden="true" />
             </a>
-            <div className="flex items-center gap-3">
-              <a
-                href="https://github.com/FacundoChacon"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="GitHub"
-                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-green hover:text-accent-green focus-visible:border-accent-green focus-visible:text-accent-green"
-              >
-                <GithubIcon className="size-5" />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/facundo-chacon-61362735a"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LinkedIn"
-                className="rounded-md border border-dark-border p-3 text-gray-400 transition-colors hover:border-accent-pink hover:text-accent-pink focus-visible:border-accent-pink focus-visible:text-accent-pink"
-              >
-                <LinkedinIcon className="size-5" />
-              </a>
+            {ENLACES_PERFIL.map(({ id, label, href }) => {
+              const Icono = ICONOS[id]
+              return (
+                <a
+                  key={id}
+                  href={href}
+                  {...externalLinkProps()}
+                  className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-gray-dim bg-eva-black px-4 py-2 font-mono text-sm uppercase tracking-[0.2em] text-eva-paper hover:border-eva-orange hover:text-eva-orange hover:shadow-[4px_4px_0_0_var(--eva-orange)] focus-visible:border-eva-orange focus-visible:text-eva-orange focus-visible:shadow-[4px_4px_0_0_var(--eva-orange)] motion-safe:transition-[transform,box-shadow,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5"
+                >
+                  <Icono className="size-5" />
+                  {label}
+                  <span className="sr-only"> (se abre en una pestaña nueva)</span>
+                </a>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="md:col-span-5 md:mt-16">
+          <div className="mx-auto w-full max-w-[320px] md:ml-auto md:mr-0 md:max-w-[440px]">
+            <figure className="relative border-2 border-eva-orange bg-eva-panel shadow-[10px_10px_0_0_var(--eva-purple)]">
+              <img
+                src={RETRATO.src}
+                width={RETRATO.width}
+                height={RETRATO.height}
+                alt={RETRATO.alt}
+                // React 18 no conoce `fetchPriority` (camelCase, React 19): se pasa en minúscula al DOM.
+                // eslint-disable-next-line react/no-unknown-property
+                fetchpriority="high"
+                decoding="async"
+                className="block aspect-[4/5] w-full object-cover"
+              />
+              <span aria-hidden="true" className="eva-panel-label">
+                REG {"//"} RETRATO
+              </span>
+              <span aria-hidden="true" className="eva-panel-code">
+                IMG-01
+              </span>
+              <div
+                aria-hidden="true"
+                className="eva-stripes absolute -right-6 inset-y-4 hidden w-2 md:block"
+              />
+            </figure>
+
+            <div
+              className={`eva-panel relative z-10 mt-10 p-5 pt-6 md:-ml-8 md:-mt-10 ${BOOT} motion-safe:[animation-delay:120ms]`}
+            >
+              <span aria-hidden="true" className="eva-panel-label">
+                SYS {"//"} FICHA
+              </span>
+              <span aria-hidden="true" className="eva-panel-code">
+                FC-01
+              </span>
+              <dl>
+                {FICHA.map(({ id, etiqueta, valor, tono }) => (
+                  <div key={id} className="flex gap-4 border-b border-eva-line py-2 last:border-b-0">
+                    <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-eva-gray">
+                      {etiqueta}
+                    </dt>
+                    <dd
+                      className={`font-mono text-sm ${tono === "ok" ? "text-eva-green" : "text-eva-paper"}`}
+                    >
+                      {valor}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
         </div>
       </div>
+
+      <div
+        aria-hidden="true"
+        className={`eva-stripes h-3 w-full ${BOOT} motion-safe:[animation-delay:120ms]`}
+      />
     </section>
   )
 }

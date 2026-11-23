@@ -1,10 +1,13 @@
 /**
  * Precarga de la fuente principal del primer render (funciones puras, sin I/O).
- * Hoy el texto de cuerpo usa Rajdhani 400; `hero-brutalista` cambiará esta
- * lista a la serif de títulos cuando el hero la use (precargar una fuente sin
- * uso hace que Chrome advierta "preloaded but not used").
+ * Se precarga la serif de títulos (Noto Serif Display, ejes wght y wdth): el
+ * `h1` del hero y la marca de la barra (`NavBrand`, presente también en
+ * `/configurador`) la usan desde el primer render, así que Chrome nunca avisa
+ * "preloaded but not used" en ninguna ruta (design D5 de `hero-brutalista`).
+ * Rajdhani (texto de cuerpo chico) hace swap sin precarga. Plan B si el LCP
+ * empeora más de 10%: volver a `['rajdhani-latin-400-normal']`.
  */
-export const PRELOAD_FONT_STEMS = ['rajdhani-latin-400-normal']
+export const PRELOAD_FONT_STEMS = ['noto-serif-display-latin-wdth-normal']
 
 /**
  * Resuelve cada stem (`<familia>-latin-<peso>-normal`) al `.woff2` con hash del
@@ -38,4 +41,19 @@ export function fontPreloadTags(hrefs) {
     attrs: { rel: 'preload', as: 'font', type: 'font/woff2', href, crossorigin: true },
     injectTo: 'head',
   }))
+}
+
+/**
+ * Stems cuyo `<stem>.woff2` no aparece en ningún `url()` del CSS de fuentes:
+ * detecta que la lista de precarga quedó desincronizada de `fonts.css`.
+ * `latin-ext` no cuenta como `latin` (el stem completo debe coincidir).
+ * @param {string} fontsCss
+ * @param {string[]} stems
+ * @returns {string[]}
+ */
+export function missingFontStems(fontsCss, stems) {
+  return stems.filter((stem) => {
+    const escaped = stem.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
+    return !new RegExp(String.raw`(?:^|[/'"(])${escaped}\.woff2`).test(fontsCss)
+  })
 }

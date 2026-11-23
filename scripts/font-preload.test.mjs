@@ -4,7 +4,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { PRELOAD_FONT_STEMS, findFontAssets, fontPreloadTags } from './lib/font-preload.mjs'
+import { readFileSync } from 'node:fs'
+
+import { PRELOAD_FONT_STEMS, findFontAssets, fontPreloadTags, missingFontStems } from './lib/font-preload.mjs'
+
+const readSrc = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
 
 const STEM = 'rajdhani-latin-400-normal'
 
@@ -52,6 +56,54 @@ test('fontPreloadTags: un descriptor por href y lista vacía sin tags', () => {
   assert.deepEqual(fontPreloadTags([]), [])
 })
 
-test('PRELOAD_FONT_STEMS: hoy la fuente principal es Rajdhani 400', () => {
-  assert.deepEqual(PRELOAD_FONT_STEMS, ['rajdhani-latin-400-normal'])
+test('PRELOAD_FONT_STEMS: la fuente precargada es la serif de títulos (Noto Serif Display)', () => {
+  assert.deepEqual(PRELOAD_FONT_STEMS, ['noto-serif-display-latin-wdth-normal'])
+})
+
+const CSS = `@font-face { src: url(@fontsource-variable/x/files/noto-serif-display-latin-wdth-normal.woff2) format('woff2'); }
+@font-face { src: url('./files/noto-serif-display-latin-ext-wdth-normal.woff2'); }`
+
+test('missingFontStems: stem presente en un url() de fonts.css -> []', () => {
+  assert.deepEqual(missingFontStems(CSS, ['noto-serif-display-latin-wdth-normal']), [])
+})
+
+test('missingFontStems: stem ausente -> [stem]; solo informa los ausentes', () => {
+  assert.deepEqual(missingFontStems(CSS, ['rajdhani-latin-400-normal']), ['rajdhani-latin-400-normal'])
+  assert.deepEqual(
+    missingFontStems(CSS, ['noto-serif-display-latin-wdth-normal', 'otra-latin-400-normal']),
+    ['otra-latin-400-normal'],
+  )
+})
+
+test('missingFontStems: latin-ext no cuenta como latin', () => {
+  const soloExt = `@font-face { src: url(./noto-serif-display-latin-ext-wdth-normal.woff2); }`
+  assert.deepEqual(missingFontStems(soloExt, ['noto-serif-display-latin-wdth-normal']), [
+    'noto-serif-display-latin-wdth-normal',
+  ])
+})
+
+test('PRELOAD_FONT_STEMS: coherente con src/styles/fonts.css', () => {
+  assert.deepEqual(missingFontStems(readSrc('src/styles/fonts.css'), PRELOAD_FONT_STEMS), [])
+})
+
+/** La fuente precargada debe usarse en el primer render de cada ruta (si no, Chrome avisa "preloaded but not used"). */
+function usesPreloadedFontOnEveryRoute(files) {
+  const errors = []
+  if (!/font-eva-display/.test(files['src/components/Hero.jsx'])) errors.push('Hero.jsx no usa font-eva-display')
+  if (!/font-eva-display/.test(files['src/components/NavBrand.jsx'])) errors.push('NavBrand.jsx no usa font-eva-display')
+  const conf = files['src/pages/Configurador.jsx']
+  if (!/import\s+NavBrand\s+from/.test(conf) || !/<NavBrand\s*\/>/.test(conf)) {
+    errors.push('Configurador.jsx no monta NavBrand')
+  }
+  return errors
+}
+
+test('guard de uso: Hero y NavBrand usan font-eva-display y Configurador monta NavBrand', () => {
+  const files = Object.fromEntries(
+    ['src/components/Hero.jsx', 'src/components/NavBrand.jsx', 'src/pages/Configurador.jsx'].map((f) => [f, readSrc(f)]),
+  )
+  assert.deepEqual(usesPreloadedFontOnEveryRoute(files), [])
+  // Triangulación: quitar NavBrand de una copia en memoria hace fallar el guard.
+  const sinNavBrand = { ...files, 'src/pages/Configurador.jsx': files['src/pages/Configurador.jsx'].replace(/<NavBrand\s*\/>/g, '') }
+  assert.deepEqual(usesPreloadedFontOnEveryRoute(sinNavBrand), ['Configurador.jsx no monta NavBrand'])
 })
