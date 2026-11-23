@@ -104,9 +104,10 @@ test('tailwind: el keyframe evaBoot solo anima clip-path (sin propiedades de lay
   assert.deepEqual([...props], ['clip-path'])
 })
 
-test('tailwind: las animaciones previas se conservan', () => {
+test('tailwind: las animaciones cyberpunk ya no existen (limpieza-cyberpunk) y eva-boot se conserva', () => {
   const animation = tailwindConfig.theme.extend.animation
-  for (const name of ['fade-in', 'slide-up', 'pulse-slow', 'flicker']) assert.ok(animation[name], `falta ${name}`)
+  for (const name of ['fade-in', 'slide-up', 'pulse-slow', 'flicker']) assert.ok(!(name in animation), `sobra ${name}`)
+  assert.ok(animation['eva-boot'], 'falta eva-boot')
 })
 
 // --- Guard estático de Hero.jsx (design D10) -------------------------------

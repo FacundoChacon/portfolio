@@ -7,7 +7,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import tailwindConfig from '../tailwind.config.js'
-import { EVA_COLORS } from '../src/styles/eva-tokens.js'
+import { EVA_COLORS, EVA_FONT_SANS } from '../src/styles/eva-tokens.js'
+import { checkContrastPairs } from './lib/contrast.mjs'
 
 const read = (rel) => readFileSync(new URL(`../${rel}`, import.meta.url), 'utf8')
 const colors = tailwindConfig.theme.extend.colors
@@ -17,21 +18,18 @@ test('tailwind: expone la paleta eva igual a EVA_COLORS', () => {
   assert.deepEqual(colors.eva, EVA_COLORS)
 })
 
-test('tailwind: conserva los tokens anteriores con sus valores', () => {
-  assert.equal(colors.accent.green, '#00ffc3')
-  assert.equal(colors['accent'].pink, '#ff6eff')
-  assert.equal(colors.accent['green-dark'], '#00cc9a')
-  assert.equal(colors.accent['pink-dark'], '#cc3acc')
-  assert.equal(colors.neon.cyan, '#00ffc3')
-  assert.equal(colors.neon.magenta, '#ff6eff')
-  assert.deepEqual(colors.dark, { DEFAULT: '#030303', secondary: '#0A0A0A', card: '#111116', border: '#1A1A22' })
-  assert.deepEqual(colors.muted, { DEFAULT: '#1A1A22', foreground: '#9ca3af' })
+test('tailwind: solo expone la paleta eva', () => {
+  assert.deepEqual(Object.keys(colors), ['eva'])
 })
 
-test('tailwind: eva-display es Noto Serif Display y sans/display/mono no cambian', () => {
+test('tailwind: sans es la pila del sistema, sin display, y mono/eva-display no cambian', () => {
+  assert.deepEqual(fonts.sans, EVA_FONT_SANS)
+  assert.equal(EVA_FONT_SANS[0], 'system-ui')
+  assert.equal(EVA_FONT_SANS.at(-1), 'sans-serif')
+  assert.ok(EVA_FONT_SANS.every((f) => !/rajdhani|orbitron|^inter$/i.test(f)), 'la pila no nombra fuentes retiradas ni descargables')
+  assert.ok(!('display' in fonts), 'no debe existir fontFamily.display')
+  assert.deepEqual(Object.keys(fonts).sort(), ['eva-display', 'mono', 'sans'])
   assert.deepEqual(fonts['eva-display'], ['"Noto Serif Display"', 'Georgia', 'serif'])
-  assert.deepEqual(fonts.sans, ['Rajdhani', 'Inter', 'system-ui', 'sans-serif'])
-  assert.deepEqual(fonts.display, ['Orbitron', 'Rajdhani', 'sans-serif'])
   assert.deepEqual(fonts.mono, ['JetBrains Mono', 'Fira Code', 'monospace'])
 })
 
@@ -41,15 +39,14 @@ test('index.html no referencia Google Fonts', () => {
   assert.doesNotMatch(html, /fonts\.gstatic\.com/)
 })
 
-test('fonts.css: declara las cuatro familias y solo archivos latin', () => {
+test('fonts.css: declara exactamente Noto Serif Display y JetBrains Mono, solo archivos latin', () => {
   assert.ok(existsSync(new URL('../src/styles/fonts.css', import.meta.url)), 'falta src/styles/fonts.css')
   const css = read('src/styles/fonts.css')
-  for (const family of ['Noto Serif Display', 'JetBrains Mono', 'Orbitron', 'Rajdhani']) {
-    assert.match(css, new RegExp(String.raw`font-family:\s*['"]${family}['"]`), `falta @font-face de ${family}`)
-  }
+  const families = [...css.matchAll(/font-family:\s*['"]([^'"]+)['"]/g)].map((m) => m[1])
+  assert.deepEqual(families, ['Noto Serif Display', 'JetBrains Mono'])
+  assert.doesNotMatch(css, /rajdhani|orbitron/i)
   assert.match(css, /font-stretch:\s*62\.5% 100%/)
   assert.match(css, /font-weight:\s*100 900/)
-  for (const weight of [400, 500, 600, 700]) assert.match(css, new RegExp(`rajdhani-latin-${weight}-normal`))
   for (const [, file] of css.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g)) {
     assert.match(file, /-latin-/, `${file} no es subset latin`)
     assert.doesNotMatch(file, /latin-ext|cyrillic|greek|vietnamese/, file)
@@ -60,7 +57,7 @@ test('fonts.css: declara las cuatro familias y solo archivos latin', () => {
 test('fonts.css: font-display swap en todos los @font-face', () => {
   const css = read('src/styles/fonts.css')
   const faces = css.match(/@font-face\s*{[^}]*}/g) ?? []
-  assert.ok(faces.length >= 4)
+  assert.equal(faces.length, 2)
   for (const face of faces) assert.match(face, /font-display:\s*swap/)
 })
 
@@ -151,7 +148,65 @@ test('index.css: las utilidades de estiramiento tipográfico existen', () => {
   assert.match(blockBody(source, '.font-stretch-extra-condensed') ?? '', /font-stretch:\s*62\.5%/)
 })
 
-test('index.css: no se tocaron .reveal, .tag, .glass ni .cyber-grid', () => {
+test('index.css: no quedan selectores heredados ni keyframes cyberpunk', () => {
   const source = css()
-  for (const selector of ['.reveal {', '.tag {', '.glass {', '.cyber-grid {']) assert.ok(source.includes(selector), selector)
+  const legacy = [
+    '.reveal', '.tag ', '.tag{', '.glass', '.cyber-grid', '.gradient-text', '.gradient-border', '.duotone-wrap',
+    '.glow-', '.text-glow-', '.box-glow-', '.section-title', '.section-desc', '.animate-scan', '.animate-glitch',
+    '@keyframes scan', '@keyframes glitch-',
+  ]
+  for (const selector of legacy) assert.ok(!source.includes(selector), `queda ${selector}`)
+})
+
+test('index.css: el bloque reduce solo nombra clases que existen', () => {
+  const source = css()
+  const reduce = blockBody(source, '@media (prefers-reduced-motion: reduce)') ?? ''
+  const named = [...reduce.matchAll(/\.([\w-]+)/g)].map((m) => m[1])
+  assert.ok(named.includes('eva-reveal'))
+  for (const name of new Set(named)) {
+    assert.ok(source.replace(reduce, '').includes(`.${name}`), `.${name} está en reduce pero no se define`)
+  }
+})
+
+// --- Base global en la paleta eva (limpieza-cyberpunk, D4) ---
+
+test('index.html: theme-color igual a EVA_COLORS.black y <body> en tokens eva', () => {
+  const html = read('index.html')
+  assert.match(html, new RegExp(`<meta name="theme-color" content="${EVA_COLORS.black}"`, 'i'))
+  assert.match(html, /<body class="bg-eva-black text-eva-paper antialiased">/)
+})
+
+test('base global: selección (negro sobre naranja) y carga (gray sobre black) cumplen contraste', () => {
+  const pairs = [
+    { fg: 'black', bg: 'orange', level: 'ui' }, // ::selection
+    { fg: 'gray', bg: 'black', level: 'normal' }, // LoadingFallback
+    { fg: 'orange', bg: 'black', level: 'ui' }, // aro del LoadingFallback y hover del scrollbar
+    { fg: 'gray-dim', bg: 'black', level: 'ui' }, // thumb del scrollbar
+  ]
+  assert.deepEqual(checkContrastPairs(EVA_COLORS, pairs), [])
+})
+
+test('index.css: body, scrollbar y ::selection usan variables eva sin hex ni rgba viejos', () => {
+  const source = css()
+  assert.match(blockBody(source, 'body {') ?? '', /@apply bg-eva-black text-eva-paper;/)
+  assert.match(blockBody(source, '::-webkit-scrollbar-track') ?? '', /background:\s*var\(--eva-black\)/)
+  const thumb = blockBody(source, '::-webkit-scrollbar-thumb {') ?? ''
+  assert.match(thumb, /background:\s*var\(--eva-gray-dim\)/)
+  assert.doesNotMatch(thumb, /border-radius/)
+  assert.match(blockBody(source, '::-webkit-scrollbar-thumb:hover') ?? '', /background:\s*var\(--eva-orange\)/)
+  assert.match(blockBody(source, 'html {') ?? '', /scrollbar-color:\s*var\(--eva-gray-dim\) var\(--eva-black\)/)
+  const selection = blockBody(source, '::selection') ?? ''
+  assert.match(selection, /background:\s*var\(--eva-orange\)/)
+  assert.match(selection, /color:\s*var\(--eva-black\)/)
+  for (const header of ['body {', '::-webkit-scrollbar-track', '::-webkit-scrollbar-thumb {', '::-webkit-scrollbar-thumb:hover', '::selection']) {
+    assert.doesNotMatch(blockBody(source, header) ?? '', /#[0-9a-f]{3,6}\b|rgba?\(/i, header)
+  }
+})
+
+test('App.jsx y Home.jsx: fondo y LoadingFallback en tokens eva', () => {
+  const app = read('src/App.jsx')
+  assert.match(app, /bg-eva-black/)
+  assert.match(app, /border-eva-line border-t-eva-orange/)
+  assert.match(app, /text-eva-gray/)
+  assert.match(read('src/pages/Home.jsx'), /overflow-x-clip bg-eva-black outline-none/)
 })

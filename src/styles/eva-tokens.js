@@ -17,6 +17,22 @@ export const EVA_COLORS = {
 }
 
 /**
+ * Pila de la sans-serif del cuerpo: fuente del sistema operativo, sin archivos que
+ * descargar (sin swap ni CLS). La identidad la dan la serif condensada y la mono.
+ */
+export const EVA_FONT_SANS = [
+  'system-ui',
+  '-apple-system',
+  'BlinkMacSystemFont',
+  '"Segoe UI"',
+  'Roboto',
+  '"Helvetica Neue"',
+  'Arial',
+  '"Noto Sans"',
+  'sans-serif',
+]
+
+/**
  * Pares texto/fondo declarados y su nivel: `normal` >= 4.5, `large` >= 3,
  * `ui` >= 3 (componentes de interfaz). Si un token cambia y un par baja de su
  * umbral, el test de contraste falla.

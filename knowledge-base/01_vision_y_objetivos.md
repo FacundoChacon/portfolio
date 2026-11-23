@@ -16,7 +16,7 @@ Es una herramienta autoservicio donde un visitante arma su proyecto eligiendo el
 
 ## Alcance v1.0
 
-- Página nueva **`/configurador`** (ruta real, página aparte), con estética cyber/neón coherente con el portfolio.
+- Página nueva **`/configurador`** (ruta real, página aparte), con la estética Evangelion (brutalista, negro/naranja, serif condensada) coherente con el portfolio.
 - Flujo **wizard de 4 pasos**: (1) Tipo de sitio → (2) Extras y alcance → (3) Datos de contacto → (4) Resumen y envío.
 - **Catálogo de 7 productos**: Landing Page, One Page, E-commerce, Web Corporativa, Blog, Portfolio, Sistema a medida (comodín).
 - **Extras seleccionables**: SEO inicial, Copywriting, CMS/Blog, Multi-idioma, Área de clientes (auth), Integración WhatsApp/CRM, Mantenimiento mensual, Hosting + Dominio (con disclaimer).

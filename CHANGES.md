@@ -6,6 +6,19 @@
 
 ---
 
+> **Nota (2026-11-23) — Rediseño Evangelion.** Sitio y configurador pasan de la estética cyber/neón a Evangelion brutalista. Changes en orden:
+> 1. `tokens-fuentes-texturas-eva`: paleta `eva`, Noto Serif Display y JetBrains Mono autoalojadas, texturas y paneles.
+> 2. `navbar-brutalista-glass`: barra con cristal oscuro y marca `FC //00`.
+> 3. `proyectos-scroll-horizontal` (reemplazado por `proyectos-carrete-3d`): sección Proyectos; la versión final es un carrete 3D con respaldo de carrusel nativo.
+> 4. `hero-brutalista`: hero con arranque por clip-path y texturas.
+> 5. `acerca-testimonios-glass`: "Quién soy" y testimonios con paneles de cristal.
+> 6. `stack-neumorfico-oscuro`: Stack en módulos neumórficos oscuros.
+> 7. `contacto-brutalista`: contacto en panel brutalista.
+> 8. `configurador-estilo-eva`: wizard, resumen y estados con la estética eva.
+> 9. `limpieza-cyberpunk`: retira la paleta (`accent-*`, `neon-*`, `dark-*`, `muted-*`) y las fuentes (Orbitron, Rajdhani) cyberpunk, `GlitchText`, los keyframes y clases de glitch, brillo y escaneo, y la spec `texto-animado`; el cuerpo pasa a la pila de fuentes del sistema y un guard global impide que vuelvan.
+
+---
+
 > **Nota (2026-11-23) — pulido-build-indexable.** Plugin `route-html` en `writeBundle` (no tapa errores del build), detección `on*` robusta, dominio único (CI lee `seo.js`).
 
 ---

@@ -454,7 +454,7 @@ test("checkCsp: style-src y font-src deben ser exactamente 'self' (otro origen p
 
 // --- checkBuiltPages: fuentes ---
 
-const FONT_STEM = 'rajdhani-latin-400-normal'
+const FONT_STEM = 'jetbrains-mono-latin-wght-normal'
 const FONT_HREF = `/assets/${FONT_STEM}-AbC123.woff2`
 const PRELOAD = `<link rel="preload" as="font" type="font/woff2" href="${FONT_HREF}" crossorigin>`
 const fontOpts = (existing = [FONT_HREF]) => ({

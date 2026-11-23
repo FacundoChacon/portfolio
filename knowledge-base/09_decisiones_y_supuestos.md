@@ -43,9 +43,16 @@
 **Justificación**: sin backend; descarga inmediata; datos personales no salen del navegador hasta el envío.
 **Trade-offs aceptados**: bundle extra (lazy) y posible variación de render entre navegadores.
 
-### DD-07 — Estética: calculadora modular sobre la base cyber/neón del portfolio
-**Decisión**: tomar el patrón de "tarjetas + total siempre visible" del concepto calculadora, con la paleta del portfolio.
-**Justificación**: pedido explícito del dueño; combina lo visual del carrito con el flujo guiado del wizard.
+### DD-07 — Estética: Evangelion brutalista (calculadora modular con la paleta eva)
+**Decisión**: el sitio y el configurador usan la estética Evangelion: fondo negro, naranja de acento, serif condensada, paneles con etiquetas en mono y texturas hexagonales. El configurador conserva el patrón de "tarjetas + resumen siempre visible" del concepto calculadora.
+**Justificación**: pedido explícito del dueño. Reemplaza la base cyber/neón original (rediseño completado y limpiado en `limpieza-cyberpunk`); la estética vieja queda vedada por un guard en los tests.
+**Histórico**: la versión original de esta decisión usaba la paleta cyber/neón (verde `#00ffc3` y magenta `#ff6eff`); ya no existe en el código, salvo en el PDF del presupuesto (ver P-11).
+
+### DD-08 — Fuente de cuerpo: pila del sistema
+**Decisión**: `font-sans` es la pila de fuentes del sistema operativo (`EVA_FONT_SANS`). Se retiran Orbitron y Rajdhani.
+**Alternativas consideradas**: JetBrains Mono para todo (ancho fijo, borra la jerarquía de etiquetas), Noto Serif Display (corte display: se degrada a 14-16 px), Inter o Noto Sans autoalojada (+25-50 KB y un swap en todo el cuerpo).
+**Justificación**: 0 KB, sin swap ni CLS, mejor `hinting` a tamaños chicos en cada plataforma y cercana a la Helvetica de la interfaz de NERV. La identidad la dan la serif condensada y la mono.
+**Trade-offs aceptados**: la sans varía entre plataformas; se reportaron los cortes de línea distintos al migrar desde Rajdhani (condensada) y se verificaron sin desbordes a 1440 y 375 px.
 
 ## Supuestos inferidos
 

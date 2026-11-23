@@ -34,7 +34,8 @@ portfolio/
     ├── pages/
     │   └── Configurador.jsx          # NUEVO — página /configurador
     ├── components/
-    │   ├── (existentes: SiteNav, Hero, About, Projects, Stack, Contact, GlitchText, BrandIcons)
+    │   ├── (existentes: SiteNav, NavBrand, Hero, About, Projects, Stack, Testimonials, Contact, BrandIcons)
+    │   ├── proyectos/                # Carrete3D, ProyectoCard, ProyectosCierre (carrete 3D de la sección Proyectos)
     │   ├── SiteNav.jsx               # EXTENDER: link "Armá tu web" (navegación router)
     │   └── configurador/             # NUEVO
     │       ├── WizardSteps.jsx       # indicador de progreso (4 pasos)
@@ -46,8 +47,12 @@ portfolio/
     │       ├── SummarySidebar.jsx    # resumen en vivo de la selección
     │       ├── SuccessStep.jsx       # confirmación
     │       └── ErrorStep.jsx         # fallback mailto/WhatsApp
+    ├── styles/
+    │   ├── eva-tokens.js             # paleta eva (EVA_COLORS), pila de sistema (EVA_FONT_SANS) y pares de contraste
+    │   └── fonts.css                 # @font-face autoalojados: Noto Serif Display y JetBrains Mono (solo latin)
     ├── hooks/
     │   ├── useReveal.js              # existente
+    │   ├── useCarrete.js, useModoProyectos.js, useRouteMeta.js
     │   └── useConfigurador.js        # NUEVO — estado del wizard
     ├── utils/
     │   ├── wizard.js, wizardView.js, summary.js, review.js, contact.js, motion.js
@@ -56,6 +61,13 @@ portfolio/
     └── data/
         └── configurador.js           # NUEVO — catálogo (servicios + extras)
 ```
+
+## Sistema visual
+
+- **Estética**: Evangelion (brutalista). Paleta única `eva` (negro, panel, línea, papel, grises, naranja, rojo, violeta, verde), con `src/styles/eva-tokens.js` como fuente de verdad para Tailwind (`eva-*`), las variables CSS `--eva-*` y los tests de contraste. Ya no existen los tokens `accent-*`, `neon-*`, `dark-*` ni `muted-*`.
+- **Tipografías**: títulos en Noto Serif Display (variable, eje de ancho), etiquetas y código en JetBrains Mono (ambas autoalojadas, solo subset latin) y cuerpo en la pila de fuentes del sistema (`EVA_FONT_SANS`: `system-ui`, Segoe UI, Roboto…), sin archivos que descargar.
+- **Guards**: `scripts/limpieza-cyberpunk.test.mjs` (con `scripts/lib/legacy-guard.mjs`) falla si `src/` o `index.html` vuelven a usar la paleta, las fuentes, los brillos, el glitch o las clases del diseño anterior. La única excepción declarada (`PERMITIDOS`) es el color del PDF del presupuesto. Cada sección además tiene su guard propio (hero, contacto, stack, testimonios, configurador, proyectos).
+- **Pesos**: `node scripts/pesos-build.mjs [dist]` resume CSS, fuentes y JS de `dist/assets` (crudo y gzip).
 
 ## Seguridad
 

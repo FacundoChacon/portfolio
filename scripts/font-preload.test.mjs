@@ -10,10 +10,10 @@ import { PRELOAD_FONT_STEMS, findFontAssets, fontPreloadTags, missingFontStems }
 
 const readSrc = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
 
-const STEM = 'rajdhani-latin-400-normal'
+const STEM = 'jetbrains-mono-latin-wght-normal'
 
 test('findFontAssets: encuentra el asset con hash y devuelve la ruta absoluta', () => {
-  const files = ['assets/index-abc.js', `assets/${STEM}-AbC123.woff2`, 'assets/rajdhani-latin-500-normal-Zzz.woff2']
+  const files = ['assets/index-abc.js', `assets/${STEM}-AbC123.woff2`, 'assets/noto-serif-display-latin-wdth-normal-Zzz.woff2']
   assert.deepEqual(findFontAssets(files, [STEM]), [`/assets/${STEM}-AbC123.woff2`])
 })
 
@@ -35,7 +35,7 @@ test('findFontAssets: lanza si hay más de una coincidencia', () => {
 })
 
 test('findFontAssets: no confunde latin con latin-ext ni .woff con .woff2', () => {
-  const files = ['assets/rajdhani-latin-ext-400-normal-XYZ.woff2', `assets/${STEM}-AbC.woff`]
+  const files = ['assets/jetbrains-mono-latin-ext-wght-normal-XYZ.woff2', `assets/${STEM}-AbC.woff`]
   assert.throws(() => findFontAssets(files, [STEM]), new RegExp(STEM))
   const ok = findFontAssets([...files, `assets/${STEM}-AbC.woff2`], [STEM])
   assert.deepEqual(ok, [`/assets/${STEM}-AbC.woff2`])
@@ -68,7 +68,7 @@ test('missingFontStems: stem presente en un url() de fonts.css -> []', () => {
 })
 
 test('missingFontStems: stem ausente -> [stem]; solo informa los ausentes', () => {
-  assert.deepEqual(missingFontStems(CSS, ['rajdhani-latin-400-normal']), ['rajdhani-latin-400-normal'])
+  assert.deepEqual(missingFontStems(CSS, ['jetbrains-mono-latin-wght-normal']), ['jetbrains-mono-latin-wght-normal'])
   assert.deepEqual(
     missingFontStems(CSS, ['noto-serif-display-latin-wdth-normal', 'otra-latin-400-normal']),
     ['otra-latin-400-normal'],
