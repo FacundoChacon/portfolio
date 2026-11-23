@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <SiteNav />
-      <main id="contenido" tabIndex={-1} className="relative min-h-screen overflow-x-hidden bg-dark outline-none">
+      <main id="contenido" tabIndex={-1} className="relative min-h-screen overflow-x-clip bg-dark outline-none">
         <Hero />
         <About />
         <Projects />

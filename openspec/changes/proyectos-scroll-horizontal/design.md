@@ -98,7 +98,7 @@ Alternativas descartadas: GSAP ScrollTrigger / `motion` (15–45 KB para un efec
 <section id="proyectos" data-mode={mode} aria-labelledby="proyectos-titulo">
   <div class="proyectos-pin" ref={pinRef} style={{ '--pin-vh': pinHeightVh(P) }}>
     <div class="proyectos-sticky">
-      <header> "02 // PROYECTOS" (h2) · indicador "01 / 02" + barra (aria-hidden) </header>
+      <header> "03 // PROYECTOS" (h2) · indicador "01 / 02" + barra (aria-hidden) </header>
       <ul class="proyectos-pista" ref={trackRef}>
         <li data-index=0..N-1> <ProyectoCard …/> </li>
         {ctaPlacement === 'track' && <li data-index=N> <ProyectosCierre/> </li>}
@@ -135,7 +135,7 @@ CSS nuevo en `src/index.css` (`@layer components`, selectores por `data-mode` pa
 
 `ProyectosCierre`: `.eva-panel` con `.eva-panel-label` "SYS // FIN DEL REGISTRO" y `.eva-panel-code` "EOF", título "Hay más en el archivo", texto breve y dos acciones brutalistas: "Ver GitHub" (`GITHUB_PERFIL_URL`, pestaña nueva, `sr-only` de aviso) y "Contactame" (`#contacto`, misma pestaña). No es clickeable entero (tiene dos destinos). Variante `strip` (horizontal, ancho completo) para D2. Franjas `.eva-stripes` decorativas en el borde.
 
-Encabezado de la sección: `h2` "Proyectos" en serif condensada con prefijo mono "02 //", divisor `.eva-stripes`, aplica `.eva-reveal` vía `useReveal` (solo el encabezado; nunca la pista).
+Encabezado de la sección: `h2` "Proyectos" en serif condensada con prefijo mono "03 //" (desviación del apply: el navbar numera Inicio 01, Quién soy 02, Proyectos 03), divisor `.eva-stripes`, aplica `.eva-reveal` vía `useReveal` (solo el encabezado; nunca la pista).
 
 ### D8. Tests (Strict TDD, `node --test`)
 

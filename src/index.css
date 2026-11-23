@@ -365,28 +365,102 @@
   animation: glitch-line 3s ease-in-out infinite;
 }
 
-@keyframes repo-block-flicker {
-  0%, 100% { opacity: 0; }
-  5% { opacity: 0.2; }
-  8% { opacity: 0; }
-  20% { opacity: 0.35; }
-  23% { opacity: 0; }
-  40% { opacity: 0.15; }
-  43% { opacity: 0; }
-  55% { opacity: 0.4; }
-  58% { opacity: 0; }
-  75% { opacity: 0.1; }
-  78% { opacity: 0; }
-  90% { opacity: 0.25; }
-  93% { opacity: 0; }
+/* Sección de proyectos: un solo marcado, tres modos (pin | carousel | row). */
+.proyectos-indicador-pin,
+.proyectos-indicador-carrusel {
+  display: none;
 }
 
-.repo-glitch-block {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.25);
-  pointer-events: none;
-  mix-blend-mode: overlay;
-  z-index: 1;
+.proyectos {
+  --proyectos-gap: 1.5rem;
+}
+
+.proyectos-pista {
+  list-style: none;
+}
+
+.proyecto-card-img {
+  height: clamp(6rem, 20vh, 11rem);
+}
+
+.proyectos-pista > li {
+  min-width: 0;
+}
+
+/* Pin: la sección queda fija bajo la barra y la pista se desplaza con transform. */
+.proyectos[data-mode="pin"] .proyectos-pin {
+  height: calc(var(--pin-vh) * 1vh);
+  height: calc(var(--pin-vh) * 1svh);
+}
+
+.proyectos[data-mode="pin"] .proyectos-sticky {
+  position: sticky;
+  top: var(--eva-nav-h, 4.5rem);
+  height: calc(100vh - var(--eva-nav-h, 4.5rem));
+  height: calc(100svh - var(--eva-nav-h, 4.5rem));
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.proyectos[data-mode="pin"] .proyectos-indicador-pin {
+  display: inline-flex;
+}
+
+.proyectos[data-mode="pin"] .proyectos-pista {
+  display: flex;
+  gap: var(--proyectos-gap);
+  width: min(100% - 3rem, 72rem);
+  margin-inline: auto;
+  padding-block: 0.5rem 0.75rem;
+  will-change: transform;
+}
+
+.proyectos[data-mode="pin"] .proyectos-pista > li {
+  flex: 0 0 calc((100% - 2 * var(--proyectos-gap)) / 3);
+}
+
+/* Carrusel nativo: táctil, pantallas chicas y movimiento reducido. */
+.proyectos[data-mode="carousel"],
+.proyectos[data-mode="row"] {
+  padding-block: 5rem;
+}
+
+.proyectos[data-mode="carousel"] .proyectos-sticky,
+.proyectos[data-mode="row"] .proyectos-sticky {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.proyectos[data-mode="carousel"] .proyectos-indicador-carrusel {
+  display: inline;
+}
+
+.proyectos[data-mode="carousel"] .proyectos-pista {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 1rem;
+  padding: 0.5rem 1rem 1.5rem;
+}
+
+.proyectos[data-mode="carousel"] .proyectos-pista > li {
+  flex: 0 0 min(85vw, 26rem);
+  scroll-snap-align: start;
+}
+
+/* Fila: hasta tres cards sin desplazamiento. */
+.proyectos[data-mode="row"] .proyectos-pista {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--proyectos-gap);
+  width: min(100% - 3rem, 72rem);
+  margin-inline: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -413,8 +487,7 @@
   .animate-glitch-line,
   .animate-scan,
   .animate-flicker,
-  .animate-pulse,
-  .repo-glitch-block {
+  .animate-pulse {
     animation: none !important;
   }
 }
