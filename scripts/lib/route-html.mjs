@@ -106,21 +106,43 @@ function findInlineHandlers(html) {
   return handlers
 }
 
+/** Hosts (sin repetir) de las URLs absolutas http(s) en atributos `href`/`src`. */
+function findExternalOrigins(html) {
+  const hosts = new Set()
+  for (const [, , url] of html.matchAll(/\b(?:href|src)=(["'])(https?:\/\/[^"']+)\1/gi)) {
+    try {
+      hosts.add(new URL(url).host)
+    } catch {
+      // URL malformada: no aporta un origen verificable
+    }
+  }
+  return [...hosts]
+}
+
 /**
  * Lectura inversa para la verificación del build: metadatos declarados en el
- * HTML, scripts inline, atributos `on*` y URLs de assets (script src y links
- * de hojas de estilo / modulepreload) en orden de documento.
+ * HTML, scripts inline, atributos `on*`, URLs de assets (script src y links
+ * de hojas de estilo / modulepreload) en orden de documento, precargas
+ * (`preloads`) y hosts externos referenciados (`externalOrigins`).
  * @param {string} html
  */
 export function extractHeadMeta(html) {
   const title = /<title>([^<]*)<\/title>/.exec(html)
   const assetUrls = []
+  const preloads = []
   let inlineScripts = 0
   for (const [tag, name] of html.matchAll(/<(script|link)\b[^>]*>/g)) {
     if (name === 'script') {
       const src = readAttr(tag, 'src')
       if (src === null) inlineScripts += 1
       else assetUrls.push(src)
+    } else if (/\brel=["']preload["']/.test(tag)) {
+      preloads.push({
+        href: readAttr(tag, 'href'),
+        as: readAttr(tag, 'as'),
+        type: readAttr(tag, 'type'),
+        crossorigin: /\scrossorigin(?=[\s=>/])/.test(tag),
+      })
     } else if (/\brel=["'](?:stylesheet|modulepreload)["']/.test(tag)) {
       const href = readAttr(tag, 'href')
       if (href !== null) assetUrls.push(href)
@@ -138,6 +160,8 @@ export function extractHeadMeta(html) {
     inlineScripts,
     inlineHandlers,
     assetUrls,
+    preloads,
+    externalOrigins: findExternalOrigins(html),
   }
 }
 

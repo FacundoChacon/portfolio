@@ -1,3 +1,5 @@
+import { EVA_COLORS } from './src/styles/eva-tokens.js'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -26,12 +28,14 @@ export default {
         muted: {
           DEFAULT: '#1A1A22',
           foreground: '#9ca3af',
-        }
+        },
+        eva: EVA_COLORS,
       },
       fontFamily: {
         sans: ['Rajdhani', 'Inter', 'system-ui', 'sans-serif'],
         display: ['Orbitron', 'Rajdhani', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        'eva-display': ['"Noto Serif Display"', 'Georgia', 'serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out forwards',

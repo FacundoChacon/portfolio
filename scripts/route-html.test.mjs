@@ -219,3 +219,28 @@ test('extractHeadMeta: detecta manejadores reales con espacios, sin comillas y e
   const html = `${FIXTURE}<button onclick="x()">a</button><img onload = "x()"><img src="/a.png" onerror=x><a ONCLICK="x()">b</a>`
   assert.deepEqual(extractHeadMeta(html).inlineHandlers.sort(), ['onclick', 'onclick', 'onerror', 'onload'])
 })
+
+test('extractHeadMeta: lee las precargas con href, as, type y crossorigin', () => {
+  const html = `${FIXTURE}<link rel="preload" as="font" type="font/woff2" href="/assets/f-1.woff2" crossorigin><link rel="preload" as="style" href="/assets/s.css">`
+  const { preloads } = extractHeadMeta(html)
+  assert.deepEqual(preloads, [
+    { href: '/assets/f-1.woff2', as: 'font', type: 'font/woff2', crossorigin: true },
+    { href: '/assets/s.css', as: 'style', type: null, crossorigin: false },
+  ])
+})
+
+test('extractHeadMeta: crossorigin con valor ("anonymous") también cuenta', () => {
+  const html = '<link rel="preload" as="font" type="font/woff2" href="/a.woff2" crossorigin="anonymous">'
+  assert.equal(extractHeadMeta(html).preloads[0].crossorigin, true)
+})
+
+test('extractHeadMeta: sin precargas devuelve lista vacía', () => {
+  assert.deepEqual(extractHeadMeta('<html><head></head></html>').preloads, [])
+})
+
+test('extractHeadMeta: externalOrigins lista los hosts absolutos de href/src', () => {
+  const meta = extractHeadMeta(FIXTURE)
+  assert.ok(meta.externalOrigins.includes('fonts.googleapis.com'))
+  const html = '<link href="https://fonts.gstatic.com/x" rel="stylesheet"><script src="https://cdn.ejemplo.com/a.js"></script><img src="/local.png">'
+  assert.deepEqual(extractHeadMeta(html).externalOrigins.sort(), ['cdn.ejemplo.com', 'fonts.gstatic.com'])
+})

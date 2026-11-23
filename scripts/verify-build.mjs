@@ -3,7 +3,8 @@
  * Verifica el build (después de `vite build`): cada URL de `dist/sitemap.xml`
  * debe tener su HTML en `dist/` con `canonical` y `og:url` iguales a esa URL,
  * imágenes sociales iguales a la de `src/data/seo.js` (fuente única del
- * dominio) y sin scripts inline.
+ * dominio), sin scripts inline, con la fuente principal precargada desde el
+ * propio origen y sin referencias a Google Fonts.
  *
  * La lógica vive en `scripts/lib/deploy-config.mjs` (`checkBuiltPages`, con
  * tests) y `scripts/lib/route-html.mjs`. Este CLI solo lee `dist/`.
@@ -13,6 +14,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { checkBuiltPages } from './lib/deploy-config.mjs'
+import { PRELOAD_FONT_STEMS } from './lib/font-preload.mjs'
 import { routeOutputFile } from './lib/route-html.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -32,7 +34,10 @@ const pages = urls.map((url) => {
   return { url, file: `dist/${relative}`, html: existsSync(path) ? readFileSync(path, 'utf8') : null }
 })
 
-const errors = urls.length === 0 ? ['dist/sitemap.xml no lista ninguna URL'] : checkBuiltPages(pages)
+const errors = urls.length === 0 ? ['dist/sitemap.xml no lista ninguna URL'] : checkBuiltPages(pages, {
+      preloadStems: PRELOAD_FONT_STEMS,
+      assetExists: (href) => existsSync(`${dist}${href.slice(1)}`),
+    })
 
 if (errors.length > 0) {
   console.error('verify:build FALLÓ:')

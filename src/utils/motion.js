@@ -20,3 +20,13 @@ export function prefersReducedMotion(matchMediaImpl = globalThis.matchMedia) {
     return false
   }
 }
+
+/**
+ * Decide si un elemento con revelado debe mostrarse de inmediato, sin crear un
+ * IntersectionObserver: con movimiento reducido o si el navegador no lo ofrece.
+ * @param {{ reducedMotion: boolean, hasIntersectionObserver: boolean }} state
+ * @returns {boolean}
+ */
+export function shouldRevealImmediately({ reducedMotion, hasIntersectionObserver }) {
+  return reducedMotion || !hasIntersectionObserver
+}

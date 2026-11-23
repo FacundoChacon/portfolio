@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { prefersReducedMotion, shouldRevealImmediately } from "../utils/motion"
 
 /**
  * Revela un elemento la primera vez que entra en el viewport.
@@ -16,7 +17,7 @@ export function useReveal({ threshold = 0.15, rootMargin, root } = {}) {
     const el = ref.current
     if (!el) return
 
-    if (!("IntersectionObserver" in window)) {
+    if (shouldRevealImmediately({ reducedMotion: prefersReducedMotion(), hasIntersectionObserver: "IntersectionObserver" in window })) {
       setVisible(true)
       return
     }

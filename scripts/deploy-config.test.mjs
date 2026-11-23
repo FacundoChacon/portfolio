@@ -8,8 +8,8 @@ import { renderRouteHtml, routeOutputFile } from './lib/route-html.mjs'
 const CSP_OK = [
   "default-src 'self'",
   "script-src 'self'",
-  "style-src 'self' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self'",
+  "font-src 'self'",
   "img-src 'self' data:",
   "connect-src 'self' https://script.google.com https://script.googleusercontent.com",
   "object-src 'none'",
@@ -424,4 +424,83 @@ test('checkBuiltPages: og:image o twitter:image absolutas del dominio pero disti
   const twErrors = checkBuiltPages([tw])
   assert.ok(twErrors.some((e) => e.includes(CONFIGURADOR) && e.includes('twitter:image') && e.includes(otra)))
   assert.ok(!twErrors.some((e) => e.includes('og:image')))
+})
+
+// --- CSP endurecida: style-src y font-src solo 'self' ---
+
+test("checkCsp: style-src con https://fonts.googleapis.com falla nombrando directiva y host", () => {
+  const errors = checkCsp(withDirective('style-src', "'self' https://fonts.googleapis.com"))
+  assert.ok(errors.some((e) => e.includes('style-src') && e.includes('https://fonts.googleapis.com')), JSON.stringify(errors))
+})
+
+test("checkCsp: font-src con https://fonts.gstatic.com falla nombrando directiva y host", () => {
+  const errors = checkCsp(withDirective('font-src', "'self' https://fonts.gstatic.com"))
+  assert.ok(errors.some((e) => e.includes('font-src') && e.includes('https://fonts.gstatic.com')), JSON.stringify(errors))
+})
+
+test('checkCsp: sin font-src o sin style-src falla con "falta la directiva"', () => {
+  for (const name of ['font-src', 'style-src']) {
+    const errors = checkCsp(withDirective(name, null))
+    assert.ok(errors.some((e) => e.includes(`falta la directiva ${name}`)), `${name}: ${JSON.stringify(errors)}`)
+  }
+})
+
+test("checkCsp: style-src y font-src deben ser exactamente 'self' (otro origen propio también falla)", () => {
+  for (const name of ['style-src', 'font-src']) {
+    const errors = checkCsp(withDirective(name, "'self' https://cdn.ejemplo.com"))
+    assert.ok(errors.some((e) => e.includes(name) && e.includes('cdn.ejemplo.com')), `${name}: ${JSON.stringify(errors)}`)
+  }
+})
+
+// --- checkBuiltPages: fuentes ---
+
+const FONT_STEM = 'rajdhani-latin-400-normal'
+const FONT_HREF = `/assets/${FONT_STEM}-AbC123.woff2`
+const PRELOAD = `<link rel="preload" as="font" type="font/woff2" href="${FONT_HREF}" crossorigin>`
+const fontOpts = (existing = [FONT_HREF]) => ({
+  preloadStems: [FONT_STEM],
+  assetExists: (href) => existing.includes(href),
+})
+const withPreload = (html) => html.replace('</head>', `${PRELOAD}</head>`)
+const fontPages = () => [builtPage('/', withPreload), builtPage('/configurador', withPreload)]
+
+test('checkBuiltPages: páginas con la precarga correcta no reportan errores', () => {
+  assert.deepEqual(checkBuiltPages(fontPages(), fontOpts()), [])
+})
+
+test('checkBuiltPages: página sin precarga nombra la URL y el stem', () => {
+  const errors = checkBuiltPages([builtPage('/')], fontOpts())
+  assert.equal(errors.length, 1)
+  assert.ok(errors[0].includes(canonicalUrl('/')) && errors[0].includes(FONT_STEM), errors[0])
+})
+
+test('checkBuiltPages: precarga sin crossorigin falla', () => {
+  const sin = builtPage('/', (html) => html.replace('</head>', `${PRELOAD.replace(' crossorigin', '')}</head>`))
+  const errors = checkBuiltPages([sin], fontOpts())
+  assert.ok(errors.some((e) => e.includes('crossorigin') && e.includes(FONT_STEM)), JSON.stringify(errors))
+})
+
+test('checkBuiltPages: precarga con type distinto de font/woff2 falla', () => {
+  const mal = builtPage('/', (html) => html.replace('</head>', `${PRELOAD.replace('font/woff2', 'font/woff')}</head>`))
+  assert.equal(checkBuiltPages([mal], fontOpts()).length, 1)
+})
+
+test('checkBuiltPages: precarga a un archivo inexistente nombra la ruta', () => {
+  const errors = checkBuiltPages(fontPages(), fontOpts([]))
+  assert.ok(errors.some((e) => e.includes(FONT_HREF)), JSON.stringify(errors))
+  assert.equal(errors.length, 2)
+})
+
+test('checkBuiltPages: HTML que referencia Google Fonts nombra URL y origen', () => {
+  for (const host of ['fonts.googleapis.com', 'fonts.gstatic.com']) {
+    const pagina = builtPage('/', (html) => withPreload(html).replace('</head>', `<link rel="stylesheet" href="https://${host}/css2?family=X"></head>`))
+    const errors = checkBuiltPages([pagina], fontOpts())
+    assert.ok(errors.some((e) => e.includes(canonicalUrl('/')) && e.includes(host)), `${host}: ${JSON.stringify(errors)}`)
+  }
+})
+
+test('checkBuiltPages: sin opciones no exige precarga pero igual rechaza Google Fonts', () => {
+  assert.deepEqual(checkBuiltPages(validPages()), [])
+  const google = builtPage('/', (html) => html.replace('</head>', '<link rel="preconnect" href="https://fonts.gstatic.com"></head>'))
+  assert.ok(checkBuiltPages([google]).some((e) => e.includes('fonts.gstatic.com')))
 })
