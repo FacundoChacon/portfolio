@@ -62,3 +62,18 @@ export function checkContrastPairs(colors, pairs) {
   }
   return errors
 }
+
+/**
+ * Compone `fgHex` con opacidad `alpha` sobre `bgHex` (por canal sRGB, como lo
+ * hace el navegador) y devuelve el hex `#rrggbb` en minúsculas.
+ * @param {string} fgHex
+ * @param {string} bgHex
+ * @param {number} alpha 0 a 1
+ * @returns {string}
+ */
+export function blendOver(fgHex, bgHex, alpha) {
+  const fg = parseHex(fgHex)
+  const bg = parseHex(bgHex)
+  const channels = fg.map((c, i) => Math.round(c * alpha + bg[i] * (1 - alpha)))
+  return `#${channels.map((c) => c.toString(16).padStart(2, '0')).join('')}`
+}

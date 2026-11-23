@@ -15,6 +15,11 @@
     --eva-purple: theme('colors.eva.purple');
     --eva-green: theme('colors.eva.green');
     --eva-focus: theme('colors.eva.green');
+    --eva-nav-h: 70px;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--eva-nav-h) + 1rem);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -63,6 +68,17 @@
 }
 
 @layer components {
+  /* Cristal de la barra: negro translúcido con desenfoque; opaco si no hay backdrop-filter */
+  .eva-nav-glass {
+    background-color: rgb(5 5 5 / 0.85);
+    backdrop-filter: blur(10px);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .eva-nav-glass {
+      background-color: var(--eva-black);
+    }
+  }
+
   /* Texturas y paneles del sistema visual eva (decorativos) */
   .eva-hex-grid {
     position: relative;

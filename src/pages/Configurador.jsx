@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react'
 
+import NavBrand from '../components/NavBrand.jsx'
 import ExtrasCards from '../components/configurador/ExtrasCards.jsx'
 import FormStep from '../components/configurador/FormStep.jsx'
 import QuantityControl from '../components/configurador/QuantityControl.jsx'
@@ -100,24 +101,28 @@ export default function Configurador() {
 
   return (
     <div className="min-h-screen bg-dark">
-      <header className="border-b border-dark-border bg-dark/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6">
-          <Link
-            to="/"
-            className="font-mono text-sm font-bold tracking-widest text-accent-green text-glow-cyan"
-          >
-            {"<FC/>"}
-          </Link>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green"
-          >
-            <ArrowLeft className="size-3.5" aria-hidden="true" /> Volver al inicio
-          </Link>
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-orange focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
+      >
+        Saltar al contenido
+      </a>
+      <header>
+        <div className="eva-nav-glass border-b-2 border-eva-orange">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 md:px-6">
+            <NavBrand />
+            <Link
+              to="/"
+              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-orange px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-orange hover:bg-eva-orange hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-orange)] motion-safe:transition-[transform,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5"
+            >
+              <ArrowLeft className="size-3.5" aria-hidden="true" /> Volver al inicio
+            </Link>
+          </div>
         </div>
+        <div className="eva-stripes h-1.5" aria-hidden="true" />
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-10">
+      <main id="contenido" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none md:px-6 md:py-10">
         <h1 className="font-display text-3xl font-bold gradient-text md:text-4xl">
           Armá tu presupuesto
         </h1>

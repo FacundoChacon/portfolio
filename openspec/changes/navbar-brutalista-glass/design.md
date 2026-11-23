@@ -41,12 +41,12 @@ export const NAV_LINKS = [                 // orden = orden del documento
 export const BRAND_CODE = '00'
 export function navHref(id)                       // '#' + id
 export function navCode(code)                     // '//' + code  (ej. '//03')
-export function pickActiveSection(order, intersectingIds) // primer id de `order` presente en el Set; si no, null
+export function pickActiveSection(order, intersectingIds) // último id de `order` presente en el Set; si no, null
 export function sectionObserverOptions(navHeightPx)       // { rootMargin: `-${navHeightPx}px 0px -60% 0px`, threshold: 0 }
 export function menuKeyAction(key, isOpen)                // 'close' si key === 'Escape' && isOpen; si no, null
 ```
 
-- `pickActiveSection` recibe ids ya filtrados por intersección y devuelve el primero en orden de documento: resuelve el caso de dos secciones en la zona de lectura sin depender del orden de llegada de las entradas del `IntersectionObserver`. Ignora ids que no estén en `order` (Testimonios no tiene enlace → `null`).
+- `pickActiveSection` recibe ids ya filtrados por intersección y devuelve el último en orden de documento (desvío del apply: con `scroll-padding` la sección anterior conserva ~16px dentro de la zona de lectura, y "el primero" marcaba la sección previa): resuelve el caso de dos secciones en la zona de lectura sin depender del orden de llegada de las entradas del `IntersectionObserver`. Ignora ids que no estén en `order` (Testimonios no tiene enlace → `null`).
 - La "zona de lectura" es la franja entre el borde inferior de la barra y el 40% superior del viewport (`rootMargin` negativo arriba = altura de la barra; `-60%` abajo). Alternativa descartada: elegir la entrada con mayor `intersectionRatio` (inestable con secciones más altas que el viewport, que nunca superan ~0.5).
 - Mantener `NAV_LINKS` con `id` en vez de `href` evita duplicar `#` y sirve al observer (`document.getElementById`). Los labels y destinos son exactamente los actuales (spec existente "Las anclas de la home siguen funcionando").
 
@@ -101,7 +101,7 @@ export function menuKeyAction(key, isOpen)                // 'close' si key === 
 
 ### D6. Tests
 
-- `scripts/site-nav.test.mjs` (unitarios sobre `src/utils/siteNav.js`): `navCode`/`navHref`; `NAV_LINKS` con los 5 ids/labels actuales en orden y códigos `01..05` únicos; `pickActiveSection` (vacío → `null`; uno; dos → el primero en orden aunque el `Set` se haya llenado al revés; id fuera de `order` ignorado); `sectionObserverOptions(70)` → `rootMargin: '-70px 0px -60% 0px'`; `menuKeyAction` (`Escape`+abierto → `'close'`; `Escape`+cerrado → `null`; `Enter`+abierto → `null`).
+- `scripts/site-nav.test.mjs` (unitarios sobre `src/utils/siteNav.js`): `navCode`/`navHref`; `NAV_LINKS` con los 5 ids/labels actuales en orden y códigos `01..05` únicos; `pickActiveSection` (vacío → `null`; uno; dos → el último en orden aunque el `Set` se haya llenado al revés; id fuera de `order` ignorado); `sectionObserverOptions(70)` → `rootMargin: '-70px 0px -60% 0px'`; `menuKeyAction` (`Escape`+abierto → `'close'`; `Escape`+cerrado → `null`; `Enter`+abierto → `null`).
 - Contraste del cristal (mismo archivo): helper `blendOver(fgHex, bgHex, alpha)` en `scripts/lib/contrast.mjs` (composición por canal sRGB, redondeo a entero) — se agrega al módulo creado por el change de tokens. El test lee `src/index.css`, extrae el `rgb(r g b / a)` de `.eva-nav-glass`, verifica que `r g b` = `EVA_COLORS.black` y que naranja, papel y gris sobre `blendOver(black, '#FFFFFF', a)` ≥ 4.5; caso de triangulación: con `a = 0.72` el naranja falla (protege contra bajar el alpha).
 - `scripts/site-nav-classes.test.mjs` (guard estático sobre `SiteNav.jsx` y `NavBrand.jsx`): prohíbe tokens `accent-*`, `neon-*`, `*-glow-*`, `rounded*`, hex literales y `hover:*translate*` sin `motion-safe:`; exige `aria-current`, `aria-expanded`, `aria-controls="mobile-nav"`, `menuKeyAction`, `eva-nav-glass`, `eva-stripes`; sobre `src/index.css`: `.eva-nav-glass` tiene bloque `@supports not` con fondo opaco, `scroll-padding-top` usa `--eva-nav-h` y `--eva-nav-h` = `${NAV_HEIGHT_PX}px`. Sobre `Home.jsx`/`Configurador.jsx`: `id="contenido"` presente y enlace `#contenido`.
 - `scripts/a11y-classes.test.mjs`: la lista de archivos inspeccionados suma `src/components/SiteNav.jsx` y `src/components/NavBrand.jsx` (reglas de foco y `text-gray-500/600` ya existentes).

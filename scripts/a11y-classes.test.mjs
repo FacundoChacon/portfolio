@@ -10,6 +10,7 @@ import test from 'node:test'
 
 const DIR = new URL('../src/components/configurador/', import.meta.url)
 const PAGE = new URL('../src/pages/Configurador.jsx', import.meta.url)
+const NAV_COMPONENTS = ['SiteNav.jsx', 'NavBrand.jsx']
 
 /**
  * Clases prohibidas en `src/components/configurador/*.jsx` y `src/pages/Configurador.jsx` (design D6/D7).
@@ -74,6 +75,10 @@ test('los componentes y la página del configurador no usan clases que rompen fo
   const sources = [
     ...files.map((name) => [name, readFileSync(new URL(name, DIR), 'utf8')]),
     ['pages/Configurador.jsx', readFileSync(PAGE, 'utf8')],
+    ...NAV_COMPONENTS.map((name) => [
+      `components/${name}`,
+      readFileSync(new URL(`../src/components/${name}`, import.meta.url), 'utf8'),
+    ]),
   ]
   const offenders = sources.flatMap(([name, source]) =>
     findForbiddenClasses(source).map((cls) => `${name}: ${cls}`),
