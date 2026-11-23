@@ -6,6 +6,8 @@
  * El botón de WhatsApp solo se muestra si hay `whatsappUrl` (número configurado).
  * Recibe `headingRef` para que la página le dé el foco al aparecer (C-11).
  */
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO, PANEL } from './estilos.js'
+
 export default function ErrorStep({
   onRetry,
   onEdit,
@@ -20,47 +22,35 @@ export default function ErrorStep({
   const mailto = `mailto:${contactEmail}?subject=${subject}&body=${body}`
 
   return (
-    <div className="glass p-6">
+    <div className={`${PANEL} relative overflow-hidden`}>
+      <div aria-hidden="true" className="eva-stripes eva-stripes-red absolute inset-x-0 top-0 h-2" />
+      <span aria-hidden="true" className="eva-panel-label">
+        ERR {'//'} ENVÍO
+      </span>
       <h2
         ref={headingRef}
         tabIndex={-1}
-        className="font-display text-xl font-bold text-white outline-none"
+        className="font-eva-display text-2xl font-black uppercase text-eva-paper outline-none font-stretch-condensed"
       >
         No se pudo enviar
       </h2>
-      <p className="mt-2 text-sm text-gray-300">
+      <p className="mt-2 text-sm text-eva-gray">
         Ocurrió un error al enviar tu solicitud. Podés reintentar, o contactarme directamente por email o WhatsApp.
       </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={onRetry}
-          className="box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark"
-        >
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button type="button" onClick={onRetry} className={BOTON_PRIMARIO}>
           Reintentar
         </button>
         {onEdit && (
-          <button
-            type="button"
-            onClick={onEdit}
-            className="inline-flex items-center gap-2 rounded-md border border-dark-border px-5 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green"
-          >
+          <button type="button" onClick={onEdit} className={BOTON_SECUNDARIO}>
             Revisar mis datos
           </button>
         )}
-        <a
-          href={mailto}
-          className="inline-flex items-center gap-2 rounded-md border border-dark-border px-5 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green"
-        >
+        <a href={mailto} className={BOTON_SECUNDARIO}>
           Enviar email
         </a>
         {whatsappUrl && (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-md border border-dark-border px-5 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green"
-          >
+          <a href={whatsappUrl} target="_blank" rel="noreferrer" className={BOTON_SECUNDARIO}>
             WhatsApp
           </a>
         )}

@@ -1,5 +1,7 @@
 import { PencilLine } from 'lucide-react'
 
+import { BOTON_EDITAR, BOTON_PRIMARIO, PANEL } from './estilos.js'
+
 /**
  * Paso 4: revisión de la solicitud (C-08 → extendido C-10).
  *
@@ -9,12 +11,6 @@ import { PencilLine } from 'lucide-react'
  * muestra en el aviso de privacidad (C-11). Mientras `submitting`, los botones
  * "Editar" quedan deshabilitados.
  */
-const editButton =
-  'inline-flex items-center gap-1.5 rounded-md border border-dark-border px-2.5 py-1 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green disabled:cursor-not-allowed disabled:opacity-50'
-
-const submitButton =
-  'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-5 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark disabled:cursor-not-allowed disabled:opacity-50'
-
 export default function ReviewStep({
   review,
   onEdit,
@@ -29,41 +25,47 @@ export default function ReviewStep({
 
   return (
     <div className="space-y-4">
-      {blocks.map((block) => (
-        <section key={block.id} className="glass p-4">
+      {blocks.map((block, index) => (
+        <section key={block.id} className={PANEL}>
+          <span aria-hidden="true" className="eva-panel-label">
+            REV {'//'} {String(index + 1).padStart(2, '0')}
+          </span>
+
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-display text-sm font-bold text-white">{block.title}</h3>
+            <h3 className="font-eva-display text-lg font-black uppercase text-eva-paper font-stretch-condensed">
+              {block.title}
+            </h3>
             <button
               type="button"
               onClick={() => onEdit(block.editStep)}
-              className={editButton}
+              className={BOTON_EDITAR}
               disabled={submitting}
             >
               <PencilLine className="size-3.5" aria-hidden="true" /> Editar
             </button>
           </div>
 
-          <dl className="mt-3 space-y-1.5 border-t border-dark-border pt-3">
+          <dl className="mt-3 space-y-1.5 border-t-2 border-eva-line pt-3">
             {block.lines.map((line) => (
               <div key={line.label} className="flex items-baseline justify-between gap-4">
-                <dt className="text-xs text-gray-400">{line.label}</dt>
-                <dd className="text-right text-sm text-white">{line.value}</dd>
+                <dt className="font-mono text-xs text-eva-gray">{line.label}</dt>
+                <dd className="text-right text-sm text-eva-paper">{line.value}</dd>
               </div>
             ))}
           </dl>
         </section>
       ))}
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-eva-gray">
         Es una solicitud sin cargo: te paso el presupuesto por email.
       </p>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-eva-gray">
         Uso tus datos solo para responder esta solicitud. No los comparto ni los uso para
         publicidad. Si querés que los borre, escribime a{' '}
         <a
           href={`mailto:${contactEmail}`}
-          className="underline underline-offset-2 hover:text-accent-green focus-visible:text-accent-green"
+          className="text-eva-orange underline underline-offset-2 hover:text-eva-paper"
         >
           {contactEmail}
         </a>
@@ -71,7 +73,7 @@ export default function ReviewStep({
       </p>
 
       <div className="flex justify-end">
-        <button type="button" onClick={onSubmit} className={submitButton} disabled={disabled}>
+        <button type="button" onClick={onSubmit} className={BOTON_PRIMARIO} disabled={disabled}>
           {label}
         </button>
       </div>
