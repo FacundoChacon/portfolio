@@ -6,6 +6,10 @@
 
 ---
 
+> **Nota (2026-11-23) — pulido-build-indexable.** Plugin `route-html` en `writeBundle` (no tapa errores del build), detección `on*` robusta, dominio único (CI lee `seo.js`).
+
+---
+
 > **Nota (2026-11-20) — Ajustes post-C-10.** `fix-reintento-envio` (reintento tras error de envío), webhook con `Content-Type: text/plain` y timeout de 20 s (Google Apps Script), rewrite SPA aplicado en `vercel.json` y WhatsApp de respaldo configurado.
 
 ---

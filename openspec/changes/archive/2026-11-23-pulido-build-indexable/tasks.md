@@ -33,4 +33,4 @@
 ## 5. Integración
 
 - [x] 5.1 Correr `npm run ci` completo (lint, verificaciones, tests, build, verify:build) y verificar que termina en verde.
-- [ ] 5.2 Tras el push, verificar que el workflow CI de GitHub Actions queda en verde.
+- [x] 5.2 Tras el push, verificar que el workflow CI de GitHub Actions queda en verde. Evidencia: GitHub Actions run 45221108953 sobre el commit f7873e6, conclusión success (job "Lint + verificaciones + tests + build").
