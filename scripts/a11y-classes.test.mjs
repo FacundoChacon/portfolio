@@ -11,7 +11,8 @@ import test from 'node:test'
 const DIR = new URL('../src/components/configurador/', import.meta.url)
 const PAGE = new URL('../src/pages/Configurador.jsx', import.meta.url)
 const NAV_COMPONENTS = ['SiteNav.jsx', 'NavBrand.jsx', 'Hero.jsx', 'Contact.jsx'] // también inspecciona el hero (hero-brutalista) y contacto (contacto-brutalista)
-const SECTION_COMPONENTS = ['Stack.jsx'] // secciones de la home que también pasan el guard (stack-neumorfico-oscuro)
+// Secciones de la home que también pasan el guard (stack-neumorfico-oscuro, acerca-testimonios-glass)
+const SECTION_COMPONENTS = ['Stack.jsx', 'About.jsx', 'Testimonials.jsx']
 
 /**
  * Clases prohibidas en `src/components/configurador/*.jsx` y `src/pages/Configurador.jsx` (design D6/D7).

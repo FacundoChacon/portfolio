@@ -73,9 +73,22 @@
     background-color: rgb(5 5 5 / 0.85);
     backdrop-filter: blur(10px);
   }
+  /* Cristal de panel (estático): tinte panel al 80% sobre la grilla; su contraste lo verifica scripts/eva-glass.test.mjs */
+  .eva-glass {
+    position: relative;
+    background-color: rgb(16 14 12 / 0.8);
+    background-image: linear-gradient(135deg, rgb(237 230 214 / 0.04), transparent 45%);
+    border: 1px solid rgb(255 122 26 / 0.35);
+    box-shadow: inset 0 1px 0 rgb(237 230 214 / 0.06);
+    backdrop-filter: blur(8px);
+  }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .eva-nav-glass {
       background-color: var(--eva-black);
+    }
+    .eva-glass {
+      background-color: var(--eva-panel);
+      background-image: none;
     }
   }
 
@@ -361,6 +374,21 @@
 .eva-reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Cursor de consola de los testimonios: parpadea 3 veces (3 s) y queda fijo; sin movimiento, siempre fijo */
+.eva-cursor {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .eva-cursor {
+    animation: eva-cursor-blink 1s steps(1, end) 3;
+  }
+}
+
+@keyframes eva-cursor-blink {
+  50% { opacity: 0; }
 }
 
 .text-glow-red {

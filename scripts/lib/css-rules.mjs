@@ -57,7 +57,7 @@ function findRule(blocks, selector) {
 /** Cuerpos de todas las at-rules cuyo encabezado es `within` (puede haber varias). */
 function findAtRules(blocks, within) {
   return blocks.flatMap(({ head, body }) => {
-    if (head === within) return [body]
+    if (head === within || head.startsWith(within)) return [body]
     return head.startsWith('@layer') ? findAtRules(blocksOf(body), within) : []
   })
 }
