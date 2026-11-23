@@ -11,12 +11,12 @@
  * Uso: npm run verify:testimonials
  */
 import testimonios from '../src/data/testimonios.js'
+import { hasValidRating } from '../src/utils/testimonios.js'
 
 const failures = []
 const fail = (msg) => failures.push(msg)
 
 const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0
-const isValidRating = (v) => Number.isInteger(v) && v >= 1 && v <= 5
 
 if (!Array.isArray(testimonios)) {
   fail('testimonios: debe ser un array')
@@ -38,7 +38,7 @@ if (!Array.isArray(testimonios)) {
     if (!isNonEmptyString(t.nombre)) fail(`${tag}: nombre vacío`)
     if (!isNonEmptyString(t.rol)) fail(`${tag}: rol vacío`)
     if (!isNonEmptyString(t.comentario)) fail(`${tag}: comentario vacío`)
-    if (!isValidRating(t.rating)) fail(`${tag}: rating debe ser entero 1-5 -> ${JSON.stringify(t.rating)}`)
+    if (!hasValidRating(t.rating)) fail(`${tag}: rating debe ser entero 1-5 -> ${JSON.stringify(t.rating)}`)
   })
 }
 
