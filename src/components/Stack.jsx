@@ -1,68 +1,61 @@
 import { useReveal } from "../hooks/useReveal"
-
-const stack = [
-  { name: "Java 17", color: "#f89820", glyph: "Jv", category: "Lenguaje" },
-  { name: "Spring Boot", color: "#6db33f", glyph: "Sp", category: "Backend" },
-  { name: "React 18", color: "#61dafb", glyph: "Re", category: "Frontend" },
-  { name: "Tailwind CSS", color: "#38bdf8", glyph: "Tw", category: "Frontend" },
-  { name: "JavaScript", color: "#f7df1e", glyph: "Js", category: "Lenguaje" },
-  { name: "MySQL", color: "#00758f", glyph: "Sql", category: "Base de datos" },
-  { name: "Python", color: "#4b8bbe", glyph: "Py", category: "Lenguaje" },
-  { name: "Docker", color: "#2496ed", glyph: "Dk", category: "DevOps" },
-  { name: "Git", color: "#f05032", glyph: "Git", category: "Herramienta" },
-  { name: "REST API", color: "#22d3ee", glyph: "Api", category: "Backend" },
-  { name: "JWT", color: "#d63aff", glyph: "Jwt", category: "Seguridad" },
-  { name: "HTML5 / CSS3", color: "#e34f26", glyph: "Web", category: "Frontend" },
-]
+import { STACK, moduleCode } from "../data/stack"
 
 export default function Stack() {
   const [ref, visible] = useReveal()
 
   return (
-    <section id="stack" className="relative border-t border-dark-border py-24">
+    <section id="stack" aria-labelledby="stack-titulo" className="relative border-t border-eva-line bg-eva-black py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex items-center gap-4">
-          <span className="font-mono text-sm text-accent-green text-glow-cyan">03.</span>
-          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Stack</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-accent-green/50 to-transparent" />
+          <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-orange">
+            {"//"}04
+          </p>
+          <h2
+            id="stack-titulo"
+            className="font-eva-display text-4xl font-black uppercase leading-none tracking-tight text-eva-paper font-stretch-condensed sm:text-6xl"
+          >
+            Stack
+          </h2>
+          <div aria-hidden="true" className="eva-stripes h-2 flex-1" />
         </div>
 
-        <p className="mt-6 max-w-xl text-gray-400 text-pretty">
-Las tecnologías que uso con frecuencia. Tocá o pasá el cursor para
-verlas cobrar vida.
+        <p className="mt-6 max-w-xl text-eva-gray text-pretty">
+          Módulos en uso frecuente: lenguajes, frameworks y herramientas con los que construyo.
         </p>
 
-          <div
-            ref={ref}
-            className={`reveal reveal-right mt-12 grid grid-cols-2 gap-4 transition-all duration-1000 sm:grid-cols-3 lg:grid-cols-4 ${
-              visible ? "visible" : ""
-            }`}
-          >
-          {stack.map((tech) => (
-            <div
-              key={tech.name}
-              style={{ "--tech": tech.color }}
-              tabIndex={0}
-              className="group relative flex items-center gap-4 overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--tech)] hover:shadow-[0_0_24px_-4px_var(--tech)] focus-within:-translate-y-1 focus-within:border-[var(--tech)] focus-within:shadow-[0_0_24px_-4px_var(--tech)] active:-translate-y-1 active:border-[var(--tech)] active:shadow-[0_0_24px_-4px_var(--tech)]"
-            >
-              <span
-                className="flex size-12 shrink-0 items-center justify-center rounded-md border border-dark-border font-mono text-sm font-bold text-gray-400 transition-all duration-300 group-hover:border-[var(--tech)] group-hover:text-[var(--tech)] group-focus-within:border-[var(--tech)] group-focus-within:text-[var(--tech)] group-active:border-[var(--tech)] group-active:text-[var(--tech)]"
+        <div className="eva-neu-surface mt-12 p-4 pt-8 sm:p-6 sm:pt-10">
+          <span aria-hidden="true" className="eva-panel-label">STACK {"//"} MÓDULOS</span>
+          <span aria-hidden="true" className="eva-panel-code">{`${STACK.length}/${STACK.length}`}</span>
+          <ul role="list" ref={ref} className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {STACK.map((tech, i) => (
+              <li
+                key={tech.name}
+                className={`eva-reveal ${visible ? "is-visible" : ""}`}
+                style={{ transitionDelay: `${i * 50}ms` }}
               >
-                {tech.glyph}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-display font-semibold text-white transition-colors group-hover:text-[var(--tech)] group-focus-within:text-[var(--tech)] group-active:text-[var(--tech)]">
-                  {tech.name}
-                </p>
-                <p className="font-mono text-[11px] uppercase tracking-widest text-gray-400">
-                  {tech.category}
-                </p>
-              </div>
-              <span
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[var(--tech)] transition-transform duration-300 group-hover:scale-x-100 group-focus-within:scale-x-100 group-active:scale-x-100"
-              />
-            </div>
-          ))}
+                <div className="eva-neu-module relative flex h-full flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                  <span aria-hidden="true" className="absolute right-2 top-2 font-mono text-[10px] text-eva-gray">
+                    {moduleCode(i)}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="flex size-12 shrink-0 items-center justify-center bg-eva-black font-mono text-sm font-bold text-eva-orange shadow-[inset_2px_2px_5px_rgb(5_5_5/0.9)]"
+                  >
+                    {tech.glyph}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="break-words font-eva-display text-lg font-bold uppercase leading-tight text-eva-paper font-stretch-condensed">
+                      {tech.name}
+                    </p>
+                    <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-eva-gray">
+                      {tech.category}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

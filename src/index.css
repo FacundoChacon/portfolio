@@ -158,6 +158,31 @@
     @apply glass hover:border-accent-green/30 transition-all duration-300;
   }
 
+  /* Neumorfismo oscuro (Stack): superficie y módulos del mismo color; el relieve lo dan las sombras
+     y el límite lo da el borde (>= 3:1 en reposo y hundido, verificado en scripts/stack-neumorfico.test.mjs) */
+  .eva-neu-surface {
+    position: relative;
+    background-color: var(--eva-panel);
+    border: 1px solid var(--eva-line);
+  }
+  .eva-neu-module {
+    background-color: var(--eva-panel);
+    border: 1px solid var(--eva-gray-dim);
+    box-shadow: -4px -4px 10px rgb(237 230 214 / 0.04), 4px 4px 10px rgb(5 5 5 / 0.7);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .eva-neu-module:hover {
+      background-color: var(--eva-black);
+      border-color: var(--eva-orange);
+      box-shadow: inset 4px 4px 8px rgb(5 5 5 / 0.7), inset -4px -4px 8px rgb(237 230 214 / 0.04);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .eva-neu-module {
+      transition: box-shadow 200ms ease-out, border-color 200ms ease-out, background-color 200ms ease-out;
+    }
+  }
+
   .gradient-text {
     @apply bg-gradient-to-r from-accent-green via-accent-pink to-accent-green bg-clip-text text-transparent;
   }
