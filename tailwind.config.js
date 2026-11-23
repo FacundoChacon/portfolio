@@ -1,4 +1,4 @@
-import { EVA_COLORS, EVA_FONT_SANS } from './src/styles/eva-tokens.js'
+import { EVA_THEME_COLORS, EVA_FONT_SANS } from './src/styles/eva-tokens.js'
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        eva: EVA_COLORS,
+        eva: EVA_THEME_COLORS,
       },
       fontFamily: {
         sans: EVA_FONT_SANS,

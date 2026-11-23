@@ -56,7 +56,7 @@ export const LEGACY_RULES = [
   {
     rule: 'hex-paleta-anterior',
     scope: 'all',
-    pattern: /#(?:00ffc3|ff6eff|00cc9a|cc3acc|030303|0a0a0a|111116|1a1a22|0b0b10)(?![\w])|rgba\(\s*0,\s*255,\s*195|rgba\(\s*255,\s*110,\s*255/i,
+    pattern: /#(?:00ffc3|ff6eff|00cc9a|cc3acc|030303|0a0a0a|111116|1a1a22|0b0b10|8a4fd8|3dff7a|e8202a)(?![\w])|rgba\(\s*0,\s*255,\s*195|rgba\(\s*255,\s*110,\s*255/i,
   },
 ]
 

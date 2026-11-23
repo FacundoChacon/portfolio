@@ -38,7 +38,7 @@ export default function ServiceCards({ services = [], selectedId, onSelect }) {
               <div className="mt-3 flex items-start justify-between gap-3">
                 <span
                   className={`flex size-10 shrink-0 items-center justify-center border-2 ${
-                    selected ? 'border-eva-orange text-eva-orange' : 'border-eva-gray-dim text-eva-gray'
+                    selected ? 'border-eva-primary text-eva-primary-light' : 'border-eva-gray-dim text-eva-gray'
                   }`}
                 >
                   <Icon className="size-5" aria-hidden="true" />

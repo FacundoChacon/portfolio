@@ -53,7 +53,7 @@ export default function Projects() {
           >
             <div className="flex items-center gap-4">
               <h2 id="proyectos-titulo" className="flex items-baseline gap-3">
-                <span aria-hidden="true" className="font-mono text-sm tracking-[0.18em] text-eva-orange">
+                <span aria-hidden="true" className="font-mono text-sm tracking-[0.18em] text-eva-primary-light">
                   03 //
                 </span>
                 <span className="font-eva-display text-4xl font-bold uppercase text-eva-paper font-stretch-condensed sm:text-5xl">

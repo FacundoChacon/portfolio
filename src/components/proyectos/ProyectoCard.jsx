@@ -4,8 +4,8 @@ import { STATUS_LABELS } from "../../data/proyectos"
 import { projectLabel } from "../../utils/proyectosScroll"
 
 const STATUS_CLASSES = {
-  demo: "border-eva-orange text-eva-orange",
-  live: "border-eva-green text-eva-green",
+  demo: "border-eva-secondary text-eva-secondary",
+  live: "border-eva-tertiary text-eva-tertiary",
   inprogress: "border-eva-paper text-eva-paper",
 }
 
@@ -27,7 +27,7 @@ const NEW_TAB_NOTE = "(abre en una pestaña nueva)"
 
 /** Enlace secundario con inversión de color en hover/foco, sin estado ni timers. */
 const secondaryLink =
-  "relative z-10 inline-flex min-h-8 items-center gap-1.5 border-2 border-eva-gray-dim px-2.5 font-mono text-xs uppercase tracking-[0.18em] text-eva-paper hover:border-eva-orange hover:bg-eva-orange hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-paper)] focus-visible:bg-eva-orange focus-visible:text-eva-black motion-safe:transition-colors"
+  "relative z-10 inline-flex min-h-8 items-center gap-1.5 border-2 border-eva-gray-dim px-2.5 font-mono text-xs uppercase tracking-[0.18em] text-eva-paper hover:border-eva-secondary hover:bg-eva-secondary hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-paper)] focus-visible:bg-eva-secondary focus-visible:text-eva-black motion-safe:transition-colors"
 
 /**
  * Card de un proyecto. Toda la superficie lleva al destino principal (demo o,
@@ -39,7 +39,7 @@ export default function ProyectoCard({ project, index, total }) {
   const code = String(index + 1).padStart(2, "0")
 
   return (
-    <article className="proyecto-card eva-panel group relative flex h-full flex-col border-2 border-eva-gray-dim shadow-[6px_6px_0_0_theme(colors.eva.orange)] focus-within:border-eva-orange focus-within:shadow-[8px_8px_0_0_theme(colors.eva.orange)] hover:border-eva-orange hover:shadow-[8px_8px_0_0_theme(colors.eva.orange)] motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:focus-within:-translate-x-0.5 motion-safe:focus-within:-translate-y-0.5 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5">
+    <article className="proyecto-card eva-panel group relative flex h-full flex-col border-2 border-eva-gray-dim shadow-[6px_6px_0_0_theme(colors.eva.secondary)] focus-within:border-eva-secondary focus-within:shadow-[8px_8px_0_0_theme(colors.eva.secondary)] hover:border-eva-secondary hover:shadow-[8px_8px_0_0_theme(colors.eva.secondary)] motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:focus-within:-translate-x-0.5 motion-safe:focus-within:-translate-y-0.5 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5">
       <p className="sr-only">{projectLabel(index, total)}</p>
 
       <div className="flex items-center justify-between gap-3 border-b-2 border-eva-gray-dim px-4 py-2">
@@ -64,7 +64,7 @@ export default function ProyectoCard({ project, index, total }) {
             href={destination}
             target="_blank"
             rel="noreferrer"
-            className="after:absolute after:inset-0 group-hover:text-eva-orange"
+            className="after:absolute after:inset-0 group-hover:text-eva-secondary"
           >
             {project.title}
             <span className="sr-only">

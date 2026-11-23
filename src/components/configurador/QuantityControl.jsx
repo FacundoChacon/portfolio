@@ -8,7 +8,7 @@ import { Minus, Plus } from 'lucide-react'
  * inmediato. El deshabilitado se ve por fondo y borde, sin transparencia.
  */
 const buttonClass =
-  'flex size-11 items-center justify-center text-eva-paper hover:text-eva-orange focus-visible:text-eva-orange disabled:cursor-not-allowed disabled:bg-eva-line disabled:text-eva-gray disabled:hover:text-eva-gray'
+  'flex size-11 items-center justify-center text-eva-paper hover:text-eva-secondary focus-visible:text-eva-secondary disabled:cursor-not-allowed disabled:bg-eva-line disabled:text-eva-gray disabled:hover:text-eva-gray'
 
 export default function QuantityControl({ quantity = 1, onChange, className = '' }) {
   return (

@@ -5,6 +5,7 @@
  * para volver al inicio. Recibe `headingRef` para que la página le dé el foco
  * al aparecer (C-11).
  */
+import { Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { buildSuccessMessage } from '../../utils/wizardView.js'
@@ -15,11 +16,15 @@ export default function SuccessStep({ name = '', headingRef = null }) {
 
   return (
     <div className={PANEL}>
-      <span aria-hidden="true" className="eva-panel-label">
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-2 bg-eva-success" />
+      <span aria-hidden="true" className="eva-panel-label eva-panel-label-success">
         COM {'//'} RECIBIDO
       </span>
-      <p aria-hidden="true" className="font-mono text-xs uppercase tracking-widest text-eva-green">
-        ■ Transmisión OK
+      <p
+        aria-hidden="true"
+        className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-eva-success"
+      >
+        <Check className="size-4" aria-hidden="true" /> Transmisión OK
       </p>
       <h2
         ref={headingRef}

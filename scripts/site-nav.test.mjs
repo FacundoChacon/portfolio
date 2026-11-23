@@ -87,13 +87,13 @@ test('el cristal es eva-black y los textos son legibles sobre el peor caso (blan
   const [r, g, b, a] = glassColor(CSS)
   assert.equal(toHex([r, g, b]).toUpperCase(), EVA_COLORS.black)
   const worst = blendOver(EVA_COLORS.black, '#FFFFFF', a)
-  for (const token of ['orange', 'paper', 'gray']) {
+  for (const token of ['violet-light', 'paper', 'gray']) {
     const ratio = contrastRatio(EVA_COLORS[token], worst)
     assert.ok(ratio >= 4.5, `${token} sobre cristal: ${ratio.toFixed(2)} < 4.5`)
   }
 })
 
-test('con alpha 0.72 el naranja deja de ser legible (protege contra bajar el alpha)', () => {
+test('con alpha 0.72 el violeta claro deja de ser legible (3.29: protege contra bajar el alpha)', () => {
   const worst = blendOver(EVA_COLORS.black, '#FFFFFF', 0.72)
-  assert.ok(contrastRatio(EVA_COLORS.orange, worst) < 4.5)
+  assert.ok(contrastRatio(EVA_COLORS['violet-light'], worst) < 4.5)
 })

@@ -18,7 +18,7 @@ export default function Testimonials() {
     >
       <div className="relative mx-auto max-w-6xl px-5 md:px-6">
         <div className="flex items-center gap-4">
-          <span aria-hidden="true" className="font-mono text-sm text-eva-orange">{"//RX"}</span>
+          <span aria-hidden="true" className="font-mono text-sm text-eva-primary-light">{"//RX"}</span>
           <h2
             id="testimonios-titulo"
             className="font-eva-display text-3xl font-black uppercase text-eva-paper font-stretch-condensed sm:text-4xl"
@@ -48,22 +48,22 @@ export default function Testimonials() {
                       key={i}
                       aria-hidden="true"
                       fill={i < t.rating ? "currentColor" : "none"}
-                      className={`size-4 ${i < t.rating ? "text-eva-orange" : "text-eva-gray"}`}
+                      className={`size-4 ${i < t.rating ? "text-eva-secondary" : "text-eva-gray"}`}
                     />
                   ))}
                 </div>
               )}
               <blockquote className="mt-4 flex-1">
                 <p className="text-sm leading-relaxed text-eva-paper text-pretty">
-                  <span aria-hidden="true" className="font-mono text-eva-green">{"> "}</span>
+                  <span aria-hidden="true" className="font-mono text-eva-tertiary">{"> "}</span>
                   “{t.comentario}”
-                  <span aria-hidden="true" className="eva-cursor ml-1 text-eva-green">▌</span>
+                  <span aria-hidden="true" className="eva-cursor ml-1 text-eva-tertiary">▌</span>
                 </p>
               </blockquote>
               <figcaption className="mt-6 flex items-center gap-4 border-t border-eva-line pt-4">
                 <span
                   aria-hidden="true"
-                  className="flex size-10 shrink-0 items-center justify-center border border-eva-gray-dim font-mono text-sm font-bold text-eva-orange"
+                  className="flex size-10 shrink-0 items-center justify-center border border-eva-gray-dim font-mono text-sm font-bold text-eva-primary-light"
                 >
                   {inicialesDe(t.nombre)}
                 </span>

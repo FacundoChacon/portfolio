@@ -29,7 +29,7 @@ export default function ProyectosCierre() {
           href={GITHUB_PERFIL_URL}
           target="_blank"
           rel="noreferrer"
-          className={`${action} border-eva-orange bg-eva-orange text-eva-black hover:bg-eva-paper hover:border-eva-paper`}
+          className={`${action} border-eva-primary bg-eva-primary text-eva-black hover:bg-eva-paper hover:border-eva-paper`}
         >
           <GithubIcon aria-hidden="true" className="size-4" />
           Ver GitHub
@@ -37,7 +37,7 @@ export default function ProyectosCierre() {
         </a>
         <a
           href={CONTACTO_ANCLA}
-          className={`${action} border-eva-paper text-eva-paper hover:border-eva-orange hover:bg-eva-orange hover:text-eva-black`}
+          className={`${action} border-eva-paper text-eva-paper hover:border-eva-secondary hover:bg-eva-secondary hover:text-eva-black`}
         >
           Contactame
           <ArrowRight aria-hidden="true" className="size-4" />

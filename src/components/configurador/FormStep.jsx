@@ -17,9 +17,9 @@ function FieldError({ id, error }) {
     <p
       id={`${id}-error`}
       role="alert"
-      className="mt-1 flex items-start gap-2 font-mono text-xs text-eva-paper"
+      className="mt-1 flex items-start gap-2 font-mono text-xs text-eva-error"
     >
-      <span aria-hidden="true" className="shrink-0 bg-eva-red px-1 text-eva-black">
+      <span aria-hidden="true" className="shrink-0 bg-eva-error px-1 text-eva-black">
         ERR
       </span>
       {error}
@@ -32,7 +32,7 @@ function Field({ id, label, required = false, error, className = '', ...props })
     <div>
       <label htmlFor={id} className={labelClass}>
         {label}
-        {required && <span className="text-eva-orange"> *</span>}
+        {required && <span className="text-eva-secondary"> *</span>}
       </label>
       <input
         id={id}

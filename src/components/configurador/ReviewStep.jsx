@@ -65,7 +65,7 @@ export default function ReviewStep({
         publicidad. Si querés que los borre, escribime a{' '}
         <a
           href={`mailto:${contactEmail}`}
-          className="text-eva-orange underline underline-offset-2 hover:text-eva-paper"
+          className="text-eva-primary-light underline underline-offset-2 hover:text-eva-paper"
         >
           {contactEmail}
         </a>

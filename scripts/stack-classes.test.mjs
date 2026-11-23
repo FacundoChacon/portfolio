@@ -96,3 +96,14 @@ test('Stack.jsx: el código //04 coincide con el de la barra (si existe siteNav)
   assert.ok(link, 'NAV_LINKS no tiene el enlace stack')
   assert.equal(navCode(link.code), '//04')
 })
+
+test('Stack.jsx: eyebrow e inicial del módulo en primary-light, nunca en un nombre de color', () => {
+  const claseDe = (fragmento) => {
+    const linea = STACK_SOURCE.split('\n').find((l) => l.includes(fragmento))
+    assert.ok(linea, `no se encontró la línea con ${fragmento}`)
+    return linea
+  }
+  assert.match(claseDe('tracking-[0.3em]'), /text-eva-primary-light/)
+  assert.match(claseDe('font-bold text-eva-'), /text-eva-primary-light/)
+  assert.doesNotMatch(STACK_SOURCE, /eva-(?:orange|purple|green)/)
+})

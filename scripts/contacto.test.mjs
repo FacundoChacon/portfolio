@@ -82,24 +82,25 @@ test('channelCode: código CH- de dos dígitos', () => {
 // --- Contraste (design D4) -------------------------------------------------
 
 const CONTACTO_CONTRAST_PAIRS = [
-  ...['paper', 'gray', 'orange', 'green'].flatMap((fg) =>
+  ...['paper', 'gray', 'violet-light', 'orange', 'aqua'].flatMap((fg) =>
     ['black', 'panel'].map((bg) => ({ fg, bg, level: 'normal' })),
   ),
   { fg: 'black', bg: 'orange', level: 'normal' },
+  { fg: 'black', bg: 'violet', level: 'normal' },
   { fg: 'gray-dim', bg: 'black', level: 'ui' },
   { fg: 'gray-dim', bg: 'panel', level: 'ui' },
-  { fg: 'orange', bg: 'panel', level: 'ui' },
-  { fg: 'green', bg: 'panel', level: 'ui' },
+  { fg: 'violet', bg: 'panel', level: 'ui' },
+  { fg: 'aqua', bg: 'panel', level: 'ui' },
 ]
 
 test('contraste: pares de colores de la sección cumplen su umbral', () => {
   assert.deepEqual(checkContrastPairs(EVA_COLORS, CONTACTO_CONTRAST_PAIRS), [])
 })
 
-test('contraste: un par inválido se informa con nombre (triangulación)', () => {
-  const errors = checkContrastPairs(EVA_COLORS, [{ fg: 'purple', bg: 'black', level: 'normal' }])
+test('contraste: violet no se declara como texto normal sobre línea (triangulación)', () => {
+  const errors = checkContrastPairs(EVA_COLORS, [{ fg: 'violet', bg: 'line', level: 'normal' }])
   assert.equal(errors.length, 1)
-  assert.match(errors[0], /purple/)
+  assert.match(errors[0], /violet sobre line/)
 })
 
 // --- Guard estático de Contact.jsx (design D5) -----------------------------
@@ -130,7 +131,8 @@ const FORBIDDEN_RULES = [
   { rule: 'text-white', pattern: /text-white/ },
   { rule: 'text-gray-N', pattern: /text-gray-\d/ },
   { rule: 'hex literal', pattern: /#[0-9a-fA-F]{3,8}(?![\w-])/ },
-  { rule: 'texto eva-red/purple/gray-dim', pattern: /text-eva-(?:red|purple|gray-dim)(?![\w-])/ },
+  { rule: 'texto eva-primary/gray-dim', pattern: /text-eva-(?:primary|gray-dim)(?![\w-])/ },
+  { rule: 'nombre de color de acento', pattern: /eva-(?:orange|purple|green|red|violet|aqua|sky)(?![\w-])/ },
   { rule: 'animate-', pattern: util(String.raw`animate-[\w-]+`) },
   { rule: 'hover translate sin motion-safe', pattern: withoutMotionSafe(String.raw`hover:-?translate-[xy]-[\w.]+`) },
   { rule: 'focus translate sin motion-safe', pattern: withoutMotionSafe(String.raw`focus-visible:-?translate-[xy]-[\w.]+`) },
@@ -158,20 +160,38 @@ test('guard de Contact: las reglas detectan la sección cyberpunk anterior (tria
 test('guard de Contact: sombras con blur se detectan y las sólidas no (triangulación)', () => {
   const blur = findForbiddenTokens('hover:shadow-[0_0_12px_var(--eva-orange)]', FORBIDDEN_RULES).map((f) => f.rule)
   assert.ok(blur.includes('sombra con blur'))
-  const solida = 'hover:shadow-[6px_6px_0_0_var(--eva-orange)] active:shadow-none'
+  const solida = 'hover:shadow-[6px_6px_0_0_var(--eva-secondary)] active:shadow-none'
   assert.deepEqual(findForbiddenTokens(solida, FORBIDDEN_RULES), [])
 })
 
 test('guard de Contact: lo permitido no dispara reglas (font-eva-display, motion-safe)', () => {
-  const ok = `<h2 className="font-eva-display font-stretch-condensed motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:focus-visible:-translate-x-0.5 border-eva-orange">`
+  const ok = `<h2 className="font-eva-display font-stretch-condensed motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:focus-visible:-translate-x-0.5 border-eva-primary">`
   assert.deepEqual(findForbiddenTokens(ok, FORBIDDEN_RULES), [])
 })
 
 test('Contact.jsx: contiene los elementos requeridos', () => {
   const required = [
     'id="contacto"', '<h2', '<ul', 'font-eva-display', 'eva-stripes', 'eva-panel', 'aria-hidden', 'sr-only',
-    'group-hover:', 'group-focus-visible:', 'focus-visible:border-eva-orange', 'useReveal', 'eva-reveal',
+    'group-hover:', 'group-focus-visible:', 'focus-visible:border-eva-secondary', 'useReveal', 'eva-reveal',
     'buildContactChannels', 'resolveContactEmail', 'channelLinkProps', 'VITE_CONTACT_EMAIL',
   ]
   assert.deepEqual(required.filter((token) => !CONTACT.includes(token)), [])
+})
+
+// --- Jerarquía de color por rol (jerarquia-color-violeta, D4) ---
+
+test('Contact.jsx: borde superior y franja ancha primary; eyebrow, flechas y ABRIR primary-light; hover secondary; estado tertiary', () => {
+  const faltan = [
+    'border-t-2 border-eva-primary',
+    'eva-stripes eva-stripes-primary h-3',
+    'tracking-[0.3em] text-eva-primary-light',
+    'text-eva-primary-light">juntos?',
+    'px-3 text-eva-primary-light sm:px-4',
+    'text-eva-primary-light group-hover:bg-eva-secondary group-hover:text-eva-black group-focus-visible:bg-eva-secondary',
+    'hover:border-eva-secondary hover:shadow-[6px_6px_0_0_var(--eva-secondary)]',
+    'size-4 text-eva-secondary',
+    'text-eva-tertiary',
+    'inline-block size-2.5 bg-eva-tertiary',
+  ].filter((token) => !CONTACT.includes(token))
+  assert.deepEqual(faltan, [])
 })

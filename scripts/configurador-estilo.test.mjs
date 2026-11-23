@@ -45,32 +45,38 @@ test('estadoPaso: antes, igual y después del paso actual', () => {
   assert.equal(estadoPaso(1, 0), 'pending')
 })
 
-test('claseModulo: el seleccionado suma borde naranja y sombra sólida desplazada', () => {
+test('claseModulo: el seleccionado suma borde primario y sombra sólida secundaria desplazada', () => {
   const on = claseModulo(true)
   const off = claseModulo(false)
-  assert.ok(has(on, 'border-eva-orange'))
-  assert.ok(has(on, 'shadow-[6px_6px_0_0_var(--eva-orange)]'))
-  assert.ok(on.includes('bg-eva-orange/10'))
-  assert.ok(!has(off, 'border-eva-orange'))
+  assert.ok(has(on, 'border-eva-primary'))
+  assert.ok(has(on, 'shadow-[6px_6px_0_0_var(--eva-secondary)]'))
+  assert.ok(on.includes('bg-eva-primary/10'))
+  assert.ok(!has(off, 'border-eva-primary'))
+  assert.ok(has(off, 'hover:border-eva-secondary'))
+  assert.ok(has(off, 'hover:shadow-[4px_4px_0_0_var(--eva-secondary)]'))
   assert.ok(!tokens(off).some((t) => t.startsWith('shadow-[')))
   assert.ok(has(off, 'border-eva-gray-dim'))
 })
 
-test('claseIndicador: relleno con naranja solo si está seleccionado', () => {
-  assert.ok(has(claseIndicador(true), 'bg-eva-orange'))
+test('claseIndicador: relleno primario solo si está seleccionado', () => {
+  assert.ok(has(claseIndicador(true), 'bg-eva-primary'))
+  assert.ok(has(claseIndicador(true), 'border-eva-primary'))
   assert.ok(has(claseIndicador(true), 'text-eva-black'))
-  assert.ok(!has(claseIndicador(false), 'bg-eva-orange'))
+  assert.ok(!has(claseIndicador(false), 'bg-eva-primary'))
   assert.ok(has(claseIndicador(false), 'border-eva-gray-dim'))
 })
 
-test('claseCampo: error usa borde rojo; sin error, foco naranja', () => {
+test('claseCampo: error usa borde rojo claro; sin error, foco primario; el foco verde agua no se anula', () => {
   const err = claseCampo(true)
   const ok = claseCampo(false)
-  assert.ok(has(err, 'border-eva-red'))
-  assert.ok(has(err, 'focus:border-eva-red'))
-  assert.ok(!has(err, 'focus:border-eva-orange'))
-  assert.ok(has(ok, 'focus:border-eva-orange'))
-  assert.ok(!has(ok, 'border-eva-red'))
+  assert.ok(has(err, 'border-eva-error'))
+  assert.ok(has(err, 'focus:border-eva-error'))
+  assert.ok(!has(err, 'focus:border-eva-primary'))
+  assert.ok(has(ok, 'focus:border-eva-primary'))
+  assert.ok(!tokens(ok).some((t) => t.includes('eva-error')))
+  for (const cls of [err, ok]) {
+    assert.ok(!tokens(cls).some((t) => /outline-(none|0)$/.test(t)), 'no debe anular el outline de :focus-visible')
+  }
   assert.ok(has(ok, 'border-eva-gray-dim'))
 })
 
@@ -79,8 +85,10 @@ test('clasePaso: los tres estados son distintos y el actual va relleno', () => {
   const current = clasePaso('current')
   const pending = clasePaso('pending')
   assert.equal(new Set([done, current, pending]).size, 3)
-  assert.ok(has(current, 'bg-eva-orange'))
-  assert.ok(has(done, 'text-eva-green'))
+  assert.ok(has(current, 'bg-eva-primary'))
+  assert.ok(has(current, 'border-eva-primary'))
+  assert.ok(has(done, 'text-eva-tertiary'))
+  assert.ok(has(done, 'border-eva-tertiary'))
   assert.ok(has(pending, 'border-eva-gray-dim'))
   assert.throws(() => clasePaso('otro'))
 })
@@ -92,6 +100,18 @@ test('botones: deshabilitado por fondo y borde, sin opacidad ni sombra', () => {
     assert.ok(has(cls, 'disabled:shadow-none'))
     assert.ok(!cls.includes('opacity'))
     assert.ok(has(cls, 'border-2'))
+  }
+})
+
+test('botones: primario en violeta con sombra secundaria; secundarios con hover secundario', () => {
+  assert.ok(has(BOTON_PRIMARIO, 'border-eva-primary'))
+  assert.ok(has(BOTON_PRIMARIO, 'bg-eva-primary'))
+  assert.ok(has(BOTON_PRIMARIO, 'text-eva-black'))
+  assert.ok(has(BOTON_PRIMARIO, 'shadow-[4px_4px_0_0_var(--eva-secondary)]'))
+  for (const cls of [BOTON_SECUNDARIO, BOTON_EDITAR]) {
+    assert.ok(has(cls, 'hover:border-eva-secondary'))
+    assert.ok(has(cls, 'hover:text-eva-secondary'))
+    assert.ok(has(cls, 'hover:shadow-[3px_3px_0_0_var(--eva-secondary)]'))
   }
 })
 
@@ -143,7 +163,7 @@ const RULES = [
   { rule: 'rounded', pattern: utility(String.raw`rounded(?:-[\w/.[\]-]+)?`) },
   { rule: 'blur / backdrop', pattern: utility(String.raw`(?:backdrop-[\w-]+|blur(?:-[\w]+)?)`) },
   { rule: 'disabled:opacity', pattern: /(?<![\w.-])(?:[\w-]+:)*disabled:(?:[\w-]+:)*opacity-[\w/.-]+/ },
-  { rule: 'texto rojo/violeta/gray-dim', pattern: utility(String.raw`text-eva-(?:red|purple|gray-dim)(?:\/\d+)?`) },
+  { rule: 'texto primary/gray-dim', pattern: utility(String.raw`text-eva-(?:primary|gray-dim)(?:\/\d+)?`) },
   { rule: 'animate-*', pattern: utility(String.raw`animate-[\w-]+`) },
   { rule: 'traslación sin motion-safe', pattern: withoutMotionSafe(String.raw`-?translate-[xy]-[\w./-]+`) },
   { rule: 'hex literal', pattern: /-\[#[0-9a-fA-F]{3,8}\]|['"`]#[0-9a-fA-F]{6,8}['"`]/ },
@@ -170,8 +190,8 @@ test('guard: detecta cada estilo de la paleta anterior (con variantes)', () => {
     'rounded-md': 'rounded',
     'md:rounded-full': 'rounded',
     'disabled:opacity-50': 'disabled:opacity',
-    'text-eva-red': 'texto rojo/violeta/gray-dim',
-    'placeholder:text-eva-gray-dim': 'texto rojo/violeta/gray-dim',
+    'text-eva-primary': 'texto primary/gray-dim',
+    'placeholder:text-eva-gray-dim': 'texto primary/gray-dim',
     'hover:-translate-y-0.5': 'traslación sin motion-safe',
     'bg-[#00ffc3]': 'hex literal',
     'animate-pulse': 'animate-*',
@@ -193,13 +213,14 @@ test('guard: no hay falsos positivos con tokens eva ni con texto del sitio', () 
     '{service.tag}',
     'motion-safe:hover:-translate-y-0.5',
     'href="#contenido"',
-    'bg-eva-orange/10',
+    'bg-eva-primary/10',
+    'text-eva-primary-light',
     'text-eva-gray',
     'border-eva-gray-dim',
     'disabled:bg-eva-line',
     'motion-safe:transition-[transform,box-shadow]',
     'eva-panel-label',
-    'shadow-[6px_6px_0_0_var(--eva-orange)]',
+    'shadow-[6px_6px_0_0_var(--eva-secondary)]',
   ]
   for (const cls of limpios) {
     assert.deepEqual(rulesOf(`<div className="${cls}">`), [], cls)
@@ -212,8 +233,10 @@ test('guard: no hay falsos positivos con tokens eva ni con texto del sitio', () 
 const REQUISITOS = {
   'estilos.js': [],
   'ServiceCards.jsx': ['aria-pressed', 'claseModulo', 'claseIndicador', 'codigoModulo', 'eva-tag'],
-  'ExtrasCards.jsx': ['aria-pressed', 'claseModulo', 'claseIndicador', 'codigoModulo', 'border-l-4 border-eva-orange'],
+  'ExtrasCards.jsx': ['aria-pressed', 'claseModulo', 'claseIndicador', 'codigoModulo', 'border-l-4 border-eva-secondary'],
   'FormStep.jsx': [
+    'bg-eva-error px-1 text-eva-black',
+    'text-eva-error',
     'aria-invalid',
     'aria-describedby',
     'role="alert"',
@@ -233,8 +256,27 @@ const REQUISITOS = {
   'WizardSteps.jsx': ['aria-current', 'estadoPaso', 'clasePaso'],
   'SummarySidebar.jsx': ['aria-label="Resumen de la solicitud"', 'eva-panel', 'eva-panel-label'],
   'ReviewStep.jsx': ['eva-panel', 'BOTON_EDITAR', 'BOTON_PRIMARIO', 'mailto:'],
-  'SuccessStep.jsx': ['headingRef', 'tabIndex={-1}', 'eva-panel'],
-  'ErrorStep.jsx': ['headingRef', 'tabIndex={-1}', 'eva-panel', 'eva-stripes-red', 'mailto:', 'whatsappUrl'],
+  'SuccessStep.jsx': [
+    'headingRef',
+    'tabIndex={-1}',
+    'eva-panel',
+    'eva-panel-label-success',
+    'text-eva-success',
+    'bg-eva-success',
+    'buildSuccessMessage',
+    'aria-hidden="true"',
+  ],
+  'ErrorStep.jsx': [
+    'headingRef',
+    'tabIndex={-1}',
+    'eva-panel',
+    'eva-stripes-error',
+    'eva-panel-label-error',
+    'text-eva-error',
+    'No se pudo enviar',
+    'mailto:',
+    'whatsappUrl',
+  ],
 }
 
 const PAGINA = {
@@ -246,6 +288,11 @@ const PAGINA = {
     'BOTON_PRIMARIO',
     'BOTON_SECUNDARIO',
     'NavBrand',
+    'border-b-2 border-eva-primary',
+    'border-2 border-eva-primary px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-primary-light hover:bg-eva-primary',
+    'hover:shadow-[3px_3px_0_0_var(--eva-secondary)]',
+    'tracking-[0.3em] text-eva-primary-light',
+    'focus:bg-eva-primary',
   ],
 }
 
@@ -289,20 +336,25 @@ test('la página no redefine el color de la grilla hexagonal', () => {
 // --- Contraste (design D6) --------------------------------------------------
 
 const CONFIGURADOR_CONTRAST_PAIRS = [
-  ...['paper', 'gray', 'orange', 'green'].flatMap((fg) =>
+  ...['paper', 'gray', 'violet-light', 'orange', 'aqua'].flatMap((fg) =>
     ['black', 'panel'].map((bg) => ({ fg, bg, level: 'normal' })),
   ),
   { fg: 'black', bg: 'orange', level: 'normal' },
-  { fg: 'black', bg: 'red', level: 'normal' },
+  { fg: 'black', bg: 'violet', level: 'normal' },
+  { fg: 'black', bg: 'red-light', level: 'normal' },
   { fg: 'gray', bg: 'line', level: 'normal' },
   { fg: 'gray-dim', bg: 'black', level: 'ui' },
   { fg: 'gray-dim', bg: 'panel', level: 'ui' },
+  { fg: 'violet', bg: 'panel', level: 'ui' },
+  { fg: 'violet', bg: 'black', level: 'ui' },
   { fg: 'orange', bg: 'panel', level: 'ui' },
   { fg: 'orange', bg: 'black', level: 'ui' },
-  { fg: 'red', bg: 'black', level: 'ui' },
-  { fg: 'red', bg: 'panel', level: 'ui' },
-  { fg: 'green', bg: 'black', level: 'ui' },
-  { fg: 'green', bg: 'panel', level: 'ui' },
+  ...['sky', 'red-light'].flatMap((fg) => ['black', 'panel', 'line'].map((bg) => ({ fg, bg, level: 'normal' }))),
+  { fg: 'black', bg: 'sky', level: 'normal' },
+  { fg: 'red-light', bg: 'black', level: 'ui' },
+  { fg: 'red-light', bg: 'panel', level: 'ui' },
+  { fg: 'aqua', bg: 'black', level: 'ui' },
+  { fg: 'aqua', bg: 'panel', level: 'ui' },
 ]
 
 /**
@@ -312,12 +364,12 @@ const CONFIGURADOR_CONTRAST_PAIRS = [
  */
 function evaluarMezclas({ alphaSeleccionado, alphaHex }) {
   const fondos = {
-    'tarjeta seleccionada': blendOver(EVA_COLORS.orange, EVA_COLORS.panel, alphaSeleccionado),
-    'banda hexagonal': blendOver(EVA_COLORS.orange, EVA_COLORS.black, alphaHex),
+    'tarjeta seleccionada': blendOver(EVA_COLORS.violet, EVA_COLORS.panel, alphaSeleccionado),
+    'banda hexagonal': blendOver(EVA_COLORS.violet, EVA_COLORS.black, alphaHex),
   }
   const errores = []
   for (const [nombre, bg] of Object.entries(fondos)) {
-    for (const fg of ['paper', 'gray', 'orange']) {
+    for (const fg of ['paper', 'gray', 'violet-light', 'orange', 'aqua']) {
       const ratio = contrastRatio(EVA_COLORS[fg], bg)
       if (ratio < 4.5) errores.push(`${fg} sobre ${nombre} (${bg}): ${Math.floor(ratio * 100) / 100} < 4.5`)
     }
@@ -327,10 +379,10 @@ function evaluarMezclas({ alphaSeleccionado, alphaHex }) {
 
 function alphasReales() {
   const estilos = read('src/components/configurador/estilos.js')
-  const sel = /bg-eva-orange\/(\d+)/.exec(estilos)
-  assert.ok(sel, 'estilos.js debe tener bg-eva-orange/NN para el seleccionado')
+  const sel = /bg-eva-primary\/(\d+)/.exec(estilos)
+  assert.ok(sel, 'estilos.js debe tener bg-eva-primary/NN para el seleccionado')
   const css = read('src/index.css')
-  const hex = /var\(--eva-hex-color,\s*rgb\(\s*255 122 26 \/\s*([\d.]+)\s*\)\)/.exec(css)
+  const hex = /var\(--eva-hex-color,\s*rgb\(\s*155 92 240 \/\s*([\d.]+)\s*\)\)/.exec(css)
   assert.ok(hex, 'index.css debe tener el respaldo de --eva-hex-color')
   return { alphaSeleccionado: Number(sel[1]) / 100, alphaHex: Number(hex[1]) }
 }
@@ -343,13 +395,53 @@ test('contraste: textos sobre el fondo seleccionado y la banda hexagonal reales'
   assert.deepEqual(evaluarMezclas(alphasReales()), [])
 })
 
-test('contraste: un tinte de 0.30 en el seleccionado se detecta (gray < 4.5)', () => {
-  const errores = evaluarMezclas({ ...alphasReales(), alphaSeleccionado: 0.3 })
+test('contraste: un tinte de 0.40 en el seleccionado se detecta (gray < 4.5)', () => {
+  const errores = evaluarMezclas({ ...alphasReales(), alphaSeleccionado: 0.4 })
   assert.ok(errores.every((e) => e.includes('tarjeta seleccionada')))
-  assert.ok(errores.some((e) => /^gray sobre tarjeta seleccionada \(#[0-9a-f]{6}\): 4\.2\d < 4\.5$/.test(e)))
+  assert.ok(errores.some((e) => /^gray sobre tarjeta seleccionada \(#[0-9a-f]{6}\): 4\.1\d < 4\.5$/.test(e)))
 })
 
 test('contraste: una grilla hexagonal más intensa se detecta', () => {
   const errores = evaluarMezclas({ ...alphasReales(), alphaHex: 0.5 })
   assert.ok(errores.some((e) => e.includes('banda hexagonal')))
+})
+
+// --- Colores de estado (jerarquia-color-violeta, D10): celeste = éxito, rojo claro = error ---
+
+test('triangulación: el #E8202A viejo como texto normal sobre panel falla (4.28) y el rojo claro pasa', () => {
+  const viejo = checkContrastPairs({ ...EVA_COLORS, 'rojo-viejo': '#E8202A' }, [
+    { fg: 'rojo-viejo', bg: 'panel', level: 'normal' },
+  ])
+  assert.equal(viejo.length, 1)
+  assert.match(viejo[0], /4\.28 < 4\.5/)
+  assert.deepEqual(
+    checkContrastPairs(EVA_COLORS, [{ fg: 'red-light', bg: 'panel', level: 'normal' }]),
+    [],
+  )
+})
+
+test('SuccessStep: título, icono (aria-hidden) y barra; el estado no depende solo del color', () => {
+  const src = read('src/components/configurador/SuccessStep.jsx')
+  assert.match(src, /import \{[^}]*Check[^}]*\} from 'lucide-react'/)
+  assert.match(src, /<Check [^>]*aria-hidden="true"/)
+  assert.match(src, /<div aria-hidden="true" className="[^"]*bg-eva-success/)
+  assert.doesNotMatch(src, /■/)
+  assert.match(src, /\{title\}/)
+})
+
+test('ErrorStep: línea de aviso con icono y texto, y título "No se pudo enviar"', () => {
+  const src = read('src/components/configurador/ErrorStep.jsx')
+  assert.match(src, /import \{[^}]*TriangleAlert[^}]*\} from 'lucide-react'/)
+  assert.match(src, /<TriangleAlert [^>]*aria-hidden="true"/)
+  assert.match(src, /Transmisión fallida/)
+  assert.match(src, /No se pudo enviar/)
+  assert.doesNotMatch(src, /eva-stripes-red/)
+})
+
+test('FieldError: conserva role="alert", la marca ERR y el mensaje, con rojo claro', () => {
+  const src = read('src/components/configurador/FormStep.jsx')
+  assert.match(src, /role="alert"/)
+  assert.match(src, /aria-hidden="true" className="shrink-0 bg-eva-error px-1 text-eva-black"/)
+  assert.match(src, /text-eva-error/)
+  assert.match(src, />\s*ERR\s*</)
 })

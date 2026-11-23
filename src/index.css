@@ -10,11 +10,13 @@
     --eva-paper: theme('colors.eva.paper');
     --eva-gray: theme('colors.eva.gray');
     --eva-gray-dim: theme('colors.eva.gray-dim');
-    --eva-orange: theme('colors.eva.orange');
-    --eva-red: theme('colors.eva.red');
-    --eva-purple: theme('colors.eva.purple');
-    --eva-green: theme('colors.eva.green');
-    --eva-focus: theme('colors.eva.green');
+    --eva-primary: theme('colors.eva.primary');
+    --eva-primary-light: theme('colors.eva.primary-light');
+    --eva-secondary: theme('colors.eva.secondary');
+    --eva-tertiary: theme('colors.eva.tertiary');
+    --eva-focus: theme('colors.eva.focus');
+    --eva-success: theme('colors.eva.success');
+    --eva-error: theme('colors.eva.error');
     --eva-nav-h: 70px;
   }
 
@@ -43,11 +45,11 @@
     background: var(--eva-gray-dim);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--eva-orange);
+    background: var(--eva-primary);
   }
 
   ::selection {
-    background: var(--eva-orange);
+    background: var(--eva-primary);
     color: var(--eva-black);
   }
 
@@ -78,7 +80,7 @@
     position: relative;
     background-color: rgb(16 14 12 / 0.8);
     background-image: linear-gradient(135deg, rgb(237 230 214 / 0.04), transparent 45%);
-    border: 1px solid rgb(255 122 26 / 0.35);
+    border: 1px solid rgb(155 92 240 / 0.45);
     box-shadow: inset 0 1px 0 rgb(237 230 214 / 0.06);
     backdrop-filter: blur(8px);
   }
@@ -103,7 +105,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-color: var(--eva-hex-color, rgb(255 122 26 / 0.12));
+    background-color: var(--eva-hex-color, rgb(155 92 240 / 0.14));
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/svg%3E");
     -webkit-mask-size: 28px 49px;
@@ -111,18 +113,21 @@
   }
 
   .eva-stripes {
-    --eva-stripe-a: var(--eva-orange);
+    --eva-stripe-a: var(--eva-secondary);
     --eva-stripe-b: var(--eva-black);
     background-image: repeating-linear-gradient(-45deg, var(--eva-stripe-a) 0 10px, var(--eva-stripe-b) 10px 20px);
   }
-  .eva-stripes-red {
-    --eva-stripe-a: var(--eva-red);
+  .eva-stripes-primary {
+    --eva-stripe-a: var(--eva-primary);
+  }
+  .eva-stripes-error {
+    --eva-stripe-a: var(--eva-error);
   }
 
   .eva-panel {
     position: relative;
     background-color: var(--eva-panel);
-    border: 1px solid rgb(255 122 26 / 0.4);
+    border: 1px solid rgb(155 92 240 / 0.55);
   }
   .eva-panel-label {
     position: absolute;
@@ -135,8 +140,14 @@
     line-height: 1.25;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    background-color: var(--eva-orange);
+    background-color: var(--eva-primary);
     color: var(--eva-black);
+  }
+  .eva-panel-label-success {
+    background-color: var(--eva-success);
+  }
+  .eva-panel-label-error {
+    background-color: var(--eva-error);
   }
   .eva-panel-code {
     position: absolute;
@@ -178,7 +189,7 @@
   @media (hover: hover) and (pointer: fine) {
     .eva-neu-module:hover {
       background-color: var(--eva-black);
-      border-color: var(--eva-orange);
+      border-color: var(--eva-secondary);
       box-shadow: inset 4px 4px 8px rgb(5 5 5 / 0.7), inset -4px -4px 8px rgb(237 230 214 / 0.04);
     }
   }
@@ -324,7 +335,7 @@
   min-height: 2.75rem;
   align-items: center;
   padding-inline: 0.5rem;
-  border-bottom: 2px solid var(--eva-orange);
+  border-bottom: 2px solid var(--eva-primary);
   color: var(--eva-paper);
   font-family: theme('fontFamily.mono');
   font-size: 0.75rem;
@@ -334,7 +345,7 @@
 }
 
 .carrete-enlace:hover {
-  background-color: var(--eva-orange);
+  background-color: var(--eva-secondary);
   color: var(--eva-black);
 }
 
@@ -369,7 +380,7 @@
 }
 
 .carrete-github:hover {
-  color: var(--eva-orange);
+  color: var(--eva-secondary);
 }
 
 .carrete-pista {

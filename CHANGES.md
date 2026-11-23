@@ -16,6 +16,7 @@
 > 7. `contacto-brutalista`: contacto en panel brutalista.
 > 8. `configurador-estilo-eva`: wizard, resumen y estados con la estética eva.
 > 9. `limpieza-cyberpunk`: retira la paleta (`accent-*`, `neon-*`, `dark-*`, `muted-*`) y las fuentes (Orbitron, Rajdhani) cyberpunk, `GlitchText`, los keyframes y clases de glitch, brillo y escaneo, y la spec `texto-animado`; el cuerpo pasa a la pila de fuentes del sistema y un guard global impide que vuelvan.
+> 10. `jerarquia-color-violeta` (depende de `limpieza-cyberpunk`, por `sistema-visual`): jerarquía violeta > naranja > verde agua con roles semánticos (`EVA_ROLES`), foco verde agua, éxito del configurador en celeste y errores en rojo claro, y un test de jerarquía.
 
 ---
 

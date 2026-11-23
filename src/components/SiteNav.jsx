@@ -17,14 +17,14 @@ const SECTION_ORDER = NAV_LINKS.map((link) => link.id)
 
 /** Hover duro: sombra sólida sin desenfoque y desplazamiento solo con movimiento permitido. */
 const hardHover =
-  "hover:shadow-[3px_3px_0_0_var(--eva-orange)] motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:transition-[transform,color,background-color] motion-safe:duration-150"
+  "hover:shadow-[3px_3px_0_0_var(--eva-secondary)] motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:transition-[transform,color,background-color] motion-safe:duration-150"
 
 const ctaBase = "inline-flex min-h-11 whitespace-nowrap items-center gap-1.5 border-2 px-3 font-mono text-xs uppercase tracking-[0.2em]"
-const ctaOrange = `${ctaBase} ${hardHover} border-eva-orange text-eva-orange hover:bg-eva-orange hover:text-eva-black`
+const ctaPrimary = `${ctaBase} ${hardHover} border-eva-primary text-eva-primary-light hover:bg-eva-primary hover:text-eva-black`
 
 /** Clases de un enlace de sección: bloque invertido si está activo. */
 function linkClasses(active) {
-  return active ? "bg-eva-orange text-eva-black" : "text-eva-gray hover:text-eva-paper"
+  return active ? "bg-eva-primary text-eva-black" : "text-eva-gray hover:text-eva-paper"
 }
 
 export default function SiteNav() {
@@ -72,12 +72,12 @@ export default function SiteNav() {
     <>
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-orange focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-primary focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
       >
         Saltar al contenido
       </a>
       <header className="fixed inset-x-0 top-0 z-50" onKeyDown={onKeyDown}>
-        <div className="eva-nav-glass h-16 border-b-2 border-eva-orange">
+        <div className="eva-nav-glass h-16 border-b-2 border-eva-primary">
           <nav
             aria-label="Principal"
             className="mx-auto flex h-full max-w-6xl items-center justify-between gap-2 px-4 md:px-6"
@@ -93,7 +93,7 @@ export default function SiteNav() {
                       aria-current={isActive ? "location" : undefined}
                       className={`inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-[0.2em] ${linkClasses(isActive)}`}
                     >
-                      <span aria-hidden="true" className={isActive ? "text-eva-black" : "text-eva-orange"}>
+                      <span aria-hidden="true" className={isActive ? "text-eva-black" : "text-eva-primary-light"}>
                         {navCode(link.code)}
                       </span>
                       {link.label}
@@ -103,7 +103,7 @@ export default function SiteNav() {
               })}
             </ul>
             <div className="flex items-center gap-2">
-              <Link to="/configurador" className={`${ctaOrange} hidden sm:inline-flex`}>
+              <Link to="/configurador" className={`${ctaPrimary} hidden sm:inline-flex`}>
                 Armá tu web
               </Link>
               <a
@@ -114,7 +114,7 @@ export default function SiteNav() {
               >
                 <Download className="size-3.5" aria-hidden="true" /> CV
               </a>
-              <a href="#contacto" className={ctaOrange}>
+              <a href="#contacto" className={ctaPrimary}>
                 Hablemos
               </a>
               <button
@@ -124,7 +124,7 @@ export default function SiteNav() {
                 aria-expanded={open}
                 aria-controls="mobile-nav"
                 aria-label={open ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
-                className="inline-flex size-11 items-center justify-center border-2 border-eva-orange text-eva-orange md:hidden"
+                className="inline-flex size-11 items-center justify-center border-2 border-eva-primary text-eva-primary-light md:hidden"
               >
                 {open ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
               </button>
@@ -134,14 +134,14 @@ export default function SiteNav() {
         <div className="eva-stripes h-1.5" aria-hidden="true" />
         <div
           id="mobile-nav"
-          className={`md:hidden ${open ? "block" : "hidden"} border-b-2 border-eva-orange bg-eva-black`}
+          className={`md:hidden ${open ? "block" : "hidden"} border-b-2 border-eva-primary bg-eva-black`}
         >
           <ul className="flex flex-col px-4 py-3">
             <li className="sm:hidden">
               <Link
                 to="/configurador"
                 onClick={() => setOpen(false)}
-                className="flex min-h-11 items-center gap-2 px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-orange"
+                className="flex min-h-11 items-center gap-2 px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-primary-light"
               >
                 Armá tu web
               </Link>
@@ -156,7 +156,7 @@ export default function SiteNav() {
                     aria-current={isActive ? "location" : undefined}
                     className={`flex min-h-11 items-center gap-2 px-3 font-mono text-xs uppercase tracking-[0.2em] ${linkClasses(isActive)}`}
                   >
-                    <span aria-hidden="true" className={isActive ? "text-eva-black" : "text-eva-orange"}>
+                    <span aria-hidden="true" className={isActive ? "text-eva-black" : "text-eva-primary-light"}>
                       {navCode(link.code)}
                     </span>
                     {link.label}

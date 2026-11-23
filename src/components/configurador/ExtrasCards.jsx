@@ -40,7 +40,7 @@ export default function ExtrasCards({ extras = [], selectedIds = [], onToggle })
               <p className="mt-1 text-sm text-eva-gray">{extra.description}</p>
 
               {extra.disclaimer && (
-                <p className="mt-2 border-l-4 border-eva-orange bg-eva-black px-2.5 py-2 text-xs text-eva-paper">
+                <p className="mt-2 border-l-4 border-eva-secondary bg-eva-black px-2.5 py-2 text-xs text-eva-paper">
                   {extra.disclaimer}
                 </p>
               )}

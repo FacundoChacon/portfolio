@@ -6,6 +6,8 @@
  * El botón de WhatsApp solo se muestra si hay `whatsappUrl` (número configurado).
  * Recibe `headingRef` para que la página le dé el foco al aparecer (C-11).
  */
+import { TriangleAlert } from 'lucide-react'
+
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO, PANEL } from './estilos.js'
 
 export default function ErrorStep({
@@ -22,11 +24,17 @@ export default function ErrorStep({
   const mailto = `mailto:${contactEmail}?subject=${subject}&body=${body}`
 
   return (
-    <div className={`${PANEL} relative overflow-hidden`}>
-      <div aria-hidden="true" className="eva-stripes eva-stripes-red absolute inset-x-0 top-0 h-2" />
-      <span aria-hidden="true" className="eva-panel-label">
+    <div className={PANEL}>
+      <div aria-hidden="true" className="eva-stripes eva-stripes-error absolute inset-x-0 top-0 h-2" />
+      <span aria-hidden="true" className="eva-panel-label eva-panel-label-error">
         ERR {'//'} ENVÍO
       </span>
+      <p
+        aria-hidden="true"
+        className="mb-2 mt-2 flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-eva-error"
+      >
+        <TriangleAlert className="size-4" aria-hidden="true" /> Transmisión fallida
+      </p>
       <h2
         ref={headingRef}
         tabIndex={-1}

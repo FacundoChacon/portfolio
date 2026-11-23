@@ -15,7 +15,7 @@ export default function Carrete3D({ projects, stageRef, lienzoRef, linksRef, pos
   return (
     <div className="carrete-escenario" ref={stageRef}>
       <h2 id="proyectos-titulo" className="carrete-titulo font-eva-display font-bold uppercase font-stretch-condensed">
-        <span aria-hidden="true" className="carrete-titulo-linea text-eva-orange">
+        <span aria-hidden="true" className="carrete-titulo-linea text-eva-primary-light">
           03 //
         </span>
         <span className="carrete-titulo-linea text-eva-paper">Proyectos</span>

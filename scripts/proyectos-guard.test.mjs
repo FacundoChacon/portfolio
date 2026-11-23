@@ -200,3 +200,38 @@ test('index.css: sin los modos pin y row ni el indicador de páginas', () => {
   assert.ok(/data-mode="carousel"/.test(css))
   assert.ok(/touch-action:\s*pan-y/.test(css))
 })
+
+// --- jerarquia-color-violeta: roles en la sección de proyectos ---
+
+test('proyectos: eyebrow en primary-light, tarjeta con sombra secondary, badges demo=secondary y live=tertiary', () => {
+  const card = read('src/components/proyectos/ProyectoCard.jsx')
+  const cierre = read('src/components/proyectos/ProyectosCierre.jsx')
+  const esperado = {
+    'src/components/Projects.jsx': ['tracking-[0.18em] text-eva-primary-light'],
+    'src/components/proyectos/Carrete3D.jsx': ['carrete-titulo-linea text-eva-primary-light'],
+    'src/components/proyectos/ProyectoCard.jsx': [
+      'demo: "border-eva-secondary text-eva-secondary"',
+      'live: "border-eva-tertiary text-eva-tertiary"',
+      'shadow-[6px_6px_0_0_theme(colors.eva.secondary)]',
+      'hover:border-eva-secondary hover:shadow-[8px_8px_0_0_theme(colors.eva.secondary)]',
+      'group-hover:text-eva-secondary',
+    ],
+    'src/components/proyectos/ProyectosCierre.jsx': [
+      'border-eva-primary bg-eva-primary text-eva-black',
+      'hover:border-eva-secondary hover:bg-eva-secondary hover:text-eva-black',
+    ],
+  }
+  const faltan = []
+  for (const [file, fragmentos] of Object.entries(esperado)) {
+    const source = read(file)
+    for (const f of fragmentos) if (!source.includes(f)) faltan.push(`${file}: falta ${f}`)
+    assert.doesNotMatch(source, /eva-(?:orange|purple|green)/, file)
+  }
+  assert.deepEqual(faltan, [])
+  assert.ok(card && cierre)
+})
+
+test('carrete: el shader no usa colores de acento (las texturas son capturas y el fondo es el panel)', () => {
+  const escena = read('src/three/carreteEscena.js')
+  assert.doesNotMatch(escena, /eva-(?:orange|purple|green|primary|secondary|tertiary)|#FF7A1A|#9B5CF0|#74F8D4/i)
+})

@@ -135,7 +135,8 @@ const FORBIDDEN_RULES = [
   { rule: 'loading=lazy', pattern: /loading=["{'`]+lazy/ },
   { rule: 'order-', pattern: util(String.raw`order-[\w[\]-]+`) },
   { rule: '--eva-hex-color', pattern: /--eva-hex-color/ },
-  { rule: 'texto eva-red/purple/gray-dim', pattern: /text-eva-(?:red|purple|gray-dim)(?![\w-])/ },
+  { rule: 'texto eva-primary/gray-dim', pattern: /text-eva-(?:primary|gray-dim)(?![\w-])/ },
+  { rule: 'nombre de color de acento', pattern: /eva-(?:orange|purple|green|red|violet|aqua|sky)(?![\w-])/ },
   { rule: 'animate sin motion-safe', pattern: withoutMotionSafe(String.raw`animate-[\w-]+`) },
   { rule: 'hover translate sin motion-safe', pattern: withoutMotionSafe(String.raw`hover:-?translate-[xy]-[\w.]+`) },
   { rule: 'focus translate sin motion-safe', pattern: withoutMotionSafe(String.raw`focus-visible:-?translate-[xy]-[\w.]+`) },
@@ -159,7 +160,7 @@ test('guard de Hero: las reglas detectan el hero cyberpunk anterior (triangulaci
 })
 
 test('guard de Hero: lo permitido no dispara reglas (font-eva-display, motion-safe)', () => {
-  const ok = `<h1 className="font-eva-display font-stretch-extra-condensed motion-safe:animate-eva-boot motion-safe:hover:-translate-y-0.5 border-eva-orange">`
+  const ok = `<h1 className="font-eva-display font-stretch-extra-condensed motion-safe:animate-eva-boot motion-safe:hover:-translate-y-0.5 border-eva-primary">`
   assert.deepEqual(findForbiddenTokens(ok, FORBIDDEN_RULES), [])
 })
 
@@ -195,12 +196,13 @@ test('Home.jsx: un único <h1> en los componentes montados', () => {
 const HERO_CONTRAST_PAIRS = [
   { fg: 'paper', bg: 'black', level: 'normal' },
   { fg: 'gray', bg: 'black', level: 'normal' },
-  { fg: 'orange', bg: 'black', level: 'normal' },
-  { fg: 'black', bg: 'orange', level: 'normal' },
+  { fg: 'violet-light', bg: 'black', level: 'normal' },
+  { fg: 'black', bg: 'violet', level: 'normal' },
   { fg: 'paper', bg: 'panel', level: 'normal' },
   { fg: 'gray', bg: 'panel', level: 'normal' },
-  { fg: 'green', bg: 'panel', level: 'normal' },
-  { fg: 'orange', bg: 'panel', level: 'normal' },
+  { fg: 'aqua', bg: 'panel', level: 'normal' },
+  { fg: 'violet-light', bg: 'panel', level: 'normal' },
+  { fg: 'orange', bg: 'black', level: 'ui' },
   { fg: 'gray-dim', bg: 'black', level: 'ui' },
 ]
 
@@ -213,20 +215,41 @@ test('contraste: un par que no cumple se informa (triangulación)', () => {
 })
 
 function hexGridAlpha() {
-  const fallback = read('src/index.css').match(/--eva-hex-color,\s*rgb\(\s*255\s+122\s+26\s*\/\s*([\d.]+)\s*\)/)
+  const fallback = read('src/index.css').match(/--eva-hex-color,\s*rgb\(\s*155\s+92\s+240\s*\/\s*([\d.]+)\s*\)/)
   assert.ok(fallback, 'no se encontró el fallback de --eva-hex-color')
   return Number(fallback[1])
 }
 
 test('contraste: texto sobre la grilla hex (alpha leído de index.css) >= 4.5', () => {
-  const grilla = blendOver(EVA_COLORS.orange, EVA_COLORS.black, hexGridAlpha())
-  for (const token of ['paper', 'gray', 'orange']) {
+  const grilla = blendOver(EVA_COLORS.violet, EVA_COLORS.black, hexGridAlpha())
+  for (const token of ['paper', 'gray', 'violet-light', 'orange', 'aqua']) {
     const ratio = contrastRatio(EVA_COLORS[token], grilla)
     assert.ok(ratio >= 4.5, `${token} sobre la grilla: ${ratio.toFixed(2)} < 4.5`)
   }
 })
 
 test('contraste: con alpha 0.6 el gris sobre la grilla falla (protege la opacidad)', () => {
-  const grilla = blendOver(EVA_COLORS.orange, EVA_COLORS.black, 0.6)
+  const grilla = blendOver(EVA_COLORS.violet, EVA_COLORS.black, 0.6)
   assert.ok(contrastRatio(EVA_COLORS.gray, grilla) < 4.5)
+})
+
+// --- Jerarquía de color por rol (jerarquia-color-violeta, D4) ---
+
+test('Hero.jsx: eyebrow y apellido en primary-light, CTA y figura en primary con sombra secondary', () => {
+  const faltan = [
+    'tracking-[0.3em] text-eva-primary-light',
+    'text-eva-primary-light">{PERFIL.apellido}',
+    'border-2 border-eva-primary bg-eva-primary',
+    'shadow-[6px_6px_0_0_var(--eva-secondary)]',
+    'border-2 border-eva-primary bg-eva-panel shadow-[10px_10px_0_0_var(--eva-secondary)]',
+    'hover:border-eva-secondary hover:text-eva-secondary',
+    'text-eva-tertiary',
+    'eva-stripes eva-stripes-primary h-3 w-full',
+  ].filter((token) => !HERO.includes(token))
+  assert.deepEqual(faltan, [])
+})
+
+test('Hero.jsx: la franja vertical de la figura sigue siendo secondary (eva-stripes sin modificador)', () => {
+  const linea = HERO.split('\n').find((l) => l.includes('absolute -right-6 inset-y-4'))
+  assert.ok(linea && !linea.includes('eva-stripes-primary'))
 })

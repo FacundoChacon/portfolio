@@ -63,17 +63,18 @@ test('parseRgbAlpha: propiedad ausente o sin rgb devuelve null', () => {
 const CSS = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8')
 
 /** Texto normal exige 4.5; los gráficos (gray-dim), 3. */
-const TEXT_TOKENS = ['paper', 'gray', 'orange', 'green']
+const TEXT_TOKENS = ['paper', 'gray', 'violet-light', 'orange', 'aqua']
 
 /**
  * Evalúa el cristal contra el fondo realista (línea de la grilla hexagonal) y
- * el de estrés (naranja sólido). El brillo superficial va encima del tinte.
+ * los de estrés (violeta y naranja sólidos). El brillo superficial va encima del tinte.
  * @param {{ alpha: number, sheen: number, hexAlpha: number }} params
  * @returns {string[]} errores legibles (vacío si todo cumple)
  */
 function evaluateGlass({ alpha, sheen, hexAlpha }) {
   const backgrounds = {
-    'línea hex': blendOver(EVA_COLORS.orange, EVA_COLORS.black, hexAlpha),
+    'línea hex': blendOver(EVA_COLORS.violet, EVA_COLORS.black, hexAlpha),
+    'estrés violeta': EVA_COLORS.violet,
     'estrés naranja': EVA_COLORS.orange,
   }
   const errors = []
@@ -92,20 +93,20 @@ function evaluateGlass({ alpha, sheen, hexAlpha }) {
 }
 
 test('evaluateGlass: los valores de diseño cumplen en ambos fondos', () => {
-  assert.deepEqual(evaluateGlass({ alpha: 0.8, sheen: 0.04, hexAlpha: 0.12 }), [])
+  assert.deepEqual(evaluateGlass({ alpha: 0.8, sheen: 0.04, hexAlpha: 0.14 }), [])
 })
 
 test('evaluateGlass: bajar la opacidad del tinte rompe el gris de estrés', () => {
-  const errors = evaluateGlass({ alpha: 0.7, sheen: 0.04, hexAlpha: 0.12 })
-  assert.ok(errors.some((e) => e.startsWith('gray sobre cristal (estrés naranja)')), errors.join(' | '))
+  const errors = evaluateGlass({ alpha: 0.7, sheen: 0.04, hexAlpha: 0.14 })
+  assert.ok(errors.some((e) => e.startsWith('gray sobre cristal (estrés')), errors.join(' | '))
 })
 
 test('evaluateGlass: subir el brillo superficial rompe el gris de estrés', () => {
-  const errors = evaluateGlass({ alpha: 0.8, sheen: 0.06, hexAlpha: 0.12 })
-  assert.ok(errors.some((e) => e.startsWith('gray sobre cristal (estrés naranja)')), errors.join(' | '))
+  const errors = evaluateGlass({ alpha: 0.8, sheen: 0.06, hexAlpha: 0.14 })
+  assert.ok(errors.some((e) => e.startsWith('gray sobre cristal (estrés')), errors.join(' | '))
 })
 
-test('index.css: .eva-glass usa tinte panel, brillo paper y grilla naranja, y cumple el contraste', () => {
+test('index.css: .eva-glass usa tinte panel, brillo paper y grilla violeta, y cumple el contraste', () => {
   const glass = ruleBody(CSS, '.eva-glass')
   assert.ok(glass, '.eva-glass no existe en index.css')
   const tint = parseRgbAlpha(glass, 'background-color')
@@ -116,7 +117,7 @@ test('index.css: .eva-glass usa tinte panel, brillo paper y grilla naranja, y cu
   assert.equal(sheen.hex.toUpperCase(), EVA_COLORS.paper)
   const hexGrid = parseRgbAlpha(ruleBody(CSS, '.eva-hex-grid::before') ?? '', 'background-color')
   assert.ok(hexGrid, '.eva-hex-grid::before sin --eva-hex-color por defecto')
-  assert.equal(hexGrid.hex.toUpperCase(), EVA_COLORS.orange)
+  assert.equal(hexGrid.hex.toUpperCase(), EVA_COLORS.violet)
 
   assert.deepEqual(evaluateGlass({ alpha: tint.alpha, sheen: sheen.alpha, hexAlpha: hexGrid.alpha }), [])
 })
@@ -157,4 +158,16 @@ test('index.css: el @supports not cubre backdrop-filter con y sin prefijo y cons
   const navFallback = ruleBody(CSS, '.eva-nav-glass', { within: '@supports not' })
   assert.ok(navFallback, 'falta .eva-nav-glass dentro del @supports not')
   assert.match(navFallback, /background-color:\s*var\(--eva-black\)/)
+})
+
+// --- Bordes y variantes de estado por rol (jerarquia-color-violeta) ----------
+
+test('index.css: los bordes de .eva-glass y .eva-panel son el violeta primario (155 92 240)', () => {
+  const glass = parseRgbAlpha(ruleBody(CSS, '.eva-glass') ?? '', 'border')
+  const panel = parseRgbAlpha(ruleBody(CSS, '.eva-panel') ?? '', 'border')
+  assert.ok(glass && panel, 'faltan los bordes rgb(r g b / a)')
+  assert.equal(glass.hex.toUpperCase(), EVA_COLORS.violet)
+  assert.equal(panel.hex.toUpperCase(), EVA_COLORS.violet)
+  assert.equal(glass.alpha, 0.45)
+  assert.equal(panel.alpha, 0.55)
 })

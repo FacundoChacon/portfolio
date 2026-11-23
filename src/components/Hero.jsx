@@ -22,7 +22,7 @@ export default function Hero() {
     >
       <div className="mx-auto grid w-full max-w-6xl flex-1 content-center gap-y-12 px-4 pb-16 md:grid-cols-12 md:gap-x-8 md:px-6">
         <div className="md:col-span-7">
-          <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-orange">
+          <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-primary-light">
             01 {"//"} Presentación
           </p>
           <h1
@@ -30,7 +30,7 @@ export default function Hero() {
             className="mt-4 font-eva-display text-[15vw] font-black uppercase leading-[0.86] tracking-tight text-eva-paper font-stretch-extra-condensed md:text-[9vw] xl:text-[7.25rem]"
           >
             <span className="block whitespace-nowrap">{PERFIL.nombre}</span>
-            <span className="block whitespace-nowrap text-eva-orange">{PERFIL.apellido}</span>
+            <span className="block whitespace-nowrap text-eva-primary-light">{PERFIL.apellido}</span>
           </h1>
           <p className="mt-6 font-mono text-base uppercase tracking-widest text-eva-paper">
             {PERFIL.rol}
@@ -46,7 +46,7 @@ export default function Hero() {
           <div className={`mt-10 flex flex-wrap items-center gap-4 ${BOOT} motion-safe:[animation-delay:240ms]`}>
             <a
               href="#proyectos"
-              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-orange bg-eva-orange px-6 py-3 font-mono text-sm font-bold uppercase tracking-[0.2em] text-eva-black shadow-[6px_6px_0_0_var(--eva-purple)] hover:shadow-[8px_8px_0_0_var(--eva-purple)] focus-visible:shadow-[8px_8px_0_0_var(--eva-purple)] motion-safe:transition-[transform,box-shadow,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-primary bg-eva-primary px-6 py-3 font-mono text-sm font-bold uppercase tracking-[0.2em] text-eva-black shadow-[6px_6px_0_0_var(--eva-secondary)] hover:shadow-[8px_8px_0_0_var(--eva-secondary)] focus-visible:shadow-[8px_8px_0_0_var(--eva-secondary)] motion-safe:transition-[transform,box-shadow,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5"
             >
               Ver proyectos <ArrowDown className="size-4" aria-hidden="true" />
             </a>
@@ -57,7 +57,7 @@ export default function Hero() {
                   key={id}
                   href={href}
                   {...externalLinkProps()}
-                  className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-gray-dim bg-eva-black px-4 py-2 font-mono text-sm uppercase tracking-[0.2em] text-eva-paper hover:border-eva-orange hover:text-eva-orange hover:shadow-[4px_4px_0_0_var(--eva-orange)] focus-visible:border-eva-orange focus-visible:text-eva-orange focus-visible:shadow-[4px_4px_0_0_var(--eva-orange)] motion-safe:transition-[transform,box-shadow,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5"
+                  className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-gray-dim bg-eva-black px-4 py-2 font-mono text-sm uppercase tracking-[0.2em] text-eva-paper hover:border-eva-secondary hover:text-eva-secondary hover:shadow-[4px_4px_0_0_var(--eva-secondary)] focus-visible:border-eva-secondary focus-visible:text-eva-secondary focus-visible:shadow-[4px_4px_0_0_var(--eva-secondary)] motion-safe:transition-[transform,box-shadow,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5"
                 >
                   <Icono className="size-5" />
                   {label}
@@ -70,7 +70,7 @@ export default function Hero() {
 
         <div className="md:col-span-5 md:mt-16">
           <div className="mx-auto w-full max-w-[320px] md:ml-auto md:mr-0 md:max-w-[440px]">
-            <figure className="relative border-2 border-eva-orange bg-eva-panel shadow-[10px_10px_0_0_var(--eva-purple)]">
+            <figure className="relative border-2 border-eva-primary bg-eva-panel shadow-[10px_10px_0_0_var(--eva-secondary)]">
               <img
                 src={RETRATO.src}
                 width={RETRATO.width}
@@ -110,7 +110,7 @@ export default function Hero() {
                       {etiqueta}
                     </dt>
                     <dd
-                      className={`font-mono text-sm ${tono === "ok" ? "text-eva-green" : "text-eva-paper"}`}
+                      className={`font-mono text-sm ${tono === "ok" ? "text-eva-tertiary" : "text-eva-paper"}`}
                     >
                       {valor}
                     </dd>
@@ -124,7 +124,7 @@ export default function Hero() {
 
       <div
         aria-hidden="true"
-        className={`eva-stripes h-3 w-full ${BOOT} motion-safe:[animation-delay:120ms]`}
+        className={`eva-stripes eva-stripes-primary h-3 w-full ${BOOT} motion-safe:[animation-delay:120ms]`}
       />
     </section>
   )

@@ -7,15 +7,39 @@ import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import tailwindConfig from '../tailwind.config.js'
-import { EVA_COLORS, EVA_FONT_SANS } from '../src/styles/eva-tokens.js'
-import { checkContrastPairs } from './lib/contrast.mjs'
+import { EVA_COLORS, EVA_FONT_SANS, EVA_ROLES, EVA_STATUS_ROLES, EVA_THEME_COLORS } from '../src/styles/eva-tokens.js'
+import { checkContrastPairs, contrastRatio } from './lib/contrast.mjs'
 
 const read = (rel) => readFileSync(new URL(`../${rel}`, import.meta.url), 'utf8')
 const colors = tailwindConfig.theme.extend.colors
 const fonts = tailwindConfig.theme.extend.fontFamily
 
-test('tailwind: expone la paleta eva igual a EVA_COLORS', () => {
-  assert.deepEqual(colors.eva, EVA_COLORS)
+test('tailwind: expone la paleta eva igual a EVA_THEME_COLORS', () => {
+  assert.deepEqual(colors.eva, EVA_THEME_COLORS)
+})
+
+test('tailwind: colors.eva expone exactamente neutros, roles y roles de estado', () => {
+  assert.deepEqual(Object.keys(colors.eva).sort(), [
+    'black', 'error', 'focus', 'gray', 'gray-dim', 'line', 'panel', 'paper',
+    'primary', 'primary-light', 'secondary', 'success', 'tertiary',
+  ])
+})
+
+test('index.css: :root ya no define --eva-orange, --eva-purple, --eva-green ni --eva-red', () => {
+  const root = blockBody(css(), ':root {') ?? ''
+  assert.ok(root.includes('--eva-primary'), 'no se encontró el bloque :root')
+  for (const retirado of ['orange', 'purple', 'green', 'red']) {
+    assert.doesNotMatch(root, new RegExp(`--eva-${retirado}\\b`), retirado)
+  }
+})
+
+test('tailwind: colors.eva expone los roles y los roles de estado', () => {
+  for (const role of [...Object.keys(EVA_ROLES), ...Object.keys(EVA_STATUS_ROLES)]) {
+    assert.ok(role in colors.eva, `falta eva-${role}`)
+  }
+  for (const nombre of ['violet', 'violet-light', 'aqua', 'sky', 'red-light']) {
+    assert.ok(!(nombre in colors.eva), `${nombre} no debe generar clases: los componentes nombran el rol`)
+  }
 })
 
 test('tailwind: solo expone la paleta eva', () => {
@@ -106,8 +130,12 @@ test(':focus-visible usa var(--eva-focus) y ya no el cian fijo', () => {
 
 test('index.css: define --eva-focus y las variables --eva-* desde theme()', () => {
   const source = css()
-  assert.match(source, /--eva-focus:\s*theme\('colors\.eva\.green'\)/)
-  for (const token of ['black', 'panel', 'line', 'paper', 'gray', 'orange', 'red', 'purple', 'green']) {
+  assert.match(source, /--eva-focus:\s*theme\('colors\.eva\.focus'\)/)
+  const tokens = [
+    'black', 'panel', 'line', 'paper', 'gray', 'gray-dim',
+    ...Object.keys(EVA_ROLES), ...Object.keys(EVA_STATUS_ROLES),
+  ]
+  for (const token of tokens) {
     assert.match(source, new RegExp(String.raw`--eva-${token}:\s*theme\('colors\.eva\.${token}'\)`), token)
   }
 })
@@ -125,7 +153,7 @@ test('.eva-reveal: oculto por defecto y visible/sin transición con movimiento r
 
 test('index.css: existen las utilidades de textura, panel y tag', () => {
   const source = css()
-  for (const selector of ['.eva-hex-grid', '.eva-stripes', '.eva-stripes-red', '.eva-panel', '.eva-panel-label', '.eva-panel-code', '.eva-tag']) {
+  for (const selector of ['.eva-hex-grid', '.eva-stripes', '.eva-stripes-primary', '.eva-stripes-error', '.eva-panel-label-success', '.eva-panel-label-error', '.eva-panel', '.eva-panel-label', '.eva-panel-code', '.eva-tag']) {
     assert.ok(source.includes(`${selector} {`) || source.includes(`${selector}::`) || source.includes(`${selector},`), `falta ${selector}`)
   }
 })
@@ -178,9 +206,10 @@ test('index.html: theme-color igual a EVA_COLORS.black y <body> en tokens eva', 
 
 test('base global: selección (negro sobre naranja) y carga (gray sobre black) cumplen contraste', () => {
   const pairs = [
-    { fg: 'black', bg: 'orange', level: 'ui' }, // ::selection
+    { fg: 'black', bg: 'violet', level: 'normal' }, // ::selection (5.03)
     { fg: 'gray', bg: 'black', level: 'normal' }, // LoadingFallback
-    { fg: 'orange', bg: 'black', level: 'ui' }, // aro del LoadingFallback y hover del scrollbar
+    { fg: 'violet', bg: 'line', level: 'ui' }, // aro del LoadingFallback (3.69)
+    { fg: 'violet', bg: 'black', level: 'ui' }, // hover del scrollbar
     { fg: 'gray-dim', bg: 'black', level: 'ui' }, // thumb del scrollbar
   ]
   assert.deepEqual(checkContrastPairs(EVA_COLORS, pairs), [])
@@ -193,10 +222,10 @@ test('index.css: body, scrollbar y ::selection usan variables eva sin hex ni rgb
   const thumb = blockBody(source, '::-webkit-scrollbar-thumb {') ?? ''
   assert.match(thumb, /background:\s*var\(--eva-gray-dim\)/)
   assert.doesNotMatch(thumb, /border-radius/)
-  assert.match(blockBody(source, '::-webkit-scrollbar-thumb:hover') ?? '', /background:\s*var\(--eva-orange\)/)
+  assert.match(blockBody(source, '::-webkit-scrollbar-thumb:hover') ?? '', /background:\s*var\(--eva-primary\)/)
   assert.match(blockBody(source, 'html {') ?? '', /scrollbar-color:\s*var\(--eva-gray-dim\) var\(--eva-black\)/)
   const selection = blockBody(source, '::selection') ?? ''
-  assert.match(selection, /background:\s*var\(--eva-orange\)/)
+  assert.match(selection, /background:\s*var\(--eva-primary\)/)
   assert.match(selection, /color:\s*var\(--eva-black\)/)
   for (const header of ['body {', '::-webkit-scrollbar-track', '::-webkit-scrollbar-thumb {', '::-webkit-scrollbar-thumb:hover', '::selection']) {
     assert.doesNotMatch(blockBody(source, header) ?? '', /#[0-9a-f]{3,6}\b|rgba?\(/i, header)
@@ -206,7 +235,31 @@ test('index.css: body, scrollbar y ::selection usan variables eva sin hex ni rgb
 test('App.jsx y Home.jsx: fondo y LoadingFallback en tokens eva', () => {
   const app = read('src/App.jsx')
   assert.match(app, /bg-eva-black/)
-  assert.match(app, /border-eva-line border-t-eva-orange/)
+  assert.match(app, /border-eva-line border-t-eva-primary/)
   assert.match(app, /text-eva-gray/)
   assert.match(read('src/pages/Home.jsx'), /overflow-x-clip bg-eva-black outline-none/)
+})
+
+// --- Materiales por rol (jerarquia-color-violeta) ---
+
+test('index.css: franjas, etiquetas y materiales nombran el rol, no el color', () => {
+  const source = css()
+  const decl = (selector) => blockBody(source, `${selector} {`) ?? ''
+  assert.match(decl('.eva-stripes'), /--eva-stripe-a:\s*var\(--eva-secondary\)/)
+  assert.match(decl('.eva-stripes-primary'), /--eva-stripe-a:\s*var\(--eva-primary\)/)
+  assert.match(decl('.eva-stripes-error'), /--eva-stripe-a:\s*var\(--eva-error\)/)
+  assert.match(decl('.eva-panel-label'), /background-color:\s*var\(--eva-primary\)/)
+  assert.match(decl('.eva-panel-label-success'), /background-color:\s*var\(--eva-success\)/)
+  assert.match(decl('.eva-panel-label-error'), /background-color:\s*var\(--eva-error\)/)
+  assert.match(blockBody(source, '.eva-neu-module:hover') ?? '', /border-color:\s*var\(--eva-secondary\)/)
+  assert.match(decl('.carrete-enlace'), /border-bottom:\s*2px solid var\(--eva-primary\)/)
+  assert.match(blockBody(source, '.carrete-enlace:hover') ?? '', /background-color:\s*var\(--eva-secondary\)/)
+  assert.match(blockBody(source, '.carrete-github:hover') ?? '', /var\(--eva-secondary\)/)
+})
+
+test('index.css: ::selection es violeta primario con texto negro (5.03)', () => {
+  const selection = blockBody(css(), '::selection') ?? ''
+  assert.match(selection, /background:\s*var\(--eva-primary\)/)
+  assert.match(selection, /color:\s*var\(--eva-black\)/)
+  assert.ok(contrastRatio(EVA_COLORS.black, EVA_COLORS.violet) >= 5)
 })

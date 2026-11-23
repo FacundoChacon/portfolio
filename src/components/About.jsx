@@ -37,7 +37,7 @@ export default function About() {
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex items-center gap-4">
-          <span aria-hidden="true" className="font-mono text-sm text-eva-orange">{"//02"}</span>
+          <span aria-hidden="true" className="font-mono text-sm text-eva-primary-light">{"//02"}</span>
           <h2
             id="quien-soy-titulo"
             className="font-eva-display text-3xl font-black uppercase text-eva-paper font-stretch-condensed sm:text-4xl"
@@ -61,7 +61,7 @@ export default function About() {
             </p>
             <p>
               He desarrollado proyectos completos con{" "}
-              <span className="text-eva-orange">Java, Spring Boot, React, Tailwind CSS, JavaScript y MySQL</span>,
+              <span className="text-eva-primary-light">Java, Spring Boot, React, Tailwind CSS, JavaScript y MySQL</span>,
               incluyendo una plataforma de e-commerce funcional con autenticación JWT,
               panel de administración y API REST.
             </p>
@@ -69,7 +69,7 @@ export default function About() {
               Me muevo cómodo en entornos ágiles (Scrum), con control de versiones y
               revisión de código. También automatizo procesos con Python y analizo datos con R.
             </p>
-            <p className="font-mono text-sm uppercase tracking-widest text-eva-green">
+            <p className="font-mono text-sm uppercase tracking-widest text-eva-tertiary">
               {"// Idiomas: Español (nativo) · Inglés B2"}
             </p>
           </article>
@@ -84,7 +84,7 @@ export default function About() {
                 <span aria-hidden="true" className="eva-panel-label">
                   {`CAP-${String(i + 1).padStart(2, "0")}`}
                 </span>
-                <item.icon aria-hidden="true" className="size-6 text-eva-orange" />
+                <item.icon aria-hidden="true" className="size-6 text-eva-secondary" />
                 <h3 className="mt-4 font-eva-display text-lg font-bold uppercase text-eva-paper font-stretch-condensed">
                   {item.title}
                 </h3>

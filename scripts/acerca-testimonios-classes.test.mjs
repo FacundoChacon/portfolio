@@ -163,3 +163,30 @@ test('index.css: el cursor parpadea solo sin preferencia de movimiento y pocas v
   const count = /(?:^|\s)(\d+)\s*$/.exec(m[0].trim())
   assert.ok(count && Number(count[1]) <= 5, `iteraciones del cursor: ${m[0]}`)
 })
+
+// --- jerarquia-color-violeta: roles en "Quién soy" y "Testimonios" ---
+
+test('About.jsx: código y resaltado en primary-light, iconos en secondary, disponibilidad en tertiary', () => {
+  for (const token of [
+    'text-eva-primary-light">{"//02"}',
+    'text-eva-primary-light">Java, Spring Boot',
+    'size-6 text-eva-secondary',
+    'tracking-widest text-eva-tertiary',
+  ]) {
+    assert.ok(ABOUT.includes(token), `About.jsx: falta ${token}`)
+  }
+  assert.doesNotMatch(ABOUT, /eva-(?:orange|purple|green)/)
+})
+
+test('Testimonials.jsx: código e iniciales en primary-light, estrellas en secondary, prompt y cursor en tertiary', () => {
+  for (const token of [
+    'text-eva-primary-light">{"//RX"}',
+    'text-eva-secondary" : "text-eva-gray"',
+    'font-mono text-eva-tertiary">{"> "}',
+    'eva-cursor ml-1 text-eva-tertiary',
+    'font-bold text-eva-primary-light',
+  ]) {
+    assert.ok(TESTIMONIALS.includes(token), `Testimonials.jsx: falta ${token}`)
+  }
+  assert.doesNotMatch(TESTIMONIALS, /eva-(?:orange|purple|green)/)
+})

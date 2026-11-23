@@ -127,6 +127,7 @@ const ratio2 = (value) => (Math.floor(value * 100) / 100).toFixed(2)
  */
 function evaluateNeu({ lightAlpha, darkAlpha, insetLightAlpha }) {
   const { paper, gray, orange, black, panel } = EVA_COLORS
+  const violetLight = EVA_COLORS['violet-light']
   const grayDim = EVA_COLORS['gray-dim']
   const ui = CONTRAST_THRESHOLDS.ui
   const text = CONTRAST_THRESHOLDS.normal
@@ -141,16 +142,16 @@ function evaluateNeu({ lightAlpha, darkAlpha, insetLightAlpha }) {
     ['reposo', 'borde vs sombra oscura', grayDim, restDark, ui],
     ['reposo', 'texto paper vs fondo', paper, panel, text],
     ['reposo', 'texto gray vs fondo', gray, panel, text],
-    ['reposo', 'texto orange vs fondo', orange, panel, text],
+    ['reposo', 'texto violet-light vs fondo', violetLight, panel, text],
     ['hundido', 'borde vs superficie', orange, panel, ui],
     ['hundido', 'borde vs fondo del módulo', orange, black, ui],
     ['hundido', 'borde vs sombra interior clara', orange, sunkLight, ui],
     ['hundido', 'texto paper vs fondo', paper, black, text],
     ['hundido', 'texto gray vs fondo', gray, black, text],
-    ['hundido', 'texto orange vs fondo', orange, black, text],
+    ['hundido', 'texto violet-light vs fondo', violetLight, black, text],
     ['hundido', 'texto paper vs sombra interior clara', paper, sunkLight, text],
     ['hundido', 'texto gray vs sombra interior clara', gray, sunkLight, text],
-    ['hundido', 'texto orange vs sombra interior clara', orange, sunkLight, text],
+    ['hundido', 'texto violet-light vs sombra interior clara', violetLight, sunkLight, text],
   ]
   return pairs.flatMap(([state, pair, fg, bg, threshold]) => {
     const value = contrastRatio(fg, bg)
@@ -209,7 +210,7 @@ test('el borde cambia de gris (reposo) a naranja (hundido) y los fondos son pane
   const rest = ruleBody(CSS, '.eva-neu-module')
   const sunk = ruleBody(CSS, '.eva-neu-module:hover', { within: HOVER_MEDIA })
   assert.match(rest, /border:\s*1px solid var\(--eva-gray-dim\)/)
-  assert.match(sunk, /border-color:\s*var\(--eva-orange\)/)
+  assert.match(sunk, /border-color:\s*var\(--eva-secondary\)/)
   assert.match(rest, /background-color:\s*var\(--eva-panel\)/)
   assert.match(sunk, /background-color:\s*var\(--eva-black\)/)
   assert.match(ruleBody(CSS, '.eva-neu-surface'), /background-color:\s*var\(--eva-panel\)/)

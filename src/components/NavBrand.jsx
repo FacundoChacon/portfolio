@@ -10,7 +10,7 @@ export default function NavBrand() {
       className="font-eva-display font-stretch-condensed text-lg font-black uppercase tracking-wide text-eva-paper"
     >
       FC
-      <span aria-hidden="true" className="ml-1 font-mono text-xs font-normal tracking-[0.2em] text-eva-orange">
+      <span aria-hidden="true" className="ml-1 font-mono text-xs font-normal tracking-[0.2em] text-eva-secondary">
         {navCode(BRAND_CODE)}
       </span>
       <span className="sr-only">, ir al inicio</span>

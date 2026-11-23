@@ -103,17 +103,17 @@ export default function Configurador() {
     <div className="min-h-screen bg-eva-black text-eva-paper">
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-orange focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-primary focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
       >
         Saltar al contenido
       </a>
       <header>
-        <div className="eva-nav-glass border-b-2 border-eva-orange">
+        <div className="eva-nav-glass border-b-2 border-eva-primary">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 md:px-6">
             <NavBrand />
             <Link
               to="/"
-              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-orange px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-orange hover:bg-eva-orange hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-orange)] motion-safe:transition-[transform,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-primary px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-primary-light hover:bg-eva-primary hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-secondary)] motion-safe:transition-[transform,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5"
             >
               <ArrowLeft className="size-3.5" aria-hidden="true" /> Volver al inicio
             </Link>
@@ -124,7 +124,7 @@ export default function Configurador() {
 
       <main id="contenido" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none md:px-6 md:py-10">
         <div className="eva-hex-grid py-6">
-          <p aria-hidden="true" className="font-mono text-xs uppercase tracking-[0.3em] text-eva-orange">
+          <p aria-hidden="true" className="font-mono text-xs uppercase tracking-[0.3em] text-eva-primary-light">
             SYS {'//'} PRESUPUESTO
           </p>
           <h1 className="mt-2 font-eva-display text-4xl font-black uppercase text-eva-paper font-stretch-condensed md:text-6xl">

@@ -130,3 +130,13 @@ test('package.json: sin los paquetes de fuentes retirados y con los vivos', () =
   assert.ok('@fontsource-variable/noto-serif-display' in deps)
   assert.ok('@fontsource-variable/jetbrains-mono' in deps)
 })
+
+test('detecta los hex de la paleta eva anterior (#8A4FD8, #3DFF7A, #E8202A) y no los de la actual', () => {
+  for (const v of ['#8A4FD8', '#3dff7a', '#E8202A']) {
+    assert.ok(rulesOf(`x: ${v};`, 'src/a.css').includes('hex-paleta-anterior'), v)
+    assert.ok(rulesOf(`<i style={{ color: '${v}' }} />`).includes('hex-paleta-anterior'), v)
+  }
+  for (const v of ['#9B5CF0', '#B08AFF', '#74F8D4', '#7CC8FF', '#FF8A9A', '#FF7A1A']) {
+    assert.deepEqual(rulesOf(`x: ${v};`, 'src/a.css'), [], v)
+  }
+})

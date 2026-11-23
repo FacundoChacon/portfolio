@@ -10,10 +10,41 @@ export const EVA_COLORS = {
   paper: '#EDE6D6', // texto principal
   gray: '#A39C8E', // texto secundario
   'gray-dim': '#6B655B', // bordes de componentes de UI, nunca texto
-  orange: '#FF7A1A', // acento principal, etiquetas, bordes
-  red: '#E8202A', // alertas: solo texto grande o decoración
-  purple: '#8A4FD8', // acento secundario: solo texto grande o decoración
-  green: '#3DFF7A', // fósforo: estados OK, código, anillo de foco
+  violet: '#9B5CF0', // primary: rellenos y bordes de UI (texto negro encima), nunca texto chico
+  'violet-light': '#B08AFF', // primary-light: texto de acento
+  orange: '#FF7A1A', // secondary: sombras, hover y franjas que acompañan al violeta
+  aqua: '#74F8D4', // tertiary y focus: detalles de estado y anillo de foco
+  sky: '#7CC8FF', // success (estado del configurador, fuera de la jerarquía)
+  'red-light': '#FF8A9A', // error (estado del configurador, fuera de la jerarquía)
+}
+
+/**
+ * Roles de la jerarquía de color: los componentes nombran el ROL (`eva-primary`),
+ * nunca el color. Cambiar el color de un rol se hace acá y no obliga a tocar
+ * componentes. Jerarquía: primary (violeta) > secondary (naranja) > tertiary (agua).
+ */
+export const EVA_ROLES = {
+  primary: 'violet',
+  'primary-light': 'violet-light',
+  secondary: 'orange',
+  tertiary: 'aqua',
+  focus: 'aqua',
+}
+
+/** Roles semánticos de estado: fuera de la jerarquía y solo para el configurador. */
+export const EVA_STATUS_ROLES = { success: 'sky', error: 'red-light' }
+
+const NEUTRALS = ['black', 'panel', 'line', 'paper', 'gray', 'gray-dim']
+
+/**
+ * Colores que consume `tailwind.config.js` (`colors.eva`): neutros + roles +
+ * roles de estado resueltos a hex. Los nombres de color (`violet`, `orange`,
+ * `aqua`...) no generan clases: los componentes nombran el rol.
+ */
+export const EVA_THEME_COLORS = {
+  ...Object.fromEntries(NEUTRALS.map((name) => [name, EVA_COLORS[name]])),
+  ...Object.fromEntries(Object.entries(EVA_ROLES).map(([role, color]) => [role, EVA_COLORS[color]])),
+  ...Object.fromEntries(Object.entries(EVA_STATUS_ROLES).map(([role, color]) => [role, EVA_COLORS[color]])),
 }
 
 /**
@@ -39,18 +70,18 @@ export const EVA_FONT_SANS = [
  * @type {{ fg: string, bg: string, level: 'normal'|'large'|'ui' }[]}
  */
 export const EVA_CONTRAST_PAIRS = [
-  ...['paper', 'gray', 'orange', 'green'].flatMap((fg) =>
+  ...['paper', 'gray', 'violet-light', 'orange', 'aqua', 'sky', 'red-light'].flatMap((fg) =>
     ['black', 'panel', 'line'].map((bg) => ({ fg, bg, level: 'normal' })),
   ),
-  { fg: 'red', bg: 'black', level: 'large' },
-  { fg: 'red', bg: 'panel', level: 'large' },
-  { fg: 'red', bg: 'line', level: 'large' },
-  { fg: 'purple', bg: 'black', level: 'large' },
-  { fg: 'purple', bg: 'panel', level: 'large' },
+  // violet: UI y texto grande, nunca texto normal (3.69 sobre línea).
+  ...['black', 'panel', 'line'].map((bg) => ({ fg: 'violet', bg, level: 'ui' })),
+  // El foco (aqua) también contrasta con el relleno violeta de los CTA.
+  { fg: 'aqua', bg: 'violet', level: 'ui' },
+  ...['violet', 'violet-light', 'orange', 'aqua', 'sky', 'red-light'].map((bg) => ({
+    fg: 'black',
+    bg,
+    level: 'normal',
+  })),
   { fg: 'gray-dim', bg: 'black', level: 'ui' },
   { fg: 'gray-dim', bg: 'panel', level: 'ui' },
-  { fg: 'black', bg: 'orange', level: 'normal' },
-  { fg: 'black', bg: 'green', level: 'normal' },
-  { fg: 'paper', bg: 'red', level: 'large' },
-  { fg: 'paper', bg: 'purple', level: 'large' },
 ]

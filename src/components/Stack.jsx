@@ -8,7 +8,7 @@ export default function Stack() {
     <section id="stack" aria-labelledby="stack-titulo" className="relative border-t border-eva-line bg-eva-black py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex items-center gap-4">
-          <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-orange">
+          <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-primary-light">
             {"//"}04
           </p>
           <h2
@@ -40,7 +40,7 @@ export default function Stack() {
                   </span>
                   <span
                     aria-hidden="true"
-                    className="flex size-12 shrink-0 items-center justify-center bg-eva-black font-mono text-sm font-bold text-eva-orange shadow-[inset_2px_2px_5px_rgb(5_5_5/0.9)]"
+                    className="flex size-12 shrink-0 items-center justify-center bg-eva-black font-mono text-sm font-bold text-eva-primary-light shadow-[inset_2px_2px_5px_rgb(5_5_5/0.9)]"
                   >
                     {tech.glyph}
                   </span>

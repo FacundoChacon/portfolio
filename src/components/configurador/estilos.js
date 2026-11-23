@@ -15,12 +15,12 @@ const DESHABILITADO =
 const DESPLAZA =
   'motion-safe:transition-[transform,box-shadow,border-color,color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5'
 
-export const BOTON_PRIMARIO = `inline-flex items-center gap-2 border-2 border-eva-orange bg-eva-orange px-4 py-2 font-mono text-xs uppercase tracking-widest text-eva-black shadow-[4px_4px_0_0_var(--eva-purple)] hover:shadow-[6px_6px_0_0_var(--eva-purple)] focus-visible:shadow-[6px_6px_0_0_var(--eva-purple)] ${DESPLAZA} ${DESHABILITADO}`
+export const BOTON_PRIMARIO = `inline-flex items-center gap-2 border-2 border-eva-primary bg-eva-primary px-4 py-2 font-mono text-xs uppercase tracking-widest text-eva-black shadow-[4px_4px_0_0_var(--eva-secondary)] hover:shadow-[6px_6px_0_0_var(--eva-secondary)] focus-visible:shadow-[6px_6px_0_0_var(--eva-secondary)] ${DESPLAZA} ${DESHABILITADO}`
 
-export const BOTON_SECUNDARIO = `inline-flex items-center gap-2 border-2 border-eva-gray-dim bg-eva-black px-4 py-2 font-mono text-xs uppercase tracking-widest text-eva-paper hover:border-eva-orange hover:text-eva-orange hover:shadow-[3px_3px_0_0_var(--eva-orange)] focus-visible:border-eva-orange focus-visible:text-eva-orange focus-visible:shadow-[3px_3px_0_0_var(--eva-orange)] ${DESPLAZA} ${DESHABILITADO}`
+export const BOTON_SECUNDARIO = `inline-flex items-center gap-2 border-2 border-eva-gray-dim bg-eva-black px-4 py-2 font-mono text-xs uppercase tracking-widest text-eva-paper hover:border-eva-secondary hover:text-eva-secondary hover:shadow-[3px_3px_0_0_var(--eva-secondary)] focus-visible:border-eva-secondary focus-visible:text-eva-secondary focus-visible:shadow-[3px_3px_0_0_var(--eva-secondary)] ${DESPLAZA} ${DESHABILITADO}`
 
 /** Variante chica del secundario (botones "Editar"). */
-export const BOTON_EDITAR = `inline-flex items-center gap-1.5 border-2 border-eva-gray-dim bg-eva-black px-2.5 py-1 font-mono text-xs uppercase tracking-widest text-eva-paper hover:border-eva-orange hover:text-eva-orange hover:shadow-[3px_3px_0_0_var(--eva-orange)] focus-visible:border-eva-orange focus-visible:text-eva-orange focus-visible:shadow-[3px_3px_0_0_var(--eva-orange)] ${DESPLAZA} ${DESHABILITADO}`
+export const BOTON_EDITAR = `inline-flex items-center gap-1.5 border-2 border-eva-gray-dim bg-eva-black px-2.5 py-1 font-mono text-xs uppercase tracking-widest text-eva-paper hover:border-eva-secondary hover:text-eva-secondary hover:shadow-[3px_3px_0_0_var(--eva-secondary)] focus-visible:border-eva-secondary focus-visible:text-eva-secondary focus-visible:shadow-[3px_3px_0_0_var(--eva-secondary)] ${DESPLAZA} ${DESHABILITADO}`
 
 /** Panel opaco con espacio arriba para el rótulo `.eva-panel-label`. */
 export const PANEL = 'eva-panel p-5 pt-8'
@@ -42,9 +42,9 @@ export function clasePaso(estado) {
     'flex items-center gap-2 border-2 px-3 py-2 font-mono text-xs uppercase tracking-widest'
   switch (estado) {
     case 'current':
-      return `${base} border-eva-orange bg-eva-orange text-eva-black`
+      return `${base} border-eva-primary bg-eva-primary text-eva-black`
     case 'done':
-      return `${base} border-eva-green text-eva-green`
+      return `${base} border-eva-tertiary text-eva-tertiary`
     case 'pending':
       return `${base} border-eva-gray-dim text-eva-gray`
     default:
@@ -56,23 +56,23 @@ export function clasePaso(estado) {
 export function claseModulo(seleccionado) {
   const base = `h-full w-full border-2 p-4 text-left ${DESPLAZA}`
   return seleccionado
-    ? `${base} border-eva-orange bg-eva-orange/10 shadow-[6px_6px_0_0_var(--eva-orange)]`
-    : `${base} border-eva-gray-dim bg-eva-panel hover:border-eva-orange hover:shadow-[4px_4px_0_0_var(--eva-orange)] focus-visible:border-eva-orange focus-visible:shadow-[4px_4px_0_0_var(--eva-orange)]`
+    ? `${base} border-eva-primary bg-eva-primary/10 shadow-[6px_6px_0_0_var(--eva-secondary)]`
+    : `${base} border-eva-gray-dim bg-eva-panel hover:border-eva-secondary hover:shadow-[4px_4px_0_0_var(--eva-secondary)] focus-visible:border-eva-secondary focus-visible:shadow-[4px_4px_0_0_var(--eva-secondary)]`
 }
 
 /** Cuadrado indicador de la tarjeta: vacío o relleno (con tilde en el JSX). */
 export function claseIndicador(seleccionado) {
   const base = 'flex size-6 shrink-0 items-center justify-center border-2'
   return seleccionado
-    ? `${base} border-eva-orange bg-eva-orange text-eva-black`
+    ? `${base} border-eva-primary bg-eva-primary text-eva-black`
     : `${base} border-eva-gray-dim`
 }
 
-/** Input/textarea: borde duro; con error, borde rojo (la marca ERR va en el JSX). */
+/** Input/textarea: borde duro; con error, borde rojo claro (la marca ERR va en el JSX; el foco verde agua no se anula). */
 export function claseCampo(conError) {
   const base =
     'w-full border-2 bg-eva-black px-3 py-2 text-sm text-eva-paper placeholder:text-eva-gray'
   return conError
-    ? `${base} border-eva-red focus:border-eva-red`
-    : `${base} border-eva-gray-dim focus:border-eva-orange`
+    ? `${base} border-eva-error focus:border-eva-error`
+    : `${base} border-eva-gray-dim focus:border-eva-primary`
 }

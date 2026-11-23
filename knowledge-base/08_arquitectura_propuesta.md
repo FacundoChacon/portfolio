@@ -48,7 +48,7 @@ portfolio/
     │       ├── SuccessStep.jsx       # confirmación
     │       └── ErrorStep.jsx         # fallback mailto/WhatsApp
     ├── styles/
-    │   ├── eva-tokens.js             # paleta eva (EVA_COLORS), pila de sistema (EVA_FONT_SANS) y pares de contraste
+    │   ├── eva-tokens.js             # paleta eva (EVA_COLORS), roles (EVA_ROLES, EVA_STATUS_ROLES, EVA_THEME_COLORS), pila de sistema (EVA_FONT_SANS) y pares de contraste
     │   └── fonts.css                 # @font-face autoalojados: Noto Serif Display y JetBrains Mono (solo latin)
     ├── hooks/
     │   ├── useReveal.js              # existente
@@ -64,9 +64,9 @@ portfolio/
 
 ## Sistema visual
 
-- **Estética**: Evangelion (brutalista). Paleta única `eva` (negro, panel, línea, papel, grises, naranja, rojo, violeta, verde), con `src/styles/eva-tokens.js` como fuente de verdad para Tailwind (`eva-*`), las variables CSS `--eva-*` y los tests de contraste. Ya no existen los tokens `accent-*`, `neon-*`, `dark-*` ni `muted-*`.
+- **Estética**: Evangelion (brutalista). Paleta única `eva` (negro, panel, línea, papel, grises, violeta, violeta claro, naranja, verde agua, celeste y rojo claro), con `src/styles/eva-tokens.js` como fuente de verdad. Los componentes nombran **roles** (`eva-primary`, `eva-primary-light`, `eva-secondary`, `eva-tertiary`, `eva-focus` y los de estado `eva-success` y `eva-error`), que `EVA_ROLES` y `EVA_STATUS_ROLES` resuelven a un color; Tailwind (`eva-*`), las variables CSS `--eva-*` y los tests de contraste leen de ahí. Ya no existen los tokens `accent-*`, `neon-*`, `dark-*` ni `muted-*`.
 - **Tipografías**: títulos en Noto Serif Display (variable, eje de ancho), etiquetas y código en JetBrains Mono (ambas autoalojadas, solo subset latin) y cuerpo en la pila de fuentes del sistema (`EVA_FONT_SANS`: `system-ui`, Segoe UI, Roboto…), sin archivos que descargar.
-- **Guards**: `scripts/limpieza-cyberpunk.test.mjs` (con `scripts/lib/legacy-guard.mjs`) falla si `src/` o `index.html` vuelven a usar la paleta, las fuentes, los brillos, el glitch o las clases del diseño anterior. La única excepción declarada (`PERMITIDOS`) es el color del PDF del presupuesto. Cada sección además tiene su guard propio (hero, contacto, stack, testimonios, configurador, proyectos).
+- **Guards**: `scripts/limpieza-cyberpunk.test.mjs` (con `scripts/lib/legacy-guard.mjs`) falla si `src/` o `index.html` vuelven a usar la paleta, las fuentes, los brillos, el glitch o las clases del diseño anterior. La única excepción declarada (`PERMITIDOS`) es el color del PDF del presupuesto. Cada sección además tiene su guard propio (hero, contacto, stack, testimonios, configurador, proyectos). `scripts/jerarquia-color.test.mjs` (con `scripts/lib/color-roles.mjs`) falla si un componente usa un nombre de color en lugar de un rol, si un color de estado aparece fuera del configurador o si el violeta deja de dominar al naranja y al verde agua.
 - **Pesos**: `node scripts/pesos-build.mjs [dist]` resume CSS, fuentes y JS de `dist/assets` (crudo y gzip).
 
 ## Seguridad

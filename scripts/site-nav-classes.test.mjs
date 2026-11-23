@@ -57,10 +57,10 @@ test('findStyleViolations: detecta lo prohibido y acepta lo permitido', () => {
   assert.deepEqual(findStyleViolations('<a className="rounded-md rounded">'), ['rounded-md', 'rounded'])
   assert.deepEqual(findStyleViolations('<a className="border-neon-blue">'), ['border-neon-blue'])
   assert.deepEqual(findStyleViolations('<a style={{ color: "#fff" }} className="bg-[#ff0000]">'), ['#fff', 'bg-[#ff0000]'])
-  assert.deepEqual(findStyleViolations('<a href="#contenido" className="bg-eva-orange">'), [])
+  assert.deepEqual(findStyleViolations('<a href="#contenido" className="bg-eva-primary">'), [])
   assert.deepEqual(findStyleViolations('<a className="hover:-translate-x-0.5">'), ['hover:-translate-x-0.5'])
   assert.deepEqual(
-    findStyleViolations('<a className="motion-safe:hover:-translate-x-0.5 border-eva-orange font-eva-display">'),
+    findStyleViolations('<a className="motion-safe:hover:-translate-x-0.5 border-eva-primary font-eva-display">'),
     [],
   )
 })
@@ -113,7 +113,7 @@ test('Configurador usa NavBrand, el salto al contenido y la cabecera de cristal'
       'href="#contenido"',
       'eva-nav-glass',
       'eva-stripes',
-      'border-eva-orange',
+      'border-eva-primary',
     ]),
     [],
   )
@@ -127,3 +127,26 @@ function headerOf(source) {
   assert.ok(start !== -1 && end > start, 'no se encontró el <header>')
   return source.slice(start, end)
 }
+
+// --- jerarquia-color-violeta: la barra nombra roles ---
+
+test('SiteNav: enlace activo, bordes, CTA y skip link en primary; hover duro en secondary', () => {
+  const nav = read('src/components/SiteNav.jsx')
+  assert.deepEqual(
+    findMissing(nav, [
+      'bg-eva-primary text-eva-black',
+      'border-eva-primary',
+      'border-eva-primary text-eva-primary-light hover:bg-eva-primary hover:text-eva-black',
+      'focus:bg-eva-primary',
+      'var(--eva-secondary)',
+    ]),
+    [],
+  )
+  assert.doesNotMatch(nav, /eva-orange|eva-purple|eva-green/)
+})
+
+test('NavBrand: el código //00 acompaña con el color secundario', () => {
+  const brand = read('src/components/NavBrand.jsx')
+  assert.match(brand, /tracking-\[0\.2em\] text-eva-secondary/)
+  assert.doesNotMatch(brand, /eva-orange/)
+})
