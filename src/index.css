@@ -365,12 +365,7 @@
   animation: glitch-line 3s ease-in-out infinite;
 }
 
-/* Sección de proyectos: un solo marcado, tres modos (pin | carousel | row). */
-.proyectos-indicador-pin,
-.proyectos-indicador-carrusel {
-  display: none;
-}
-
+/* Sección de proyectos: carrete 3D (reel) o carrusel nativo de respaldo (carousel). */
 .proyectos {
   --proyectos-gap: 1.5rem;
 }
@@ -387,56 +382,182 @@
   min-width: 0;
 }
 
-/* Pin: la sección queda fija bajo la barra y la pista se desplaza con transform. */
-.proyectos[data-mode="pin"] .proyectos-pin {
+/* Carrete: la sección queda fija bajo la barra mientras el scroll hace girar el carrete. */
+.proyectos[data-mode="reel"] .proyectos-pin {
   height: calc(var(--pin-vh) * 1vh);
   height: calc(var(--pin-vh) * 1svh);
 }
 
-.proyectos[data-mode="pin"] .proyectos-sticky {
+.carrete-escenario {
+  --carrete-card-w: 37vw;
   position: sticky;
   top: var(--eva-nav-h, 4.5rem);
   height: calc(100vh - var(--eva-nav-h, 4.5rem));
   height: calc(100svh - var(--eva-nav-h, 4.5rem));
   overflow: clip;
+}
+
+.carrete-titulo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  margin: 0;
+  font-size: clamp(4rem, 18vw, 17rem);
+  line-height: 0.85;
+  letter-spacing: -0.01em;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
 }
 
-.proyectos[data-mode="pin"] .proyectos-indicador-pin {
+.carrete-lienzo {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.carrete-lienzo[data-dragging] {
+  cursor: grabbing;
+}
+
+.carrete-lienzo canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.carrete-poster {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--carrete-card-w);
+  aspect-ratio: 2.38 / 1.5771;
+  object-fit: cover;
+  border-radius: 3%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.carrete-lienzo[data-ready="true"] .carrete-poster {
+  display: none;
+}
+
+.carrete-enlaces {
+  position: absolute;
+  z-index: 20;
+  top: calc(50% + var(--carrete-card-w) * 0.3314 + 1.5rem);
+  left: 50%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateX(-50%);
+}
+
+.carrete-enlace {
   display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: 0.5rem;
+  border-bottom: 2px solid var(--eva-orange);
+  color: var(--eva-paper);
+  font-family: theme('fontFamily.mono');
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.proyectos[data-mode="pin"] .proyectos-pista {
-  display: flex;
-  gap: var(--proyectos-gap);
-  width: min(100% - 3rem, 72rem);
-  margin-inline: auto;
-  padding-block: 0.5rem 0.75rem;
-  will-change: transform;
+.carrete-enlace:hover {
+  background-color: var(--eva-orange);
+  color: var(--eva-black);
 }
 
-.proyectos[data-mode="pin"] .proyectos-pista > li {
-  flex: 0 0 calc((100% - 2 * var(--proyectos-gap)) / 3);
+/* Solo el del proyecto al frente se ve; los otros siguen en el árbol de accesibilidad y en el orden de Tab. */
+.carrete-enlace:not([data-activo]):not(:focus-visible) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* Carrusel nativo: táctil, pantallas chicas y movimiento reducido. */
-.proyectos[data-mode="carousel"],
-.proyectos[data-mode="row"] {
+.carrete-github {
+  position: absolute;
+  z-index: 20;
+  right: 1.5rem;
+  bottom: 1.25rem;
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  color: var(--eva-gray);
+  font-family: theme('fontFamily.mono');
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.carrete-github:hover {
+  color: var(--eva-orange);
+}
+
+.carrete-pista {
+  position: absolute;
+  z-index: 20;
+  bottom: 1.25rem;
+  left: 50%;
+  margin: 0;
+  color: var(--eva-gray);
+  font-family: theme('fontFamily.mono');
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@media (max-width: 767.98px) {
+  .carrete-titulo {
+    padding-bottom: 56%;
+    font-size: 24vw;
+  }
+
+  .carrete-github {
+    right: auto;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .carrete-pista {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* Carrusel nativo de respaldo (sin WebGL 2, falla de carga, ventana baja o sin overflow: clip). */
+.proyectos[data-mode="carousel"] {
   padding-block: 5rem;
 }
 
-.proyectos[data-mode="carousel"] .proyectos-sticky,
-.proyectos[data-mode="row"] .proyectos-sticky {
+.proyectos-carrusel {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-}
-
-.proyectos[data-mode="carousel"] .proyectos-indicador-carrusel {
-  display: inline;
 }
 
 .proyectos[data-mode="carousel"] .proyectos-pista {
@@ -452,15 +573,6 @@
 .proyectos[data-mode="carousel"] .proyectos-pista > li {
   flex: 0 0 min(85vw, 26rem);
   scroll-snap-align: start;
-}
-
-/* Fila: hasta tres cards sin desplazamiento. */
-.proyectos[data-mode="row"] .proyectos-pista {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--proyectos-gap);
-  width: min(100% - 3rem, 72rem);
-  margin-inline: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

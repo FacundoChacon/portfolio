@@ -11,8 +11,10 @@
  *
  * Uso: npm run verify:build
  */
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { gzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
+import { checkChunks } from './lib/chunk-check.mjs'
 import { checkBuiltPages } from './lib/deploy-config.mjs'
 import { PRELOAD_FONT_STEMS } from './lib/font-preload.mjs'
 import { routeOutputFile } from './lib/route-html.mjs'
@@ -39,10 +41,28 @@ const errors = urls.length === 0 ? ['dist/sitemap.xml no lista ninguna URL'] : c
       assetExists: (href) => existsSync(`${dist}${href.slice(1)}`),
     })
 
+// Chunks JS: Three.js solo en su chunk bajo demanda y dentro del presupuesto.
+const assetsDir = `${dist}assets/`
+const chunks = existsSync(assetsDir)
+  ? readdirSync(assetsDir)
+      .filter((name) => name.endsWith('.js'))
+      .map((name) => {
+        const buffer = readFileSync(`${assetsDir}${name}`)
+        return { file: `dist/assets/${name}`, code: buffer.toString('utf8'), gzipBytes: gzipSync(buffer).length }
+      })
+  : []
+const indexHtml = existsSync(`${dist}index.html`) ? readFileSync(`${dist}index.html`, 'utf8') : ''
+const entryName = indexHtml.match(/<script[^>]*type="module"[^>]*src="\/assets\/([^"]+\.js)"/)?.[1]
+const entry = chunks.find((c) => c.file === `dist/assets/${entryName}`) ?? null
+errors.push(...checkChunks({ entry, chunks }))
+
 if (errors.length > 0) {
   console.error('verify:build FALLÓ:')
   for (const error of errors) console.error(`  - ${error}`)
   process.exit(1)
 }
 
-console.log(`verify:build OK (${urls.length} páginas)`)
+const three = chunks.find((c) => c !== entry && c.code.includes('WebGLRenderer'))
+console.log(
+  `verify:build OK (${urls.length} páginas; entrada ${((entry?.gzipBytes ?? 0) / 1024).toFixed(1)} KB gz, chunk 3D ${((three?.gzipBytes ?? 0) / 1024).toFixed(1)} KB gz)`,
+)

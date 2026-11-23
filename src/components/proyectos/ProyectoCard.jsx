@@ -1,15 +1,18 @@
 import { ExternalLink } from "lucide-react"
 import { GithubIcon } from "../BrandIcons"
+import { STATUS_LABELS } from "../../data/proyectos"
 import { projectLabel } from "../../utils/proyectosScroll"
 
-const STATUS = {
-  demo: { text: "Demo", className: "border-eva-orange text-eva-orange" },
-  live: { text: "En el mercado", className: "border-eva-green text-eva-green" },
-  inprogress: { text: "En curso", className: "border-eva-paper text-eva-paper" },
+const STATUS_CLASSES = {
+  demo: "border-eva-orange text-eva-orange",
+  live: "border-eva-green text-eva-green",
+  inprogress: "border-eva-paper text-eva-paper",
 }
 
 function StatusBadge({ status }) {
-  const { text, className } = STATUS[status] ?? STATUS.demo
+  const key = status in STATUS_LABELS ? status : "demo"
+  const text = STATUS_LABELS[key]
+  const className = STATUS_CLASSES[key]
   return (
     <span
       className={`inline-flex items-center gap-1.5 border px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] ${className}`}

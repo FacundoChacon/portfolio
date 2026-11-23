@@ -136,7 +136,7 @@ createCarreteEscena({ container, projects, onContextLost }) →
 
 ### D6. Carga diferida y peso
 
-- `useCarrete` crea un `IntersectionObserver` sobre la sección con `rootMargin: '0px 0px 150% 0px'` (dispara cuando la sección está a 1,5 viewports de entrar; con `#proyectos` en la URL dispara enseguida). Al primer cruce: `import('../three/carreteEscena.js')` (Vite genera un chunk separado con el adaptador + Three). Nunca se importa en modo `carousel`.
+- `useCarrete` crea un `IntersectionObserver` sobre la sección con `rootMargin: '0px 0px 40% 0px'` (dispara cuando la sección está a 0,4 viewports de entrar; con 150% la carga inicial a 1440×900 ya bajaba el chunk porque la sección arranca a ~1,8 viewports). Al primer cruce: `import('../three/carreteEscena.js')` (Vite genera un chunk separado con el adaptador + Three). Nunca se importa en modo `carousel`.
 - Ningún otro archivo importa `three` ni el adaptador de forma estática (guarda estática, D10). Vite no agrega `modulepreload` para imports dinámicos al HTML.
 - Peso: ≈ 522 KB min / **≈ 130 KB gz** (medición esbuild; Rollup ±5%); presupuesto **≤ 150 KB gz** para el chunk, verificado en `verify-build`. Texturas: 250 KB en total (los webp actuales), pedidas al crear la escena.
 - **Mientras carga**: el escenario ya muestra título, enlaces, pista y un **póster** estático (`<img>` `aria-hidden`, la imagen del proyecto al frente, al tamaño de la card central) que se oculta tras el primer cuadro WebGL. Si el `import()` rechaza → `failed` → carrusel (spec "Falla de carga").
@@ -209,6 +209,13 @@ Un solo hook (reemplaza a `usePinHorizontal`), activo con `mode === 'reel'`:
 
 - **Se elimina**: `usePinHorizontal.js`; en `proyectosScroll.js` `PER_PAGE`, `pageCount`, `ctaPlacement`, `trackItemCount`, `pageStride`, `trackOffset`, `pageOfItem`, `currentPage`, `layoutMode`; indicador "01 / 02" + barra; CSS `[data-mode="pin"]` y `[data-mode="row"]` (pista con `translate3d`, `will-change`, columnas de a tres); variante `strip` de `ProyectosCierre` si queda sin uso.
 - **Se conserva**: `src/data/proyectos.js`; `ProyectoCard` y `ProyectosCierre` (respaldo); CSS `[data-mode="carousel"]`; `scrollProgress`, `pagePosition`, `progressForPage`, `scrollTopForPage`, `settleTarget`, `pinRangeVh`, `pinHeightVh`, `projectLabel`, `SETTLE_IDLE_MS`; la técnica de medición/`pageshow`/salida de modo; `.proyectos-pin` con `--pin-vh`; sticky `top: var(--eva-nav-h)`, alto `100svh − barra`, `overflow: clip`; `overflow-x-clip` en `<main>`; ancla con el `scroll-padding-top` de la navbar.
+
+## Calibración final (verificada en Playwright, grupo 9)
+
+- `RADIUS_K = 3.6`, `DEPTH_K = 1.6` (sin cambios: 1440×900 y 1280×720 muestran 3 cards, frente ≈ 37%; 375×812 frente ≈ 77%), `CORNER_RADIUS = 0.07`, `SHADE = 0.18`, `FLEX_VELOCITY = 4`, `LEAN_K = 0.015`, `LEAN_MAX = 0.05`, `RIPPLE_SPEED = 0.8`.
+- `trackDims` mide los **bordes curvados** de la card del frente (con el borde en `bendVertex(1.19, 0, 0.30)`): `s = f·k·(CAMERA.z − Z_OFFSET) / (2·xe + f·k·(DEPTH_K + ze))`. La fórmula de D4 (con `PLANE.width`) daba ≈ 34% en vez de 37% porque ignoraba la curvatura. `projectedWidthFraction` proyecta esos mismos bordes.
+- Título: `clamp(4rem, 18vw, 17rem)` en escritorio; en < 768 px `24vw` y subido (`padding-bottom: 56%`) para que se lea sobre la card.
+- Peso medido: chunk 3D 130.5 KB gz (≈ 128 KB según `verify:build`), entrada 73.7 → 74.6 KB gz.
 
 ## Risks / Trade-offs
 

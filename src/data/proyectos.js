@@ -60,6 +60,13 @@ export const PROYECTOS = [
   },
 ]
 
+/** Texto de cada estado (fuente única para las cards y la descripción del carrete). */
+export const STATUS_LABELS = {
+  demo: "Demo",
+  live: "En el mercado",
+  inprogress: "En curso",
+}
+
 /** Perfil de GitHub (misma URL que usan Hero y Contact). */
 export const GITHUB_PERFIL_URL = "https://github.com/FacundoChacon"
 
