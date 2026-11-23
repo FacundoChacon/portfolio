@@ -12,6 +12,7 @@ import SummarySidebar from '../components/configurador/SummarySidebar.jsx'
 import SuccessStep from '../components/configurador/SuccessStep.jsx'
 import ErrorStep from '../components/configurador/ErrorStep.jsx'
 import WizardSteps from '../components/configurador/WizardSteps.jsx'
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO, PANEL } from '../components/configurador/estilos.js'
 import { extras, services } from '../data/configurador.js'
 import { useConfigurador } from '../hooks/useConfigurador.js'
 import { buildWhatsAppUrl } from '../utils/contact.js'
@@ -40,10 +41,15 @@ function StepBody({ step, wizard, contactEmail }) {
           selectedId={wizard.serviceId}
           onSelect={wizard.setService}
         />
-        <div className="glass flex items-center justify-between gap-4 p-4">
+        <div className={`${PANEL} flex items-center justify-between gap-4`}>
+          <span aria-hidden="true" className="eva-panel-label">
+            CANT {'//'} UNIDADES
+          </span>
           <div>
-            <p className="font-display text-sm text-white">Cantidad</p>
-            <p className="text-xs text-gray-400">¿Cuántos sitios o líneas de negocio?</p>
+            <p className="font-eva-display text-lg font-black uppercase text-eva-paper font-stretch-condensed">
+              Cantidad
+            </p>
+            <p className="text-xs text-eva-gray">¿Cuántos sitios o líneas de negocio?</p>
           </div>
           <QuantityControl quantity={wizard.quantity} onChange={wizard.setQuantity} />
         </div>
@@ -74,12 +80,6 @@ function StepBody({ step, wizard, contactEmail }) {
   )
 }
 
-const secondaryButton =
-  'inline-flex items-center gap-2 rounded-md border border-dark-border px-4 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green disabled:cursor-not-allowed disabled:opacity-50'
-
-const primaryButton =
-  'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark'
-
 /**
  * Página `/configurador`: layout de dos columnas con el wizard y el resumen en
  * vivo. Los cuatro pasos quedan operativos tras C-08; el envío se termina de
@@ -100,7 +100,7 @@ export default function Configurador() {
   }, [viewKey])
 
   return (
-    <div className="min-h-screen bg-dark">
+    <div className="min-h-screen bg-eva-black text-eva-paper">
       <a
         href="#contenido"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-orange focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
@@ -123,10 +123,16 @@ export default function Configurador() {
       </header>
 
       <main id="contenido" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none md:px-6 md:py-10">
-        <h1 className="font-display text-3xl font-bold gradient-text md:text-4xl">
-          Armá tu presupuesto
-        </h1>
-        <p className="mt-2 text-gray-400">Elegí tu sitio, sumá extras y dejame tus datos.</p>
+        <div className="eva-hex-grid py-6">
+          <p aria-hidden="true" className="font-mono text-xs uppercase tracking-[0.3em] text-eva-orange">
+            SYS {'//'} PRESUPUESTO
+          </p>
+          <h1 className="mt-2 font-eva-display text-4xl font-black uppercase text-eva-paper font-stretch-condensed md:text-6xl">
+            Armá tu presupuesto
+          </h1>
+          <p className="mt-2 text-eva-gray">Elegí tu sitio, sumá extras y dejame tus datos.</p>
+        </div>
+        <div className="eva-stripes h-1.5" aria-hidden="true" />
 
         <div className="mt-8">
           <WizardSteps current={wizard.step} />
@@ -156,7 +162,7 @@ export default function Configurador() {
                 <h2
                   ref={headingRef}
                   tabIndex={-1}
-                  className="mb-4 font-display text-lg font-bold text-white outline-none"
+                  className="mb-4 font-eva-display text-2xl font-black uppercase text-eva-paper outline-none font-stretch-condensed"
                 >
                   {stepTitle[wizard.step]}
                 </h2>
@@ -170,7 +176,7 @@ export default function Configurador() {
                   <button
                     type="button"
                     onClick={wizard.prevStep}
-                    className={secondaryButton}
+                    className={BOTON_SECUNDARIO}
                     disabled={wizard.submitting}
                   >
                     <ChevronLeft className="size-4" aria-hidden="true" /> Atrás
@@ -180,7 +186,7 @@ export default function Configurador() {
                 )}
 
                 {wizard.step < LAST_STEP && (
-                  <button type="button" onClick={wizard.nextStep} className={primaryButton}>
+                  <button type="button" onClick={wizard.nextStep} className={BOTON_PRIMARIO}>
                     Continuar <ArrowRight className="size-4" aria-hidden="true" />
                   </button>
                 )}

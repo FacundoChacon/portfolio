@@ -1,11 +1,14 @@
 import { Check } from 'lucide-react'
 
+import { clasePaso, estadoPaso } from './estilos.js'
+
 /**
  * Indicador de progreso del wizard (C-06).
  *
  * Muestra los 4 pasos con su estado (completado / actual / pendiente) y marca el
- * actual con `aria-current="step"`. Es de solo lectura: la navegación se hace con
- * los botones Atrás/Continuar.
+ * actual con `aria-current="step"`. Los tres estados difieren por forma además
+ * de por color: actual relleno, completado con tilde, pendiente con número.
+ * Es de solo lectura: la navegación se hace con los botones Atrás/Continuar.
  */
 const STEPS = [
   { id: 'servicio', label: 'Tipo de sitio' },
@@ -18,31 +21,19 @@ export default function WizardSteps({ current = 0 }) {
   return (
     <ol className="flex flex-wrap items-center gap-2 sm:gap-3" aria-label="Progreso del presupuesto">
       {STEPS.map((step, index) => {
-        const status = index < current ? 'done' : index === current ? 'current' : 'pending'
-        const isDone = status === 'done'
-        const isCurrent = status === 'current'
+        const estado = estadoPaso(index, current)
 
         return (
           <li
             key={step.id}
-            aria-current={isCurrent ? 'step' : undefined}
-            className={`flex items-center gap-2 rounded-md border px-3 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${
-              isCurrent
-                ? 'border-accent-green/60 text-accent-green box-glow-cyan'
-                : isDone
-                  ? 'border-accent-green/25 text-accent-green/70'
-                  : 'border-dark-border text-gray-400'
-            }`}
+            aria-current={estado === 'current' ? 'step' : undefined}
+            className={clasePaso(estado)}
           >
             <span
               aria-hidden="true"
-              className={`flex size-5 items-center justify-center rounded-full border text-[10px] ${
-                isCurrent || isDone
-                  ? 'border-accent-green/60 text-accent-green'
-                  : 'border-dark-border text-gray-400'
-              }`}
+              className="flex size-5 items-center justify-center border-2 border-current text-[10px]"
             >
-              {isDone ? <Check className="size-3" /> : index + 1}
+              {estado === 'done' ? <Check className="size-3" strokeWidth={3} /> : index + 1}
             </span>
             {step.label}
           </li>
