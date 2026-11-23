@@ -6,7 +6,7 @@ import {
   scrollProgress,
   scrollTopForPage,
   scrollTopForPosition,
-  settleTarget,
+  settleTargetDirectional,
 } from "../utils/proyectosScroll"
 import {
   canvasLabel,
@@ -72,6 +72,8 @@ export function useCarrete({ enabled, projects, onFail, sectionRef, pinRef, stag
     let front = -1
     let drawn = false
     let settleTimer = 0
+    let lastY = window.scrollY
+    let direction = 0
     let pointerActive = false
     let drag = null
     let dragRaf = 0
@@ -144,7 +146,7 @@ export function useCarrete({ enabled, projects, onFail, sectionRef, pinRef, stag
       cancelSettle()
       settleTimer = window.setTimeout(() => {
         if (pointerActive) return
-        const target = settleTarget(scrollProgress({ scrollY: window.scrollY, top, range }), count)
+        const target = settleTargetDirectional(scrollProgress({ scrollY: window.scrollY, top, range }), count, direction)
         if (target !== null) {
           window.scrollTo({ top: scrollTopForPage({ page: target, pages: count, top, range }), behavior: behavior() })
         }
@@ -152,6 +154,9 @@ export function useCarrete({ enabled, projects, onFail, sectionRef, pinRef, stag
     }
 
     function onScroll() {
+      const y = window.scrollY
+      if (y !== lastY) direction = y > lastY ? 1 : -1
+      lastY = y
       schedule()
       scheduleSettle()
     }
