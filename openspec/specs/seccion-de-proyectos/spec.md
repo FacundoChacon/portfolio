@@ -323,11 +323,15 @@ Con `prefers-reduced-motion: reduce`, el cambio de ventana SHALL ser instantáne
 
 ### Requirement: Ancla de la sección
 
-El ancla `#proyectos` SHALL llevar al comienzo de la sección con el título visible, sin quedar tapado por la navegación fija. La sección SHALL desplazarse con el scroll normal de la página, sin fijarse. Navegar el panel no SHALL agregar entradas al historial ni cambiar la posición de scroll de la página.
+El ancla `#proyectos` SHALL llevar al comienzo de la sección con el título visible, sin quedar tapado por la navegación fija. En pantallas de 768 px de alto o más, al llegar por el ancla SHALL quedar a la vista el título y las cards completas del panel. La sección SHALL desplazarse con el scroll normal de la página, sin fijarse. Navegar el panel no SHALL agregar entradas al historial ni cambiar la posición de scroll de la página.
 
 #### Scenario: Enlace "Proyectos" del nav
 - **WHEN** el visitante usa el enlace "Proyectos" de la navegación
 - **THEN** ve el título de la sección y el panel debajo de la barra fija, y el enlace "Proyectos" del nav queda marcado como sección activa
+
+#### Scenario: Cards completas en una laptop
+- **WHEN** el visitante usa el enlace "Proyectos" de la navegación en 1366×768, 1280×800 o 1440×900
+- **THEN** el final de las cards visibles (incluido su botón "Repositorio") queda dentro de la pantalla
 
 #### Scenario: Entrada directa por el ancla
 - **WHEN** el visitante carga la home directamente con `/#proyectos` (o cualquier `#id` de sección de la home) en la URL
