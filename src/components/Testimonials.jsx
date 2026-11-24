@@ -14,7 +14,7 @@ export default function Testimonials() {
     <section
       id="testimonios"
       aria-labelledby="testimonios-titulo"
-      className="eva-hex-grid relative border-t border-eva-line bg-eva-black py-24"
+      className="eva-hex-grid relative eva-seccion border-t border-eva-line bg-eva-black"
     >
       <div className="relative mx-auto max-w-6xl px-5 md:px-6">
         <div className="flex items-center gap-4">
@@ -32,7 +32,7 @@ export default function Testimonials() {
           Lo que dicen quienes ya trabajaron conmigo.
         </p>
 
-        <div ref={ref} className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div ref={ref} className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {testimonios.map((t, index) => (
             <figure
               key={t.nombre}

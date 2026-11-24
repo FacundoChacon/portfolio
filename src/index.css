@@ -18,10 +18,11 @@
     --eva-success: theme('colors.eva.success');
     --eva-error: theme('colors.eva.error');
     --eva-nav-h: 70px;
+    --eva-foco-aire: 1rem;
   }
 
   html {
-    scroll-padding-top: calc(var(--eva-nav-h) + 1rem);
+    scroll-padding-top: calc(var(--eva-nav-h) + var(--eva-foco-aire));
     scrollbar-color: var(--eva-gray-dim) var(--eva-black);
   }
 
@@ -70,6 +71,18 @@
 }
 
 @layer components {
+  /* Ritmo común de Quién soy, Proyectos, Stack y Testimonios. El scroll-margin negativo anula el aire
+     del foco (--eva-foco-aire) solo para la sección: al navegar queda pegada a la barra (scroll-padding
+     + scroll-margin = --eva-nav-h) y un control enfocado conserva su aire. Va atado al token. */
+  .eva-seccion {
+    scroll-margin-top: calc(-1 * var(--eva-foco-aire));
+    padding-block: 3rem;
+  }
+  @media (min-width: 768px) {
+    .eva-seccion {
+      padding-block: 3.5rem;
+    }
+  }
   /* Cristal de la barra: negro translúcido con desenfoque; opaco si no hay backdrop-filter */
   .eva-nav-glass {
     background-color: rgb(5 5 5 / 0.85);

@@ -5,7 +5,7 @@ export default function Stack() {
   const [ref, visible] = useReveal()
 
   return (
-    <section id="stack" aria-labelledby="stack-titulo" className="relative border-t border-eva-line bg-eva-black py-24">
+    <section id="stack" aria-labelledby="stack-titulo" className="relative eva-seccion border-t border-eva-line bg-eva-black">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex items-center gap-4">
           <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-primary-light">
@@ -24,7 +24,7 @@ export default function Stack() {
           Módulos en uso frecuente: lenguajes, frameworks y herramientas con los que construyo.
         </p>
 
-        <div className="eva-neu-surface mt-12 p-4 pt-8 sm:p-6 sm:pt-10">
+        <div className="eva-neu-surface mt-8 p-4 pt-8 sm:p-6 sm:pt-10">
           <span aria-hidden="true" className="eva-panel-label">STACK {"//"} MÓDULOS</span>
           <span aria-hidden="true" className="eva-panel-code">{`${STACK.length}/${STACK.length}`}</span>
           <ul role="list" ref={ref} className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
