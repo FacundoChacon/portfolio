@@ -53,19 +53,34 @@ Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho cons
 
 #### Scenario: Ubicación de las aletas
 - **WHEN** se inspecciona la variante completa
-- **THEN** tiene una aleta en la parte alta del lateral del triángulo alto, en la diagonal interior, en el tramo bajo del lado derecho del triángulo, en la mitad alta del lomo, en el tramo alto de la diagonal superior izquierda del reloj de arena y bajo la mitad izquierda de su base, y no tiene aletas en el círculo ni en el triángulo chico
+- **THEN** tiene una aleta en la parte alta del lateral del triángulo alto, en la diagonal interior, en el tramo bajo del lado derecho del triángulo, en la mitad alta del lomo, en el tramo alto de la diagonal superior izquierda del reloj de arena bajo la mitad izquierda de su base, en el lado exterior derecho del triángulo chico y en el borde exterior del aro (arriba a la izquierda), y ninguna barra ni el aro tienen más de una
 
 #### Scenario: Variante simple legible
 - **WHEN** se dibuja la variante simple a 16 píxeles
-- **THEN** sus barras no llevan aletas y el círculo se distingue separado del triángulo
+- **THEN** ni sus barras ni su aro llevan aletas y el aro se distingue separado del triángulo
 
 #### Scenario: Círculo
 - **WHEN** se inspecciona el círculo de cualquiera de las dos variantes
-- **THEN** es un anillo cerrado de grosor casi constante
+- **THEN** fuera de su aleta es un anillo cerrado de grosor casi constante
 
 #### Scenario: Sin efectos prohibidos
 - **WHEN** se inspecciona el SVG de cualquiera de las variantes
 - **THEN** no contiene degradados, filtros de desenfoque ni animaciones
+
+### Requirement: Aleta del aro
+El aro de la variante completa SHALL llevar una sola aleta continua en su borde exterior: una rampa recta que lleva el borde desde el radio exterior hasta un radio elevado a lo largo de un arco de 25° a 35°, una meseta concéntrica al aro en ese radio elevado a lo largo de 90° a 120° y un cierre radial recto de vuelta al radio exterior. La elevación SHALL estar entre 0.3 y 0.7 veces el grosor del aro.
+
+#### Scenario: Perfil de la aleta del aro
+- **WHEN** se inspecciona el contorno exterior del aro
+- **THEN** tiene un único tramo elevado formado por una rampa recta, un arco concéntrico de radio constante y un cierre radial, y fuera de ese tramo sigue el radio exterior
+
+#### Scenario: Aleta del aro inválida
+- **WHEN** el aro tiene más de una aleta, una meseta que no es concéntrica o una elevación fuera de 0.3 a 0.7 veces su grosor
+- **THEN** la verificación automática falla nombrando el aro
+
+#### Scenario: Aro sin costura
+- **WHEN** se mira el aro en cualquier tamaño
+- **THEN** la aleta y el aro forman una sola forma, con el filo solo en el contorno exterior
 
 ### Requirement: Silueta única sin uniones visibles
 El glifo SHALL leerse como una sola forma continua: las barras que se encuentran en un vértice SHALL unirse en inglete (los bordes exteriores en un único vértice agudo y los interiores en otro), una barra que llega a otra SHALL terminar dentro de ella, y ninguna barra SHALL sobresalir de una unión. El filo SHALL contornear solo la silueta exterior de la unión de todos los trazos y sus huecos, y la sombra SHALL ser una sola para toda la silueta.

@@ -240,7 +240,15 @@
           "tipo": "inglete",
           "con": "chico-inferior"
         },
-        "aletas": []
+        "aletas": [
+          {
+            "lado": -1,
+            "inicio": 0.2,
+            "rampa": 0.12,
+            "meseta": 0.45,
+            "alto": 2.2
+          }
+        ]
       },
       {
         "id": "chico-inferior",
@@ -274,7 +282,16 @@
           30.4,
           66.7
         ],
-        "radioInterior": 10.6
+        "radioInterior": 10.6,
+        "aletas": [
+          {
+            "lado": "exterior",
+            "inicio": 150,
+            "rampa": 30,
+            "meseta": 110,
+            "alto": 3
+          }
+        ]
       }
     ]
   },
@@ -358,7 +375,8 @@
           9.1,
           13.9
         ],
-        "radioInterior": 2
+        "radioInterior": 2,
+        "aletas": []
       }
     ]
   }
