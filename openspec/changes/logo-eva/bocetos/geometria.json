@@ -1,0 +1,383 @@
+{
+  "nota": "Barras de ancho constante entre vertices compartidos. corteDesde/corteHasta: inglete (bisectriz con la barra que comparte el vertice) o T (el extremo se corta sobre el eje de la barra anfitriona y queda oculto); sin union = escuadra. Una aleta continua { lado, inicio, rampa, meseta, alto } (fracciones del largo desde->hasta; lado 1 = normal (-uy, ux)). Pintado en 3 capas: sombra (relleno+contorno 2*filo, desplazada), filo (contorno 2*filo) y relleno sin contorno encima: solo queda visible el contorno de la silueta unida.",
+  "completo": {
+    "viewBox": "0 0 112 243",
+    "sombra": 2.6,
+    "filo": 0.55,
+    "trazos": [
+      {
+        "id": "triangulo-lateral",
+        "desde": [
+          59.2,
+          13
+        ],
+        "hasta": [
+          59.2,
+          153.4
+        ],
+        "ancho": 6.4,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "T",
+          "con": "lomo"
+        },
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.04,
+            "rampa": 0.12,
+            "meseta": 0.24,
+            "alto": 3.2
+          }
+        ]
+      },
+      {
+        "id": "triangulo-derecho",
+        "desde": [
+          59.2,
+          13
+        ],
+        "hasta": [
+          104,
+          89
+        ],
+        "ancho": 6.2,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-lateral"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "lomo"
+        },
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.6,
+            "rampa": 0.12,
+            "meseta": 0.2,
+            "alto": 2.8
+          }
+        ]
+      },
+      {
+        "id": "triangulo-interior",
+        "desde": [
+          59.2,
+          64.6
+        ],
+        "hasta": [
+          87.8,
+          112.3
+        ],
+        "ancho": 4.6,
+        "corteDesde": {
+          "tipo": "T",
+          "con": "triangulo-lateral"
+        },
+        "corteHasta": {
+          "tipo": "T",
+          "con": "lomo"
+        },
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.1,
+            "rampa": 0.25,
+            "meseta": 0.45,
+            "alto": 2.3
+          }
+        ]
+      },
+      {
+        "id": "lomo",
+        "desde": [
+          104,
+          89
+        ],
+        "hasta": [
+          16.4,
+          215
+        ],
+        "ancho": 7.2,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "reloj-base"
+        },
+        "aletas": [
+          {
+            "lado": -1,
+            "inicio": 0.05,
+            "rampa": 0.1,
+            "meseta": 0.38,
+            "alto": 3.6
+          }
+        ]
+      },
+      {
+        "id": "reloj-superior",
+        "desde": [
+          11.6,
+          125.6
+        ],
+        "hasta": [
+          64.4,
+          146
+        ],
+        "ancho": 5.2,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "reloj-diagonal"
+        },
+        "corteHasta": {
+          "tipo": "T",
+          "con": "lomo"
+        },
+        "aletas": []
+      },
+      {
+        "id": "reloj-diagonal",
+        "desde": [
+          11.6,
+          125.6
+        ],
+        "hasta": [
+          99.6,
+          233.4
+        ],
+        "ancho": 6.8,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "reloj-superior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "reloj-base"
+        },
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.03,
+            "rampa": 0.1,
+            "meseta": 0.24,
+            "alto": 3.4
+          }
+        ]
+      },
+      {
+        "id": "reloj-base",
+        "desde": [
+          16.4,
+          215
+        ],
+        "hasta": [
+          99.6,
+          233.4
+        ],
+        "ancho": 6.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "lomo"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "reloj-diagonal"
+        },
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0,
+            "rampa": 0.12,
+            "meseta": 0.38,
+            "alto": 3.3
+          }
+        ]
+      },
+      {
+        "id": "chico-superior",
+        "desde": [
+          63.8,
+          174.8
+        ],
+        "hasta": [
+          95,
+          141.2
+        ],
+        "ancho": 4.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "chico-inferior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "chico-vertical"
+        },
+        "aletas": []
+      },
+      {
+        "id": "chico-vertical",
+        "desde": [
+          95,
+          141.2
+        ],
+        "hasta": [
+          100.8,
+          211.6
+        ],
+        "ancho": 4.8,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "chico-superior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "chico-inferior"
+        },
+        "aletas": [
+          {
+            "lado": -1,
+            "inicio": 0.2,
+            "rampa": 0.12,
+            "meseta": 0.45,
+            "alto": 2.2
+          }
+        ]
+      },
+      {
+        "id": "chico-inferior",
+        "desde": [
+          63.8,
+          174.8
+        ],
+        "hasta": [
+          100.8,
+          211.6
+        ],
+        "ancho": 4.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "chico-superior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "chico-vertical"
+        },
+        "aletas": []
+      },
+      {
+        "id": "anillo",
+        "centro": [
+          29.6,
+          67.4
+        ],
+        "radio": 16.5,
+        "centroInterior": [
+          30.4,
+          66.7
+        ],
+        "radioInterior": 10.6,
+        "aletas": [
+          {
+            "lado": "exterior",
+            "inicio": 150,
+            "rampa": 30,
+            "meseta": 110,
+            "alto": 3
+          }
+        ]
+      }
+    ]
+  },
+  "simple": {
+    "viewBox": "0 0 32 32",
+    "viewBoxSinFondo": "4.5 0 22 32",
+    "sombra": 0.7,
+    "filo": 0.15,
+    "trazos": [
+      {
+        "id": "triangulo-lateral",
+        "desde": [
+          15.6,
+          5.6
+        ],
+        "hasta": [
+          15.6,
+          26.9
+        ],
+        "ancho": 2.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "triangulo-base"
+        },
+        "aletas": []
+      },
+      {
+        "id": "triangulo-derecho",
+        "desde": [
+          15.6,
+          5.6
+        ],
+        "hasta": [
+          22.9,
+          17.5
+        ],
+        "ancho": 2.5,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-lateral"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "triangulo-base"
+        },
+        "aletas": []
+      },
+      {
+        "id": "triangulo-base",
+        "desde": [
+          22.9,
+          17.5
+        ],
+        "hasta": [
+          15.6,
+          26.9
+        ],
+        "ancho": 2.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "triangulo-lateral"
+        },
+        "aletas": []
+      },
+      {
+        "id": "anillo",
+        "centro": [
+          8.9,
+          14.1
+        ],
+        "radio": 3.6,
+        "centroInterior": [
+          9.1,
+          13.9
+        ],
+        "radioInterior": 2,
+        "aletas": []
+      }
+    ]
+  }
+}

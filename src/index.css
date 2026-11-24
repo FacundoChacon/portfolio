@@ -120,6 +120,20 @@
     }
   }
 
+  /* Logotipo (LogoEva): tres capas con las mismas formas. Sombra y filo pintan la silueta con el color del filo;
+     el relleno va encima sin contorno y deja visible solo la franja exterior. Colores: --eva-logo-* (eva-tokens.js) */
+  .eva-logo-sombra,
+  .eva-logo-filo {
+    fill: var(--eva-logo-edge);
+    stroke: var(--eva-logo-edge);
+    stroke-linejoin: miter;
+    stroke-miterlimit: 2;
+  }
+  .eva-logo-relleno {
+    fill: var(--eva-logo-fill);
+    stroke: none;
+  }
+
   /* Texturas y paneles del sistema visual eva (decorativos) */
   .eva-hex-grid {
     position: relative;

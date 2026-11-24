@@ -8,7 +8,8 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
-import { EVA_THEME_COLORS } from '../src/styles/eva-tokens.js'
+import { logoSvg } from '../src/data/logo.js'
+import { EVA_LOGO_COLORS, EVA_THEME_COLORS } from '../src/styles/eva-tokens.js'
 import {
   OG_IMAGE_HEIGHT,
   OG_IMAGE_MAX_BYTES,
@@ -70,8 +71,9 @@ test('constantes del formato: 1200x630 y tope de 300 KB', () => {
 // --- buildOgImageHtml ---
 
 const FONTS = { serif: 'data:font/woff2;base64,AAAA', mono: 'data:font/woff2;base64,BBBB' }
-const html = buildOgImageHtml({ colors: EVA_THEME_COLORS, fonts: FONTS })
+const html = buildOgImageHtml({ colors: EVA_THEME_COLORS, fonts: FONTS, logoColors: EVA_LOGO_COLORS })
 const count = (text, fragment) => text.split(fragment).length - 1
+const SVG_XMLNS = 'xmlns="http://www.w3.org/2000/svg"'
 
 test('la plantilla contiene una sola vez nombre, rol y dominio', () => {
   assert.deepEqual(OG_IMAGE_TEXT, {
@@ -91,7 +93,7 @@ test('la plantilla declara 1200x630 y usa los colores de los tokens', () => {
 })
 
 test('cambiar un color de la paleta cambia la plantilla sin editarla', () => {
-  const alterada = buildOgImageHtml({ colors: { ...EVA_THEME_COLORS, primary: '#123456' }, fonts: FONTS })
+  const alterada = buildOgImageHtml({ colors: { ...EVA_THEME_COLORS, primary: '#123456' }, fonts: FONTS, logoColors: EVA_LOGO_COLORS })
   assert.ok(alterada.includes('#123456'))
   assert.ok(!alterada.toLowerCase().includes(EVA_THEME_COLORS.primary.toLowerCase()))
   assert.ok(!alterada.includes('155 92 240') && !alterada.includes('155, 92, 240'), 'tinte derivado del primario original')
@@ -101,7 +103,8 @@ test('los @font-face usan solo data URLs y no hay recursos de terceros', () => {
   const sources = [...html.matchAll(/src:\s*(url\([^)]*\)[^;]*);/g)].map((m) => m[1])
   assert.equal(sources.length, 2)
   for (const src of sources) assert.match(src, /^url\(data:font\/woff2;base64,[A-Za-z0-9+/=]+\)/)
-  assert.ok(!/https?:\/\//.test(html), 'la plantilla no puede referenciar http(s)')
+  // El unico http(s) permitido es el namespace `xmlns` del SVG del logo: no es un recurso que se descargue.
+  assert.ok(!/https?:\/\//.test(html.replaceAll(SVG_XMLNS, '')), 'la plantilla no puede referenciar http(s)')
 })
 
 test('escapeHtml neutraliza los caracteres de marcado', () => {
@@ -114,6 +117,32 @@ test('la plantilla no trae restos de la estética anterior', () => {
     scanLegacy([{ path: 'og-image.html', source: html }], { rules: LEGACY_RULES, permitidos: [], pendientes: [] }),
     [],
   )
+})
+
+// --- glifo del logotipo (change logo-eva, design D7) ---
+
+const LOGO_COMPLETO = logoSvg({ variante: 'completo', colores: EVA_LOGO_COLORS })
+
+test('la plantilla contiene el glifo completo exactamente una vez, con los colores del logo', () => {
+  assert.equal(count(html, LOGO_COMPLETO), 1)
+  for (const hex of Object.values(EVA_LOGO_COLORS)) assert.ok(html.includes(hex), `falta ${hex}`)
+  assert.equal(count(html, '<svg xmlns'), 1, 'un solo svg con namespace: el glifo (la grilla es otro svg sin xmlns)')
+})
+
+test('con logoColors falsos la plantilla usa los falsos y no los reales del logo', () => {
+  const falsos = { fill: '#111111', edge: '#222222' }
+  const alterada = buildOgImageHtml({ colors: EVA_THEME_COLORS, fonts: FONTS, logoColors: falsos })
+  assert.equal(count(alterada, logoSvg({ variante: 'completo', colores: falsos })), 1)
+  for (const real of Object.values(EVA_LOGO_COLORS)) assert.ok(!alterada.toLowerCase().includes(real.toLowerCase()), real)
+})
+
+test('el glifo va a la derecha y el contenido se acota a la izquierda para no superponerse', () => {
+  assert.match(html, /\.logo\s*\{[^}]*position:\s*absolute[^}]*right:\s*\d+px/)
+  assert.match(html, /\.content\s*\{[^}]*right:\s*(\d+)px/)
+  const derecha = Number(/\.content\s*\{[^}]*right:\s*(\d+)px/.exec(html)[1])
+  const ancho = Number(/\.logo\s*\{[^}]*width:\s*(\d+)px/.exec(html)?.[1])
+  const margen = Number(/\.logo\s*\{[^}]*right:\s*(\d+)px/.exec(html)[1])
+  assert.ok(derecha >= margen + ancho, `.content (right ${derecha}) debe dejar libre el glifo (${margen} + ${ancho})`)
 })
 
 // --- archivo publicado ---

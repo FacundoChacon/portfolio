@@ -253,3 +253,28 @@ test('Hero.jsx: la franja vertical de la figura sigue siendo secondary (eva-stri
   const linea = HERO.split('\n').find((l) => l.includes('absolute -right-6 inset-y-4'))
   assert.ok(linea && !linea.includes('eva-stripes-primary'))
 })
+
+// --- Sin glifo del logotipo (change logo-eva: el hero lo descarto el usuario) ---
+
+/**
+ * Referencias al logotipo que el hero no debe tener.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function heroLogoLeaks(source) {
+  return [/LogoEva/, /data\/logo/, /eva-logo/].filter((p) => p.test(source)).map(String)
+}
+
+test('Hero no renderiza el glifo del logotipo', () => {
+  assert.deepEqual(heroLogoLeaks(HERO), [])
+})
+
+test('heroLogoLeaks: detecta el import, el uso y las clases del logo (triangulación)', () => {
+  assert.equal(heroLogoLeaks('import LogoEva from "./LogoEva"; <LogoEva variante="completo" />').length, 1)
+  assert.equal(heroLogoLeaks('<g className="eva-logo-relleno" />').length, 1)
+  assert.equal(heroLogoLeaks('import { LOGO_VARIANTES } from "../data/logo"').length, 1)
+})
+
+test('Hero.jsx: el contenido de la columna de texto no es relative (sin envoltorio del glifo)', () => {
+  assert.ok(!HERO.includes('relative md:col-span-7'))
+})

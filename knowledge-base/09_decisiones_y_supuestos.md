@@ -60,6 +60,12 @@
 **Justificación**: pedido del dueño (el violeta lo más notorio, el naranja acompaña, el verde agua para detalles, éxito en celeste y errores en rojo claro). Todos los pares declarados cumplen WCAG 2.2 AA; el verde agua llega a 3:1 incluso contra el relleno violeta. La fuente de verdad es `EVA_ROLES` y `EVA_STATUS_ROLES` en `src/styles/eva-tokens.js`.
 **Verificación**: `scripts/jerarquia-color.test.mjs` impide nombres de color de acento en `src/`, impide los roles de estado fuera del configurador y exige `primary > secondary > tertiary` con `primary >= 1.5 x secondary` (conteo de usos en reposo). La proporción de área real se mide con Playwright.
 
+### DD-10 — Logotipo propio como geometría paramétrica única (`logo-eva`)
+**Decisión**: el logotipo es un glifo de barras rectas con ingletes y T, aletas continuas y un anillo, definido como datos en `src/data/logo.js`. Un serializador (`logoSvg`) y el componente `LogoEva` lo pintan en tres capas (sombra, filo y relleno sin contorno) y de ahí salen el favicon, el ícono táctil, la og-image y la barra (el hero no lleva glifo: se probó y el dueño lo descartó).
+**Alternativas consideradas**: calcar el raster del neón (pesado y prohibido por el pedido), un `stroke` por trazo para el filo (dibuja líneas internas en cada cruce), un `<path>` por barra (costuras de antialias) un glifo grande en el hero (descartado por el dueño) y reemplazar `FC` por el glifo en la barra (rompe la precarga de la fuente y el nombre accesible).
+**Justificación**: una sola fuente evita que favicon, barra, hero y og-image se desincronicen; los colores amarillo y rojo anaranjado son un pedido del dueño y viven fuera de la jerarquía violeta > naranja > agua para no cambiar su conteo.
+**Verificación**: `scripts/logotipo.test.mjs` (reglas de aletas y uniones sobre los parámetros, capas del SVG, contraste del relleno ≥ 4.5 y del filo ≥ 3, hex solo en `eva-tokens.js`, favicon sincronizado) más los guards de `NavBrand`, `Hero` y `og-image`.
+
 ## Supuestos inferidos
 
 ### SU-01 — Escala y operación

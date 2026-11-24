@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import { NAV_HEIGHT_PX } from '../src/utils/siteNav.js'
+import { findStyleViolations } from './lib/class-guard.mjs'
 import { ruleBody } from './lib/css-rules.mjs'
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
@@ -29,28 +30,6 @@ test('index.css: scroll-padding-top usa --eva-nav-h y coincide con NAV_HEIGHT_PX
 })
 
 const NAV_FILES = ['src/components/SiteNav.jsx', 'src/components/NavBrand.jsx']
-
-const tokenize = (source) => source.split(/[\s"'`{}<>=]+/).filter(Boolean)
-
-/**
- * Problemas de estilo en una fuente JSX de la barra: clases del sistema viejo,
- * radios, hex literales y traslación en hover sin `motion-safe:`.
- * @param {string} source
- * @returns {string[]}
- */
-function findStyleViolations(source) {
-  const found = []
-  for (const token of tokenize(source)) {
-    const base = token.replace(/\/\d+$/, '')
-    const util = base.split(':').pop()
-    if (/^(accent|neon)-/.test(util) || /-(accent|neon)-/.test(util)) found.push(token)
-    else if (/-glow-/.test(util) || /^(text|box)-glow/.test(util)) found.push(token)
-    else if (/^rounded(-|$)/.test(util)) found.push(token)
-    else if (/(^|\[)#[0-9a-f]{3,8}\]?$/i.test(util)) found.push(token)
-    else if (/\bhover:/.test(base) && /translate/.test(util) && !/motion-safe:/.test(base)) found.push(token)
-  }
-  return found
-}
 
 test('findStyleViolations: detecta lo prohibido y acepta lo permitido', () => {
   assert.deepEqual(findStyleViolations('<a className="text-accent-green">'), ['text-accent-green'])
@@ -150,6 +129,44 @@ test('NavBrand: el código //00 acompaña con el color secundario', () => {
   const brand = read('src/components/NavBrand.jsx')
   assert.match(brand, /tracking-\[0\.2em\] text-eva-secondary/)
   assert.doesNotMatch(brand, /eva-orange/)
+})
+
+/**
+ * Errores de `NavBrand.jsx` (change `logo-eva`): el glifo simple va ANTES de "FC" y no lo reemplaza.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function navBrandLogoErrors(source) {
+  const errors = []
+  if (!/import\s+LogoEva\s+from\s+["']\.\/LogoEva["']/.test(source)) errors.push('no importa LogoEva')
+  const glifo = source.indexOf('<LogoEva variante="simple"')
+  const texto = source.search(/^\s*FC\s*$/m)
+  if (glifo === -1) errors.push('no monta <LogoEva variante="simple"')
+  else if (texto !== -1 && glifo > texto) errors.push('el glifo debe ir antes de FC')
+  if (texto === -1) errors.push('el texto FC desaparecio')
+  // En 320 px el glifo desborda la barra (empuja el boton del menu fuera de pantalla): se oculta bajo 360 px.
+  if (!/<LogoEva variante="simple"[^>]*className="[^"]*\bhidden\b[^"]*\bmin-\[360px\]:block\b/.test(source)) {
+    errors.push('el glifo debe ocultarse bajo 360 px (hidden min-[360px]:block)')
+  }
+  for (const requerido of ['navCode(BRAND_CODE)', 'tracking-[0.2em] text-eva-secondary', 'sr-only', ', ir al inicio', 'to="/"', 'font-eva-display']) {
+    if (!source.includes(requerido)) errors.push(`falta ${requerido}`)
+  }
+  return errors
+}
+
+test('NavBrand monta el glifo simple junto a FC', () => {
+  assert.deepEqual(navBrandLogoErrors(read('src/components/NavBrand.jsx')), [])
+})
+
+test('navBrandLogoErrors: sin glifo, glifo despues de FC, sin FC o sin sr-only fallan', () => {
+  const real = read('src/components/NavBrand.jsx')
+  assert.ok(navBrandLogoErrors(real.replace(/<LogoEva[^>]*\/>/, '')).includes('no monta <LogoEva variante="simple"'))
+  const despues = real.replace(/ *<LogoEva[^>]*\/>\r?\n/, '').replace(/^(\s*FC\s*)$/m, '$1\n<LogoEva variante="simple" className="h-7 w-auto" />')
+  assert.notEqual(despues, real)
+  assert.ok(navBrandLogoErrors(despues).includes('el glifo debe ir antes de FC'))
+  assert.ok(navBrandLogoErrors(real.replace(/^\s*FC\s*$/m, '')).includes('el texto FC desaparecio'))
+  assert.ok(navBrandLogoErrors(real.replace('sr-only', 'hidden')).includes('falta sr-only'))
+  assert.ok(navBrandLogoErrors(real.replace('hidden ', '')).some((e) => e.includes('bajo 360 px')))
 })
 
 // --- pulido-post-auditoria: enlaces visibles y panel móvil ---

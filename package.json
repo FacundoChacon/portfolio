@@ -13,6 +13,7 @@
     "verify:deploy": "node scripts/verify-deploy.mjs",
     "verify:build": "node scripts/verify-build.mjs",
     "og:image": "node scripts/render-og-image.mjs",
+    "logo:assets": "node scripts/render-logo-assets.mjs",
     "test": "node --test \"scripts/**/*.test.mjs\"",
     "ci": "npm run lint && npm run verify:catalog && npm run verify:testimonials && npm run verify:deploy && npm run test && npm run build && npm run verify:build"
   },

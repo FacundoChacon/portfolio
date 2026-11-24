@@ -33,7 +33,7 @@
 | Prioridad | Pregunta | Estado | Dueño |
 |-----------|----------|--------|-------|
 | Baja (P-11) | ¿El PDF del presupuesto pasa al estilo eva? Hoy usa `#00ffc3` (acento), `#030303` y `#0a0a0a` como literales de `@react-pdf` (excepción declarada en `PERMITIDOS` de `scripts/lib/legacy-guard.mjs`; naranja eva sobre blanco da 2.61:1, solo decorativo) | Abierta | Facundo |
-| Baja (P-12) | ¿Se rediseñan `public/favicon.svg` (`#0D1117`/`#00FF88`), `og-image.png` y `screenshot.png` con la estética eva? Están fuera de `src/` y no los cubre el guard | Abierta | Facundo |
+| Baja (P-12) | ¿Se rediseña `public/screenshot.png` con la estética eva? Está fuera de `src/` y no lo cubre el guard (el favicon, el `apple-touch-icon.png` y `og-image.png` ya usan el logotipo del change `logo-eva`) | Abierta | Facundo |
 
 ### Nota P-07 — Fallback SPA (resuelto)
 

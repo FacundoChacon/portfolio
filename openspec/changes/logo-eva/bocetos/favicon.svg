@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="4" fill="#050505"/>
+  <g fill="#F0381E" stroke="#F0381E" stroke-width="0.3" stroke-linejoin="miter" stroke-miterlimit="2" transform="translate(0.7 0.7)">
+    <path d="M14.3 1L14.3 30.7L16.9 23.1L16.9 10.2ZM16.8 10L21.4 17.4L24.4 17.6L14.4 1.2ZM21.3 17.4L16.9 23.1L14.3 30.7L24.5 17.6Z"/>
+    <path fill-rule="evenodd" d="M5.3 14.1a3.6 3.6 0 1 0 7.2 0a3.6 3.6 0 1 0 -7.2 0ZM7.1 13.9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0Z"/>
+  </g>
+  <g fill="#F0381E" stroke="#F0381E" stroke-width="0.3" stroke-linejoin="miter" stroke-miterlimit="2">
+    <path d="M14.3 1L14.3 30.7L16.9 23.1L16.9 10.2ZM16.8 10L21.4 17.4L24.4 17.6L14.4 1.2ZM21.3 17.4L16.9 23.1L14.3 30.7L24.5 17.6Z"/>
+    <path fill-rule="evenodd" d="M5.3 14.1a3.6 3.6 0 1 0 7.2 0a3.6 3.6 0 1 0 -7.2 0ZM7.1 13.9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0Z"/>
+  </g>
+  <g fill="#FFC21A">
+    <path d="M14.3 1L14.3 30.7L16.9 23.1L16.9 10.2ZM16.8 10L21.4 17.4L24.4 17.6L14.4 1.2ZM21.3 17.4L16.9 23.1L14.3 30.7L24.5 17.6Z"/>
+    <path fill-rule="evenodd" d="M5.3 14.1a3.6 3.6 0 1 0 7.2 0a3.6 3.6 0 1 0 -7.2 0ZM7.1 13.9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0Z"/>
+  </g>
+</svg>
