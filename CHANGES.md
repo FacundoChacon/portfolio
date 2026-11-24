@@ -6,7 +6,7 @@
 
 ---
 
-> **Nota (2026-11-24) — `hero-escritura`.** Hero con entrada escrita en tres fases (texto izq→der, retrato tras un obturador, ficha der→izq), una vez por carga y con movimiento reducido en estado final. Se cierran los huecos bajo las acciones del hero y bajo los canales de Contáctame. No revive `texto-animado` (sin glitch). Trade-off de LCP: el retrato se pinta desde el primer frame bajo el obturador. Ver `openspec/changes/hero-escritura/`.
+> **Nota (2026-11-24) — `hero-escritura`.** Hero con entrada escrita en tres fases (texto izq→der, retrato tras un obturador, ficha der→izq), una vez por carga y con movimiento reducido en estado final. Se cierran los huecos bajo las acciones del hero y bajo los canales de Contáctame. No revive `texto-animado` (sin glitch). Trade-off de LCP: el retrato se pinta desde el primer frame bajo el obturador. Ver `openspec/changes/archive/2026-11-24-hero-escritura/`.
 
 ---
 
