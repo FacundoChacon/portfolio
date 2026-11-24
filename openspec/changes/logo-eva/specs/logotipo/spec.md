@@ -32,12 +32,20 @@ El glifo SHALL tener una variante completa, con el círculo, el triángulo alto 
 - **WHEN** se cuenta la cantidad de trazos de la variante simple
 - **THEN** es de como máximo 5 y todos pertenecen al triángulo alto o al círculo
 
-### Requirement: Estilo de trazo de hoja
-Cada trazo del glifo SHALL ser una forma rellena que se afina hasta terminar en punta en al menos uno de sus extremos, pintada con el color de relleno del logo, con un filo y una sombra desplazada hacia abajo y a la derecha en el color de filo del logo. El glifo NO SHALL usar degradados iridiscentes, brillos difusos ni animaciones en bucle.
+### Requirement: Estilo de trazo recto
+Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta rellena con extremos cortados en escuadra (sin puntas) y ancho casi constante: a lo largo del trazo el ancho mínimo SHALL ser al menos el 75 % del máximo, y solo algunos trazos MAY engrosar de forma lineal en un tramo. Cada trazo SHALL pintarse con el color de relleno del logo, con un filo y una sombra desplazada hacia abajo y a la derecha en el color de filo del logo. El glifo NO SHALL usar degradados iridiscentes, brillos difusos ni animaciones en bucle.
 
-#### Scenario: Trazo afilado
-- **WHEN** se inspecciona cualquier trazo de cualquiera de las dos variantes
-- **THEN** es una forma cerrada rellena que termina en punta en al menos un extremo, salvo el círculo, que es un anillo de grosor variable
+#### Scenario: Barra recta sin puntas
+- **WHEN** se inspecciona cualquier trazo de cualquiera de las dos variantes, salvo el círculo
+- **THEN** es una forma cerrada rellena sin ningún ángulo interior menor a 60° y su ancho mínimo es al menos el 75 % del máximo
+
+#### Scenario: Relieve lineal mínimo
+- **WHEN** se comparan los anchos de los trazos de cada variante
+- **THEN** al menos uno engrosa de forma lineal en un tramo y ninguno supera un 25 % de aumento
+
+#### Scenario: Círculo
+- **WHEN** se inspecciona el círculo de cualquiera de las dos variantes
+- **THEN** es un anillo cerrado de grosor casi constante
 
 #### Scenario: Sin efectos prohibidos
 - **WHEN** se inspecciona el SVG de cualquiera de las variantes
