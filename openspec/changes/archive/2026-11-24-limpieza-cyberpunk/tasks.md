@@ -58,5 +58,5 @@
   - Ninguna petición a Orbitron, Rajdhani u orígenes externos, y párrafo de cuerpo con `font-family` que empieza con `system-ui`.
 
   Verificación: tabla de pesos CSS y fuentes antes→después (crudo y gzip), lista de capturas y resultado de cada chequeo en el resumen del apply.
-- [ ] 8.2 Antes de archivar este change, confirmar que `tokens-fuentes-texturas-eva` y `configurador-estilo-eva` estén archivados (crean y modifican `sistema-visual` en `openspec/specs/`). Si no, archivarlos primero. Verificación: existe `openspec/specs/sistema-visual/spec.md` con el requisito "Coexistencia con la paleta anterior".
-- [ ] 8.3 Después del archive, si `openspec/specs/texto-animado/` quedó sin requisitos, borrar el directorio y correr `openspec validate --strict --specs`. Verificación: validación en verde y `texto-animado` ausente de `openspec list --specs`.
+- [x] 8.2 Antes de archivar este change, confirmar que `tokens-fuentes-texturas-eva` y `configurador-estilo-eva` estén archivados (crean y modifican `sistema-visual` en `openspec/specs/`). Si no, archivarlos primero. Verificación: existe `openspec/specs/sistema-visual/spec.md` con el requisito "Coexistencia con la paleta anterior".
+- [x] 8.3 Después del archive, si `openspec/specs/texto-animado/` quedó sin requisitos, borrar el directorio y correr `openspec validate --strict --specs`. Verificación: validación en verde y `texto-animado` ausente de `openspec list --specs`.

@@ -14,9 +14,9 @@ El sitio SHALL disponer de una paleta de tokens de color propia del sistema visu
 - **WHEN** un control usa el violeta sólido como relleno con texto encima
 - **THEN** el texto es negro y alcanza al menos 4.5:1
 
-#### Scenario: Violeta sólido restringido
-- **WHEN** se evalúa el violeta sólido sobre el fondo de línea
-- **THEN** el par queda declarado solo para texto grande o componentes de interfaz y alcanza al menos 3:1
+#### Scenario: Rojo y violeta restringidos
+- **WHEN** se evalúa el violeta sólido sobre el fondo de línea, o se busca un rojo sólido en la paleta
+- **THEN** el par violeta queda declarado solo para texto grande o componentes de interfaz y alcanza al menos 3:1, y la paleta ya no incluye un rojo sólido: el rojo claro es solo color de estado y cumple 4.5:1 como texto
 
 #### Scenario: Regresión de contraste
 - **WHEN** un token cambia de valor y un par declarado queda por debajo de su umbral

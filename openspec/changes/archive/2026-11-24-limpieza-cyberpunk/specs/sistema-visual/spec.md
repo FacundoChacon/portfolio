@@ -10,6 +10,10 @@ El sitio SHALL servir todas sus tipografías desde su propio origen, sin pedir h
 - **WHEN** un navegador carga la home o `/configurador`
 - **THEN** ninguna petición de red va a `fonts.googleapis.com`, `fonts.gstatic.com` ni a otro origen externo de fuentes
 
+#### Scenario: Familias actuales conservadas
+- **WHEN** se carga cualquier sección de la home o `/configurador` (todas ya migraron al sistema visual)
+- **THEN** los títulos se renderizan con la serif del sistema y las etiquetas con la monoespaciada, cada una con sus pesos actuales, sin fuentes de la estética anterior
+
 #### Scenario: Título condensado disponible
 - **WHEN** un elemento usa la familia de títulos con un ancho condensado y peso alto
 - **THEN** se renderiza con la serif de títulos estrechada, sin síntesis de negrita ni fuente de respaldo
