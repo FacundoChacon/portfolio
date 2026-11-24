@@ -10,7 +10,7 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 
-import { EVA_THEME_COLORS } from '../src/styles/eva-tokens.js'
+import { EVA_LOGO_COLORS, EVA_THEME_COLORS } from '../src/styles/eva-tokens.js'
 import {
   OG_IMAGE_HEIGHT,
   OG_IMAGE_MAX_BYTES,
@@ -33,7 +33,7 @@ const fonts = {
   mono: fontDataUrl('node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2'),
 }
 
-const html = buildOgImageHtml({ colors: EVA_THEME_COLORS, fonts })
+const html = buildOgImageHtml({ colors: EVA_THEME_COLORS, fonts, logoColors: EVA_LOGO_COLORS })
 
 let browser
 try {

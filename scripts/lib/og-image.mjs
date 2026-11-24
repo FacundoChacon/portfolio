@@ -5,6 +5,8 @@
  * el PNG; acá solo vive lo que se puede testear sin navegador.
  */
 
+import { logoSvg } from '../../src/data/logo.js'
+
 export const OG_IMAGE_WIDTH = 1200
 export const OG_IMAGE_HEIGHT = 630
 /** Tope de peso para que las previews de mensajería la acepten. */
@@ -69,11 +71,12 @@ const HEX_PATH =
 /**
  * HTML completo de la imagen, autocontenido (fuentes como data URLs, sin
  * recursos externos).
- * @param {{ colors: Record<string, string>, fonts: { serif: string, mono: string } }} options
- *   `colors`: roles de la paleta a hex (`EVA_THEME_COLORS`); `fonts`: data URLs `data:font/woff2;base64,…`
+ * @param {{ colors: Record<string, string>, fonts: { serif: string, mono: string }, logoColors: { fill: string, edge: string } }} options
+ *   `colors`: roles de la paleta a hex (`EVA_THEME_COLORS`); `fonts`: data URLs `data:font/woff2;base64,…`;
+ *   `logoColors`: relleno y filo del glifo (`EVA_LOGO_COLORS`)
  * @returns {string}
  */
-export function buildOgImageHtml({ colors, fonts }) {
+export function buildOgImageHtml({ colors, fonts, logoColors }) {
   const { black, paper, gray, primary, secondary, tertiary } = colors
   const primaryLight = colors['primary-light']
   const text = Object.fromEntries(Object.entries(OG_IMAGE_TEXT).map(([key, value]) => [key, escapeHtml(value)]))
@@ -100,10 +103,12 @@ html, body { width: ${OG_IMAGE_WIDTH}px; height: ${OG_IMAGE_HEIGHT}px; overflow:
 .grid { position: absolute; inset: 0; }
 .frame { position: absolute; inset: 28px; border: 4px solid ${primary}; }
 .stripes { position: absolute; left: 28px; right: 28px; bottom: 28px; height: 22px; background: repeating-linear-gradient(-45deg, ${secondary} 0 14px, ${black} 14px 28px); }
-.content { position: absolute; left: 84px; right: 84px; top: 84px; bottom: 100px; display: flex; flex-direction: column; justify-content: center; }
+.logo { position: absolute; right: 72px; top: 86px; width: 203px; height: 440px; }
+.logo svg { display: block; width: 100%; height: 100%; }
+.content { position: absolute; left: 84px; right: 276px; top: 84px; bottom: 100px; display: flex; flex-direction: column; justify-content: center; }
 .label { font-size: 26px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: ${primaryLight}; margin-bottom: 28px; }
 .label b { color: ${secondary}; font-weight: 700; }
-.name { font-family: 'Noto Serif Display', serif; font-weight: 900; font-stretch: 62.5%; font-variation-settings: 'wdth' 62.5; font-size: 118px; line-height: 0.95; letter-spacing: -0.01em; text-transform: uppercase; color: ${paper}; white-space: nowrap; }
+.name { font-family: 'Noto Serif Display', serif; font-weight: 900; font-stretch: 62.5%; font-variation-settings: 'wdth' 62.5; font-size: 98px; line-height: 0.95; letter-spacing: -0.01em; text-transform: uppercase; color: ${paper}; white-space: nowrap; }
 .rule { width: 160px; height: 8px; background: ${primary}; margin: 36px 0 30px; }
 .role { font-size: 36px; font-weight: 500; color: ${gray}; }
 .domain { margin-top: 34px; font-size: 40px; font-weight: 700; color: ${tertiary}; }
@@ -121,6 +126,7 @@ html, body { width: ${OG_IMAGE_WIDTH}px; height: ${OG_IMAGE_HEIGHT}px; overflow:
     <rect width="100%" height="100%" fill="url(#hex)"></rect>
   </svg>
   <div class="frame"></div>
+  <div class="logo" aria-hidden="true">${logoSvg({ variante: 'completo', colores: logoColors })}</div>
   <div class="content">
     <p class="label"><b>SYS</b> // FICHA</p>
     <h1 class="name">${text.name}</h1>
