@@ -19,6 +19,8 @@ import { LOGO_VARIANTES, logoSvg, trazoPath } from '../src/data/logo.js'
 import { findStyleViolations } from './lib/class-guard.mjs'
 import { ruleBody } from './lib/css-rules.mjs'
 import { checkContrastPairs } from './lib/contrast.mjs'
+import { faviconSvg, touchIconSvg } from './lib/logo-assets.mjs'
+import { readPngInfo } from './lib/og-image.mjs'
 
 // --- Colores del logotipo como tokens (design D2) ---------------------------
 
@@ -712,4 +714,54 @@ test('logoCssErrors: relleno con --eva-secondary, sin reglas o con animation fal
   ])
   const animado = CSS.replace('stroke: none', 'stroke: none; animation: x 1s')
   assert.ok(logoCssErrors(animado).some((e) => e.includes('animation')))
+})
+
+// --- Favicon e icono tactil (design D6) -------------------------------------
+
+/** Normaliza finales de linea: `core.autocrlf` puede dejar CRLF en el arbol de trabajo de Windows. */
+const lf = (text) => text.replace(/\r\n/g, '\n')
+
+/**
+ * Errores de sincronia entre un archivo publicado y lo que genera la fuente unica.
+ * @param {string} path
+ * @param {string} actual contenido del archivo
+ * @param {string} esperado salida del serializador
+ * @returns {string[]}
+ */
+function syncErrors(path, actual, esperado) {
+  return lf(actual) === esperado ? [] : [`${path} esta desincronizado con la geometria de src/data/logo.js (npm run logo:assets)`]
+}
+
+test('public/favicon.svg es identico a logoSvg simple sobre fondo black', () => {
+  const esperado = logoSvg({ variante: 'simple', colores: EVA_LOGO_COLORS, fondo: EVA_COLORS.black })
+  assert.equal(faviconSvg(), esperado)
+  assert.deepEqual(syncErrors('public/favicon.svg', read('public/favicon.svg'), esperado), [])
+})
+
+test('syncErrors: una copia del favicon con un trazo alterado falla nombrando el archivo', () => {
+  const esperado = faviconSvg()
+  const alterado = read('public/favicon.svg').replace('M14.3 1L', 'M14.4 1L')
+  assert.notEqual(alterado, read('public/favicon.svg'))
+  const errores = syncErrors('public/favicon.svg', alterado, esperado)
+  assert.equal(errores.length, 1)
+  assert.ok(errores[0].startsWith('public/favicon.svg'))
+  assert.deepEqual(syncErrors('public/favicon.svg', esperado.replace(/\n/g, '\r\n'), esperado), [], 'CRLF se normaliza')
+})
+
+test('touchIconSvg: mismo glifo y fondo que el favicon pero sin esquinas redondeadas', () => {
+  const touch = touchIconSvg()
+  assert.ok(!touch.includes('rx='), 'iOS aplica las esquinas')
+  assert.equal(touch, faviconSvg().replace(' rx="4"', ''))
+  assert.match(logoSvg({ variante: 'simple', colores: EVA_LOGO_COLORS, fondo: '#111111', radioFondo: 8 }), /rx="8" fill="#111111"/)
+})
+
+test('public/apple-touch-icon.png existe y mide 180x180', () => {
+  const info = readPngInfo(readFileSync(new URL('public/apple-touch-icon.png', ROOT)))
+  assert.deepEqual({ width: info.width, height: info.height }, { width: 180, height: 180 })
+})
+
+test('index.html declara el favicon SVG y el apple-touch-icon', () => {
+  const html = read('index.html')
+  assert.match(html, /<link rel="icon" type="image\/svg\+xml" href="\/favicon\.svg" \/>/)
+  assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png" \/>/)
 })

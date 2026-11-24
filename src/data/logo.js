@@ -190,11 +190,12 @@ export const trazoDelFilo = (variante) => Math.round(variante.filo * 2 * 100) / 
  * SVG del logotipo como texto (lo usan la plantilla de `og-image` y el generador del favicon).
  * Tres capas con las mismas formas: sombra desplazada, filo y relleno sin contorno encima, así
  * del filo solo queda visible la franja exterior de la silueta unida.
- * @param {{ variante: keyof typeof LOGO_VARIANTES, colores: { fill: string, edge: string }, fondo?: string, conDimensiones?: boolean }} opciones
+ * @param {{ variante: keyof typeof LOGO_VARIANTES, colores: { fill: string, edge: string }, fondo?: string, radioFondo?: number, conDimensiones?: boolean }} opciones
+ *   `fondo` agrega un rectángulo de ese color (con esquinas de `radioFondo`, 4 por defecto) debajo de las capas
  * @returns {string}
  * @throws {Error} si `variante` no existe
  */
-export function logoSvg({ variante, colores, fondo, conDimensiones = false }) {
+export function logoSvg({ variante, colores, fondo, radioFondo = 4, conDimensiones = false }) {
   const v = LOGO_VARIANTES[variante]
   if (!v) throw new Error(`logo: variante inexistente ${JSON.stringify(variante)}`)
   const { barras, anillo } = logoPaths(v)
@@ -202,7 +203,8 @@ export function logoSvg({ variante, colores, fondo, conDimensiones = false }) {
   const contorno = `fill="${colores.edge}" stroke="${colores.edge}" stroke-width="${trazoDelFilo(v)}" stroke-linejoin="miter" stroke-miterlimit="2"`
   const [, , ancho, alto] = v.viewBox.split(' ')
   const dimensiones = conDimensiones ? ` width="${ancho}" height="${alto}"` : ''
-  const rect = fondo ? `  <rect width="${ancho}" height="${alto}" rx="4" fill="${fondo}"/>\n` : ''
+  const esquinas = radioFondo > 0 ? ` rx="${radioFondo}"` : ''
+  const rect = fondo ? `  <rect width="${ancho}" height="${alto}"${esquinas} fill="${fondo}"/>\n` : ''
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${v.viewBox}"${dimensiones}>
 ${rect}  <g ${contorno} transform="translate(${v.sombra} ${v.sombra})">
 ${formas}
