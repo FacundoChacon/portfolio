@@ -231,3 +231,36 @@ test('el código de Contacto en HOME_NAV_LINKS es el último de la barra y se ar
   assert.equal(HOME_NAV_LINKS.at(-1).code, String(HOME_NAV_LINKS.length).padStart(2, '0'))
   assert.equal(homeNavLinks([{}]).at(-1).code, '06')
 })
+
+// --- Columnas equilibradas (change hero-escritura, D2) ---------------------
+
+/**
+ * Problemas de la grilla de canales que dejan un hueco bajo el último canal.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function channelGridProblems(source) {
+  const problems = []
+  const ul = source.match(/<ul\b[^>]*>/)?.[0] ?? ''
+  if (!/(?<![\w:-])content-start(?![\w-])/.test(ul)) problems.push('la lista perdió content-start (móvil)')
+  for (const token of ['lg:auto-rows-fr', 'lg:content-stretch']) {
+    if (!new RegExp(String.raw`(?<![\w:-])${token}(?![\w-])`).test(ul)) problems.push(`falta ${token} en la lista`)
+  }
+  if (/(?<![\w:-])auto-rows-fr(?![\w-])/.test(ul)) problems.push('auto-rows-fr sin prefijo lg: estira en móvil')
+  const classes = source.match(/CHANNEL_CLASSES\s*=\s*\n?\s*"([^"]*)"/)?.[1] ?? ''
+  if (!/(?<![\w:-])lg:h-full(?![\w-])/.test(classes)) problems.push('falta lg:h-full en los canales')
+  return problems
+}
+
+test('Contact.jsx: los canales llenan el alto del panel solo desde lg', () => {
+  assert.deepEqual(channelGridProblems(CONTACT), [])
+})
+
+test('channelGridProblems: rechaza el markup actual y la variante sin prefijo lg: (triangulación)', () => {
+  const actual = `const CHANNEL_CLASSES =\n  "eva-channel relative flex min-h-[4.5rem]"\n<ul className="grid content-start gap-5 lg:col-span-7">`
+  assert.equal(channelGridProblems(actual).length, 3)
+  const sinPrefijo = `const CHANNEL_CLASSES = "eva-channel lg:h-full"\n<ul className="grid content-start auto-rows-fr lg:auto-rows-fr lg:content-stretch gap-5">`
+  assert.deepEqual(channelGridProblems(sinPrefijo), ['auto-rows-fr sin prefijo lg: estira en móvil'])
+  const bueno = `const CHANNEL_CLASSES = "eva-channel lg:h-full"\n<ul className="grid content-start gap-5 lg:auto-rows-fr lg:content-stretch lg:col-span-7">`
+  assert.deepEqual(channelGridProblems(bueno), [])
+})
