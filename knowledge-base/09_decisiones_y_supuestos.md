@@ -97,3 +97,9 @@
 **Origen**: el `og:image` apunta a `facucode.dev` con CI en GitHub Actions.
 **Riesgo si es falso**: `/configurador` daría 404 en recarga directa.
 **Cómo validar**: probar recarga directa tras el deploy.
+
+### Hero: entrada escrita en tres fases y sin huecos (change `hero-escritura`)
+**Decisión**: el hero entra escrito (~3,1 s, constantes en `src/utils/escritura.js`): fase A, kicker, nombre, subtítulo y descripción de izquierda a derecha y luego las acciones; fase B, el retrato aparece tras un obturador decorativo; fase C, la ficha se escribe de derecha a izquierda (valor y luego etiqueta). Corre una vez por carga; cualquier tecla, foco en el hero o movimiento reducido la completan. Cada texto lleva copia `sr-only` más una capa `aria-hidden` con un `<span>` por carácter (solo cambia su clase, `text-transparent` hasta escribirse), cursor de bloque sólido sin parpadeo como fondo del próximo carácter, sin estilos inline (CSP). El hueco bajo las acciones se cerró superponiendo la ficha a la camisa del retrato y quitando `min-h-screen`/`md:mt-16`; en Contáctame los canales se estiran al alto del panel desde `lg`.
+**No revive `texto-animado`**: no hay glitch ni revuelto de caracteres; el guard global contra `glitch`/`flicker`/`scan` sigue vigente.
+**Trade-off de LCP**: la `<img>` del retrato se pinta desde el primer frame bajo el obturador, así que el LCP de escritorio no cambia aunque el retrato se vea recién a ~2 s.
+**Aprendizaje**: partir un texto en dos `<span>` (escrito/reservado) suma CLS (~0,1 en escritorio y 0,4 en móvil) porque Chrome cuenta el movimiento de los nodos de texto y de un cursor absoluto; un `<span>` por carácter con cambio de clase da CLS ≈ 0,002.

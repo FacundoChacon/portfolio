@@ -6,7 +6,7 @@
 
 - [x] 1.1 Correr `npm test` en la rama sin cambios y anotar cuántos tests pasan. Si hay fallas previas, detenerse y reportarlas. Verificación: conteo en el resumen del apply.
 - [x] 1.2 Línea de base medida en `main` (build + preview, Playwright): alto de la sección, fin de las acciones y fin de la columna derecha del hero, y fin del panel y del último canal de contacto, en 375/768/1024/1280/1440/1920. LCP (elemento y tiempo) y CLS de `/` en 1440×900 y 375×812, con y sin `reducedMotion: 'reduce'`, tomando la mediana de 3 corridas. Verificación: tabla en el resumen; debe coincidir con la de design (Context) salvo ruido.
-- [ ] 1.3 Spike del obturador (design D4), en una página aislada del scratchpad que reproduzca la sección: `isolation: isolate`, grilla en `::before` con `z-index:-1`, `figure` con `z-index` menor y obturador encima. Medir que la `<img>` reporte LCP en el primer frame y que el obturador se confunda con el fondo y su grilla. Si alguna de las dos falla, aplicar el plan B "tarjeta en espera" de D4 y anotarlo. Verificación: entradas de LCP y captura en el resumen, con la decisión tomada.
+- [x] 1.3 Spike del obturador (design D4), en una página aislada del scratchpad que reproduzca la sección: `isolation: isolate`, grilla en `::before` con `z-index:-1`, `figure` con `z-index` menor y obturador encima. Medir que la `<img>` reporte LCP en el primer frame y que el obturador se confunda con el fondo y su grilla. Si alguna de las dos falla, aplicar el plan B "tarjeta en espera" de D4 y anotarlo. Verificación: entradas de LCP y captura en el resumen, con la decisión tomada.
 
 ## 2. Hueco del hero (design D1)
 
@@ -20,7 +20,7 @@
 
 ## 4. Datos y helpers puros de escritura (design D5)
 
-- [ ] 4.1 RED/GREEN en `scripts/hero.test.mjs`: `src/data/presentacion.js` exporta `KICKER` ("01 // Presentación") y `DESCRIPCION`, con el texto exacto que hoy está en `Hero.jsx`. Triangular: no vacíos, sin espacios dobles ni saltos de línea. Mover los textos y hacer que `Hero.jsx` los use, sin cambio visual. Verificación: tests en verde y texto renderizado idéntico (Playwright `textContent` antes y después).
+- [x] 4.1 RED/GREEN en `scripts/hero.test.mjs`: `src/data/presentacion.js` exporta `KICKER` ("01 // Presentación") y `DESCRIPCION`, con el texto exacto que hoy está en `Hero.jsx`. Triangular: no vacíos, sin espacios dobles ni saltos de línea. Mover los textos y hacer que `Hero.jsx` los use, sin cambio visual. Verificación: tests en verde y texto renderizado idéntico (Playwright `textContent` antes y después).
 - [x] 4.2 RED/GREEN/TRIANGULATE de `partirTexto(texto, visibles, direccion)` en el nuevo `scripts/escritura.test.mjs`. Casos:
   - izq→der con 0, n y largo.
   - der→izq con 0, n y largo.
@@ -63,7 +63,7 @@
 
 ## 6. Hook `useEscrituraHero` (design D6)
 
-- [ ] 6.1 RED: guard estático sobre `src/hooks/useEscrituraHero.js`:
+- [x] 6.1 RED: guard estático sobre `src/hooks/useEscrituraHero.js`:
   - Importa `prefersReducedMotion`/`REDUCED_MOTION_QUERY` de `utils/motion` y los helpers de `utils/escritura`.
   - Usa `requestAnimationFrame` con su `cancelAnimationFrame` en el cleanup.
   - Escucha `keydown`, `focusin` y el `change` de `matchMedia` y los remueve.
@@ -71,11 +71,11 @@
   - No contiene `setInterval`, `style` ni timers sin limpiar.
 
   Triangular con un hook de ejemplo que no cancela el rAF, que tiene que fallar. Verificación: el test falla.
-- [ ] 6.2 GREEN: implementar el hook. Estado inicial síncrono, `t0` en `ref` (seguro ante `StrictMode`), `setState` solo si `!mismoEstado` y salida `{ fase, visibles }`. Verificación: tests en verde, `npm run lint` sin advertencias de `react-hooks` y `npm run dev` sin errores en consola con `StrictMode`.
+- [x] 6.2 GREEN: implementar el hook. Estado inicial síncrono, `t0` en `ref` (seguro ante `StrictMode`), `setState` solo si `!mismoEstado` y salida `{ fase, visibles }`. Verificación: tests en verde, `npm run lint` sin advertencias de `react-hooks` y `npm run dev` sin errores en consola con `StrictMode`.
 
 ## 7. Integración en el hero (design D4, D7)
 
-- [ ] 7.1 RED: reescribir en `scripts/hero.test.mjs` el test "el retrato y el h1 no se animan ni se ocultan" al nuevo contrato:
+- [x] 7.1 RED: reescribir en `scripts/hero.test.mjs` el test "el retrato y el h1 no se animan ni se ocultan" al nuevo contrato:
   - La etiqueta `<img>` no lleva `animate-`, `opacity-`, `invisible`, `hidden` ni `clip`, y mantiene `fetchpriority="high"`.
   - El `<h1>` mantiene su `aria-label` y no lleva clases de animación ni de ocultamiento.
   - Existe un obturador `aria-hidden` dentro de la `figure`.
@@ -84,29 +84,29 @@
   - Los cuatro textos de la columna izquierda y las ocho celdas de la ficha usan `TextoEscrito`.
 
   Sumar un guard de `package.json` que falle si aparecen `gsap`, `framer-motion`, `motion`, `typed.js` o `react-type-animation`. Verificación: el test falla.
-- [ ] 7.2 GREEN: integrar en `Hero.jsx` el hook, `TextoEscrito` en el kicker, el nombre, el subtítulo, la descripción y en `dt`/`dd` de la ficha (der→izq, primero el valor y después la etiqueta), las acciones con `opacity-0` → `motion-safe:animate-eva-boot`, la ficha por fases y el obturador según el resultado de 1.3. La franja inferior conserva su `eva-boot`. Verificación: `npm test`, `npm run lint` y `npm run build` en verde.
-- [ ] 7.3 Actualizar `knowledge-base/` (el archivo que describe el hero y el motion) y agregar al inicio de `CHANGES.md` una nota fechada `hero-escritura`. La nota cubre los huecos del hero y del contacto arreglados, la entrada escrita en tres fases, que no revive `texto-animado` y el trade-off de LCP de D4. Verificación: las dos menciones presentes y `grep -n "hero-escritura" CHANGES.md` devuelve la nota.
+- [x] 7.2 GREEN: integrar en `Hero.jsx` el hook, `TextoEscrito` en el kicker, el nombre, el subtítulo, la descripción y en `dt`/`dd` de la ficha (der→izq, primero el valor y después la etiqueta), las acciones con `opacity-0` → `motion-safe:animate-eva-boot`, la ficha por fases y el obturador según el resultado de 1.3. La franja inferior conserva su `eva-boot`. Verificación: `npm test`, `npm run lint` y `npm run build` en verde.
+- [x] 7.3 Actualizar `knowledge-base/` (el archivo que describe el hero y el motion) y agregar al inicio de `CHANGES.md` una nota fechada `hero-escritura`. La nota cubre los huecos del hero y del contacto arreglados, la entrada escrita en tres fases, que no revive `texto-animado` y el trade-off de LCP de D4. Verificación: las dos menciones presentes y `grep -n "hero-escritura" CHANGES.md` devuelve la nota.
 
 ## 8. Verificación integrada y checkpoint
 
-- [ ] 8.1 Playwright sobre el build con la CSP de `vercel.json` inyectada como cabecera (`page.route`):
+- [x] 8.1 Playwright sobre el build con la CSP de `vercel.json` inyectada como cabecera (`page.route`):
   - Sin movimiento reducido, en 1440 y 375: secuencia A → acciones → B → C en el orden de la spec, la duración total hasta el último carácter de la ficha ≤ 3,5 s y consola sin violaciones de CSP ni errores.
   - Con `reducedMotion: 'reduce'`: primer frame en estado final, sin obturador.
   - Navegar a `/configurador/` y volver a `/` por SPA: sin reescritura.
   - Tab a los 300 ms: estado final inmediato y foco visible en "Ver proyectos".
 
   Verificación: resultados en el resumen.
-- [ ] 8.2 Accesibilidad y SEO durante la fase A (a ~500 ms):
+- [x] 8.2 Accesibilidad y SEO durante la fase A (a ~500 ms):
   - El `ariaSnapshot` de `#presentacion` contiene el nombre "Facundo Chacón", el rol, la descripción completa y las cuatro filas de la ficha completas, sin fragmentos ni el cursor.
   - El `textContent` de la sección en el primer render ya incluye todos esos textos.
 
   Verificación: snapshots en el resumen.
-- [ ] 8.3 Métricas con la misma metodología que 1.2 (mediana de 3):
+- [x] 8.3 Métricas con la misma metodología que 1.2 (mediana de 3):
   - CLS ≤ 0,1 en 1440 y 375.
   - LCP de 1440 ≤ base + 10 % (el candidato sigue siendo el retrato).
   - LCP de 375 ≤ base + 1 s.
   - Con movimiento reducido, LCP ≤ base + 10 % en ambos anchos.
 
   Si el LCP de 375 supera la cota, aplicar el plan B "texto fantasma" de D4 y volver a medir. Verificación: tabla antes → después en el resumen.
-- [ ] 8.4 Grabar con Playwright (`recordVideo`) la entrada completa del hero en 1440×900 y en 375×812 (5 s cada una, sin movimiento reducido), y guardarla en el scratchpad como `hero-escritura-1440.webm` y `hero-escritura-375.webm`. Sumar capturas finales del hero y del contacto en 375/768/1024/1440/1920. Verificación: archivos presentes con sus rutas absolutas en el resumen.
+- [x] 8.4 Grabar con Playwright (`recordVideo`) la entrada completa del hero en 1440×900 y en 375×812 (5 s cada una, sin movimiento reducido), y guardarla en el scratchpad como `hero-escritura-1440.webm` y `hero-escritura-375.webm`. Sumar capturas finales del hero y del contacto en 375/768/1024/1440/1920. Verificación: archivos presentes con sus rutas absolutas en el resumen.
 - [ ] 8.5 `npm run ci` completo en verde (lint, verify:*, tests, build, verify:build) y conteo de tests contra 1.1. Checkpoint MEDIUM: presentar al usuario los videos, las capturas antes → después y la tabla de métricas, y esperar su visto bueno antes de cerrar. Verificación: salida de `npm run ci` y respuesta del usuario anotadas en el resumen.
