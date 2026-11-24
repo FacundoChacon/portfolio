@@ -129,3 +129,22 @@ export function brandBaseStyles(colors = EVA_BRAND_COLORS) {
     }),
   )
 }
+
+/**
+ * Colores del logotipo (change `logo-eva`): relleno amarillo y filo/sombra rojo anaranjado.
+ * Son decorativos y viven FUERA de `EVA_COLORS`, de `EVA_THEME_COLORS` y de la jerarquía de
+ * roles: no generan clases de Tailwind. Llegan al CSS como `--eva-logo-fill` / `--eva-logo-edge`
+ * (`logoBaseStyles`). `fill` contrasta >= 4.5 y `edge` >= 3 contra black y panel
+ * (`scripts/logotipo.test.mjs`). El filo es más rojo que el naranja secundario a propósito.
+ */
+export const EVA_LOGO_COLORS = { fill: '#FFC21A', edge: '#F0381E' }
+
+/**
+ * Estilos de la capa base de Tailwind: las variables del logo en `:root`, para que
+ * `LogoEva` las use por clase (sin estilos inline: la CSP no admite `'unsafe-inline'`).
+ * @param {{ fill: string, edge: string }} [colors]
+ * @returns {{ ':root': { '--eva-logo-fill': string, '--eva-logo-edge': string } }}
+ */
+export function logoBaseStyles(colors = EVA_LOGO_COLORS) {
+  return { ':root': { '--eva-logo-fill': colors.fill, '--eva-logo-edge': colors.edge } }
+}
