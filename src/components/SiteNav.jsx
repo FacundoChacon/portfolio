@@ -3,9 +3,9 @@ import { Link } from "react-router-dom"
 import { Download, Menu, X } from "lucide-react"
 
 import NavBrand from "./NavBrand"
+import { HOME_NAV_LINKS } from "../utils/homeNav"
 import {
   NAV_HEIGHT_PX,
-  NAV_LINKS,
   menuKeyAction,
   navCode,
   navHref,
@@ -13,7 +13,7 @@ import {
   sectionObserverOptions,
 } from "../utils/siteNav"
 
-const SECTION_ORDER = NAV_LINKS.map((link) => link.id)
+const SECTION_ORDER = HOME_NAV_LINKS.map((link) => link.id)
 
 /** Hover duro: sombra sólida sin desenfoque y desplazamiento solo con movimiento permitido. */
 const hardHover =
@@ -84,7 +84,7 @@ export default function SiteNav() {
           >
             <NavBrand />
             <ul className="hidden items-center gap-1 md:flex">
-              {NAV_LINKS.map((link) => {
+              {HOME_NAV_LINKS.map((link) => {
                 const isActive = active === link.id
                 return (
                   <li key={link.id}>
@@ -134,7 +134,7 @@ export default function SiteNav() {
         <div className="eva-stripes h-1.5" aria-hidden="true" />
         <div
           id="mobile-nav"
-          className={`md:hidden ${open ? "block" : "hidden"} border-b-2 border-eva-primary bg-eva-black`}
+          className={`eva-mobile-nav md:hidden ${open ? "block" : "hidden"} border-b-2 border-eva-primary bg-eva-black`}
         >
           <ul className="flex flex-col px-4 py-3">
             <li className="sm:hidden">
@@ -146,7 +146,7 @@ export default function SiteNav() {
                 Armá tu web
               </Link>
             </li>
-            {NAV_LINKS.map((link) => {
+            {HOME_NAV_LINKS.map((link) => {
               const isActive = active === link.id
               return (
                 <li key={link.id}>

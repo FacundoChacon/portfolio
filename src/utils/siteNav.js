@@ -18,8 +18,22 @@ export const NAV_LINKS = [
   { id: 'quien-soy', label: 'Quién soy', code: '02' },
   { id: 'proyectos', label: 'Proyectos', code: '03' },
   { id: 'stack', label: 'Stack', code: '04' },
-  { id: 'contacto', label: 'Contáctame', code: '05' },
+  { id: 'testimonios', label: 'Testimonios', code: '05' },
+  { id: 'contacto', label: 'Contáctame', code: '06' },
 ]
+
+/**
+ * Enlaces visibles: quita los ids ocultos y renumera los códigos por posición
+ * (`01`, `02`, …) para que la secuencia no tenga huecos.
+ * @param {{ id: string, label: string, code: string }[]} links
+ * @param {string[]} hiddenIds ids a omitir; los inexistentes se ignoran
+ * @returns {{ id: string, label: string, code: string }[]} copia nueva, sin mutar `links`
+ */
+export function visibleNavLinks(links, hiddenIds) {
+  return links
+    .filter((link) => !hiddenIds.includes(link.id))
+    .map((link, index) => ({ ...link, code: String(index + 1).padStart(2, '0') }))
+}
 
 /**
  * Ancla de una sección.

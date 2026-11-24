@@ -6,7 +6,7 @@
  * se ocupa de leer los archivos y de fijar el código de salida.
  */
 import { extractHeadMeta } from './route-html.mjs'
-import { resolveRouteMeta } from '../../src/data/seo.js'
+import { canonicalUrl, resolveRouteMeta } from '../../src/data/seo.js'
 
 /** Hosts de Google Apps Script que el webhook necesita en `connect-src` (envío + redirección 302). */
 export const WEBHOOK_HOSTS = ['https://script.google.com', 'https://script.googleusercontent.com']
@@ -200,7 +200,8 @@ export function checkVercelConfig(config) {
 }
 
 const SITEMAP_NAMESPACE = 'http://www.sitemaps.org/schemas/sitemap/0.9'
-const SITE_ORIGIN = 'https://www.facucode.dev/'
+/** Origen del sitio con barra final; única fuente: `src/data/seo.js`. */
+export const SITE_ORIGIN = canonicalUrl('/')
 
 /**
  * Valida un sitemap XML (parseo con regex: el archivo es propio y simple).

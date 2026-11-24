@@ -1,6 +1,7 @@
 import { Mail, MapPin } from "lucide-react"
 import { GithubIcon, LinkedinIcon } from "./BrandIcons"
 import { useReveal } from "../hooks/useReveal"
+import { HOME_NAV_LINKS } from "../utils/homeNav"
 import {
   buildContactChannels,
   channelCode,
@@ -17,6 +18,7 @@ const CHANNEL_CLASSES =
   "group relative flex min-h-[4.5rem] items-stretch border-2 border-eva-gray-dim bg-eva-panel hover:border-eva-secondary hover:shadow-[6px_6px_0_0_var(--eva-secondary)] focus-visible:border-eva-secondary focus-visible:shadow-[6px_6px_0_0_var(--eva-secondary)] active:shadow-none motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:active:translate-y-0"
 
 export default function Contact() {
+  const { code } = HOME_NAV_LINKS.find((link) => link.id === "contacto")
   const [ref, visible] = useReveal({ threshold: 0.1 })
 
   return (
@@ -25,7 +27,7 @@ export default function Contact() {
       <div className="mx-auto max-w-6xl px-4 pt-20 md:px-6">
         <div className="flex items-center gap-4">
           <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-primary-light">
-            05 {"//"}
+            {code} {"//"}
           </p>
           <h2 className="font-eva-display text-4xl font-black uppercase leading-none tracking-tight text-eva-paper font-stretch-condensed sm:text-6xl">
             Contáctame

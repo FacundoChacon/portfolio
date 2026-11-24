@@ -2,7 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { parseCsp, checkCsp, checkVercelConfig, checkSitemap, checkRobots, checkBuiltPages } from './lib/deploy-config.mjs'
 import { readFileSync } from 'node:fs'
-import { canonicalUrl, resolveRouteMeta } from '../src/data/seo.js'
+import * as deployConfig from './lib/deploy-config.mjs'
+import { SITE_URL, canonicalUrl, resolveRouteMeta } from '../src/data/seo.js'
 import { renderRouteHtml, routeOutputFile } from './lib/route-html.mjs'
 
 const CSP_OK = [
@@ -319,6 +320,22 @@ test('checkSitemap: URL relativa o de otro host', () => {
   assert.ok(relative.some((e) => e.includes('/configurador') && /absoluta/i.test(e)))
   const otherHost = checkSitemap(sitemap([HOME, 'https://example.com/configurador']), EXPECTED)
   assert.ok(otherHost.some((e) => e.includes('https://example.com/configurador') && /absoluta/i.test(e)))
+})
+
+test('SITE_ORIGIN deriva de SITE_URL de seo.js (con barra final)', () => {
+  assert.equal(deployConfig.SITE_ORIGIN, `${SITE_URL}/`)
+})
+
+test('deploy-config.mjs no repite el literal del dominio', () => {
+  const source = readFileSync(new URL('./lib/deploy-config.mjs', import.meta.url), 'utf8')
+  assert.ok(!source.includes('facucode.dev'), 'el origen debe venir de src/data/seo.js')
+})
+
+test('checkSitemap: rechaza el host sin www y el esquema http como no absolutos del origen', () => {
+  const sinWww = checkSitemap(sitemap([HOME, 'https://facucode.dev/configurador']), EXPECTED)
+  assert.ok(sinWww.some((e) => e.includes('https://facucode.dev/configurador') && /absoluta/i.test(e)))
+  const http = checkSitemap(sitemap([HOME, 'http://www.facucode.dev/configurador']), EXPECTED)
+  assert.ok(http.some((e) => e.includes('http://www.facucode.dev/configurador') && /absoluta/i.test(e)))
 })
 
 test('checkSitemap: sin xmlns de sitemaps.org 0.9 o sin urlset', () => {

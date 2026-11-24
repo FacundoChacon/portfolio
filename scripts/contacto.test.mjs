@@ -195,3 +195,20 @@ test('Contact.jsx: borde superior y franja ancha primary; eyebrow, flechas y ABR
   ].filter((token) => !CONTACT.includes(token))
   assert.deepEqual(faltan, [])
 })
+
+// --- pulido-post-auditoria: el código del encabezado sale de la barra ---
+
+test('Contact.jsx toma el código del encabezado de HOME_NAV_LINKS, sin literal', async () => {
+  const source = read('src/components/Contact.jsx')
+  assert.doesNotMatch(source, /\b0[5-6] \{"\/\/"\}/)
+  assert.match(source, /import\s*\{\s*HOME_NAV_LINKS\s*\}\s*from\s*["']\.\.\/utils\/homeNav["']/)
+  assert.match(source, /HOME_NAV_LINKS\.find\(\(link\) => link\.id === "contacto"\)/)
+  assert.match(source, /\{code\} \{"\/\/"\}/)
+})
+
+test('el código de Contacto en HOME_NAV_LINKS es el último de la barra y se arma con homeNavLinks', async () => {
+  const { HOME_NAV_LINKS, homeNavLinks } = await import('../src/utils/homeNav.js')
+  assert.equal(HOME_NAV_LINKS.at(-1).id, 'contacto')
+  assert.equal(HOME_NAV_LINKS.at(-1).code, String(HOME_NAV_LINKS.length).padStart(2, '0'))
+  assert.equal(homeNavLinks([{}]).at(-1).code, '06')
+})

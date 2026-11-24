@@ -75,6 +75,13 @@
     background-color: rgb(5 5 5 / 0.85);
     backdrop-filter: blur(10px);
   }
+  /* Panel del menú móvil: acotado a la altura bajo la barra y desplazable (100vh de respaldo antes de 100dvh) */
+  .eva-mobile-nav {
+    max-height: calc(100vh - var(--eva-nav-h));
+    max-height: calc(100dvh - var(--eva-nav-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
   /* Cristal de panel (estático): tinte panel al 80% sobre la grilla; su contraste lo verifica scripts/eva-glass.test.mjs */
   .eva-glass {
     position: relative;
