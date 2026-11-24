@@ -571,3 +571,24 @@
     display: none;
   }
 }
+
+/* Cursor de la entrada escrita del hero: bloque sólido que NO parpadea (spec "Sin efectos intermitentes").
+   Es un pseudo-elemento absoluto del tramo que empieza en el borde de escritura: no ocupa espacio ni cambia cortes de línea. */
+.eva-cursor-escritura {
+  position: relative;
+}
+
+.eva-cursor-escritura[data-cursor]::before {
+  content: '';
+  position: absolute;
+  width: 0.5em;
+  height: 0.8em;
+  margin-top: 0.1em;
+  background-color: var(--eva-primary-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-cursor-escritura[data-cursor]::before {
+    display: none;
+  }
+}

@@ -10,11 +10,16 @@ import { EVA_COLORS } from '../src/styles/eva-tokens.js'
 import tailwindConfig from '../tailwind.config.js'
 import { findForbiddenTokens, withoutMotionSafe } from './lib/class-guard.mjs'
 import { blendOver, checkContrastPairs, contrastRatio } from './lib/contrast.mjs'
+import { ruleBody } from './lib/css-rules.mjs'
+import { TIEMPOS } from '../src/utils/escritura.js'
 import {
+  DESCRIPCION,
   ENLACES_PERFIL,
   FICHA,
+  KICKER,
   PERFIL,
   RETRATO,
+  SUBTITULO,
   externalLinkProps,
   nombreCompleto,
 } from '../src/data/presentacion.js'
@@ -312,4 +317,121 @@ test('heroLayoutProblems: rechaza el markup anterior y acepta el nuevo (triangul
   assert.ok(problemas.some((p) => p.includes('md:mt-16')))
   const nuevo = `<section id="presentacion" className="relative"><div className="md:col-span-5"><img className="aspect-[4/5]" /><div className="eva-panel relative z-10 mt-10 p-5 md:-ml-8 md:-mt-24 lg:-mt-36">`
   assert.deepEqual(heroLayoutProblems(nuevo), [])
+})
+
+// --- Textos de la escritura (change hero-escritura, 4.1) -------------------
+
+test('KICKER y DESCRIPCION: texto exacto que se mostraba en el hero', () => {
+  assert.equal(KICKER, '01 // Presentación')
+  assert.equal(
+    DESCRIPCION,
+    'Construyo experiencias full stack de punta a punta: APIs robustas con Java 17 y Spring Boot, interfaces reactivas con React y Tailwind CSS. Actualmente buscando mi primera oportunidad profesional.',
+  )
+})
+
+test('KICKER, SUBTITULO y DESCRIPCION: no vacíos, sin espacios dobles ni saltos de línea', () => {
+  for (const texto of [KICKER, SUBTITULO, DESCRIPCION]) {
+    assert.ok(texto.trim().length > 0)
+    assert.equal(texto, texto.trim())
+    assert.ok(!/\s{2,}|\n/.test(texto), `espacios o saltos en "${texto.slice(0, 20)}"`)
+  }
+})
+
+test('SUBTITULO: rol y especialidad del perfil separados por un punto medio', () => {
+  assert.equal(SUBTITULO, 'Full Stack Developer · Java / React')
+  assert.equal(SUBTITULO, `${PERFIL.rol} · ${PERFIL.especialidad}`)
+})
+
+// --- Texto escrito accesible y cursor (change hero-escritura, 5.1, 5.3, 5.4) -
+
+/**
+ * Problemas de un componente de texto escrito: copia accesible, capa visual
+ * oculta a lectores de pantalla y reserva del tramo sin escribir.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function textoEscritoProblems(source) {
+  const problems = []
+  if (!/className="sr-only"/.test(source)) problems.push('falta la copia sr-only con el texto real')
+  if (!/aria-hidden="true"/.test(source)) problems.push('la capa visual no es aria-hidden')
+  if (!/partirTexto/.test(source)) problems.push('no usa partirTexto')
+  if (!/text-transparent/.test(source)) problems.push('el tramo reservado no usa text-transparent')
+  if (/(?<![\w-])(?:invisible|hidden|opacity-0)(?![\w-])/.test(source)) problems.push('oculta con invisible/hidden/opacity-0')
+  if (/\bstyle=/.test(source)) problems.push('usa style= (CSP)')
+  if (/dangerouslySetInnerHTML/.test(source)) problems.push('usa dangerouslySetInnerHTML')
+  if (!/direccion/.test(source)) problems.push('no acepta direccion')
+  if (!/accesible/.test(source)) problems.push('no tiene modo decorativo/externo (accesible)')
+  return problems
+}
+
+const TEXTO_ESCRITO = read('src/components/TextoEscrito.jsx')
+
+test('TextoEscrito.jsx: copia sr-only, capa aria-hidden, reserva transparente y sin style', () => {
+  assert.deepEqual(textoEscritoProblems(TEXTO_ESCRITO), [])
+})
+
+test('textoEscritoProblems: rechaza un componente con invisible o style inline (triangulación)', () => {
+  const conInvisible = `<span className="sr-only">{texto}</span><span aria-hidden="true">{p.visible}<span className="invisible">{p.reservado}</span></span> partirTexto direccion accesible`
+  assert.deepEqual(textoEscritoProblems(conInvisible), [
+    'el tramo reservado no usa text-transparent',
+    'oculta con invisible/hidden/opacity-0',
+  ])
+  const conStyle = `<span className="sr-only">{texto}</span><span aria-hidden="true" style={{ width }}><b className="text-transparent" /></span> partirTexto direccion accesible`
+  assert.deepEqual(textoEscritoProblems(conStyle), ['usa style= (CSP)'])
+  const sinCopia = `<span aria-hidden="true"><b className="text-transparent" /></span> partirTexto direccion accesible`
+  assert.deepEqual(textoEscritoProblems(sinCopia), ['falta la copia sr-only con el texto real'])
+})
+
+/**
+ * Problemas del cursor de la escritura en `index.css`: bloque sólido sin parpadeo.
+ * @param {string} css
+ * @returns {string[]}
+ */
+function cursorEscrituraProblems(css) {
+  const problems = []
+  const base = ruleBody(css, '.eva-cursor-escritura[data-cursor]::before')
+  if (base === null) return ['falta la regla del cursor']
+  if (!/position:\s*absolute/.test(base)) problems.push('el cursor ocupa espacio (no es absolute)')
+  if (!/background-color:\s*var\(--eva-primary-light\)/.test(base)) problems.push('el cursor no usa eva-primary-light')
+  if (/animation/.test(base)) problems.push('el cursor tiene animation')
+  if (/@keyframes\s+eva-cursor-escritura/.test(css)) problems.push('hay keyframes de parpadeo del cursor')
+  const reducido = ruleBody(css, '.eva-cursor-escritura[data-cursor]::before', { within: '@media (prefers-reduced-motion: reduce)' })
+  if (reducido === null || !/display:\s*none/.test(reducido)) problems.push('con movimiento reducido el cursor se muestra')
+  return problems
+}
+
+const INDEX_CSS = read('src/index.css')
+
+test('index.css: cursor de escritura sólido, absoluto, sin animación y oculto con movimiento reducido', () => {
+  assert.deepEqual(cursorEscrituraProblems(INDEX_CSS), [])
+})
+
+test('cursorEscrituraProblems: detecta parpadeo, flujo normal y falta de regla (triangulación)', () => {
+  const parpadea = `.eva-cursor-escritura[data-cursor]::before { position: static; background-color: red; animation: eva-cursor-escritura 1s infinite }
+@keyframes eva-cursor-escritura { 50% { opacity: 0 } }`
+  assert.deepEqual(cursorEscrituraProblems(parpadea), [
+    'el cursor ocupa espacio (no es absolute)',
+    'el cursor no usa eva-primary-light',
+    'el cursor tiene animation',
+    'hay keyframes de parpadeo del cursor',
+    'con movimiento reducido el cursor se muestra',
+  ])
+  assert.deepEqual(cursorEscrituraProblems('.otra { color: red }'), ['falta la regla del cursor'])
+})
+
+test('tailwind: eva-obturador anima solo clip-path con pasos y dura lo que el marco de la línea de tiempo', () => {
+  const animation = tailwindConfig.theme.extend.animation['eva-obturador']
+  assert.match(animation ?? '', /^evaObturador\s[\d.]+s steps\(\d+, end\) forwards$/)
+  assert.equal(Number(animation.match(/([\d.]+)s/)[1]) * 1000, TIEMPOS.marco)
+  const frames = tailwindConfig.theme.extend.keyframes.evaObturador
+  assert.ok(frames, 'falta keyframes.evaObturador')
+  assert.deepEqual([...new Set(Object.values(frames).flatMap((frame) => Object.keys(frame)))], ['clip-path'])
+  assert.equal(frames['0%']['clip-path'], 'inset(0 0 0 0)')
+  assert.equal(frames['100%']['clip-path'], 'inset(0 0 0 100%)')
+})
+
+test('tailwind: eva-boot y eva-obturador son las únicas animaciones y ninguna parpadea', () => {
+  const animation = tailwindConfig.theme.extend.animation
+  assert.deepEqual(Object.keys(animation).sort(), ['eva-boot', 'eva-obturador'])
+  for (const valor of Object.values(animation)) assert.ok(!/infinite/.test(valor), `${valor} se repite`)
 })

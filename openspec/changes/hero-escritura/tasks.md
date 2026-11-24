@@ -21,7 +21,7 @@
 ## 4. Datos y helpers puros de escritura (design D5)
 
 - [ ] 4.1 RED/GREEN en `scripts/hero.test.mjs`: `src/data/presentacion.js` exporta `KICKER` ("01 // Presentación") y `DESCRIPCION`, con el texto exacto que hoy está en `Hero.jsx`. Triangular: no vacíos, sin espacios dobles ni saltos de línea. Mover los textos y hacer que `Hero.jsx` los use, sin cambio visual. Verificación: tests en verde y texto renderizado idéntico (Playwright `textContent` antes y después).
-- [ ] 4.2 RED/GREEN/TRIANGULATE de `partirTexto(texto, visibles, direccion)` en el nuevo `scripts/escritura.test.mjs`. Casos:
+- [x] 4.2 RED/GREEN/TRIANGULATE de `partirTexto(texto, visibles, direccion)` en el nuevo `scripts/escritura.test.mjs`. Casos:
   - izq→der con 0, n y largo.
   - der→izq con 0, n y largo.
   - Puntos de código: "Chacón" y "Operativo · disponible" no parten la "ó" ni el "·".
@@ -29,7 +29,7 @@
   - `visible + reservado` (o `reservado + visible`) reconstruye siempre el texto.
 
   Verificación: tests en verde.
-- [ ] 4.3 RED/GREEN/TRIANGULATE de `crearLineaDeTiempo` y `caracteresVisibles`:
+- [x] 4.3 RED/GREEN/TRIANGULATE de `crearLineaDeTiempo` y `caracteresVisibles`:
   - Segmentos en orden, pausas de 30 ms y fases A → acciones → B → C con las constantes de D5.
   - Total ≤ 3500 ms.
   - Inicio de la descripción ≤ 850 ms (cota del LCP móvil).
@@ -37,18 +37,18 @@
   - Triangulación con constantes alternativas (los tests no pueden depender de los valores por defecto).
 
   Verificación: tests en verde.
-- [ ] 4.4 RED/GREEN/TRIANGULATE de `faseEn`, `estadoEn`, `mismoEstado` y `debeAnimar`:
+- [x] 4.4 RED/GREEN/TRIANGULATE de `faseEn`, `estadoEn`, `mismoEstado` y `debeAnimar`:
   - Bordes exactos de cada fase.
   - En la fase C, cada fila revela primero todo el valor y después la etiqueta, y las filas van en orden Rol → Stack → Ubicación → Estado.
   - `debeAnimar` es falso con movimiento reducido o si ya se ejecutó.
   - `mismoEstado` detecta cambios de un solo carácter.
 
   Verificación: tests en verde.
-- [ ] 4.5 Refactor: constantes con nombre y JSDoc en `src/utils/escritura.js`, sin DOM ni React (test que importa el módulo en Node puro). Verificación: `npm test` y `npm run lint` en verde.
+- [x] 4.5 Refactor: constantes con nombre y JSDoc en `src/utils/escritura.js`, sin DOM ni React (test que importa el módulo en Node puro). Verificación: `npm test` y `npm run lint` en verde.
 
 ## 5. Texto escrito accesible y cursor (design D3, D7)
 
-- [ ] 5.1 RED: guard estático en `scripts/hero.test.mjs` para el nuevo `src/components/TextoEscrito.jsx`. Tiene que:
+- [x] 5.1 RED: guard estático en `scripts/hero.test.mjs` para el nuevo `src/components/TextoEscrito.jsx`. Tiene que:
   - Renderizar el texto completo en un `sr-only`.
   - Poner la capa visual con `aria-hidden="true"`.
   - Usar `partirTexto`.
@@ -57,9 +57,9 @@
   - Aceptar `direccion` (`izq` / `der`) y un modo decorativo sin copia `sr-only` (kicker) o con nombre accesible externo (`h1`).
 
   Triangular con un componente de ejemplo que use `invisible` y otro con `style={{…}}`, que el guard tiene que rechazar. Verificación: el test falla.
-- [ ] 5.2 GREEN: crear `TextoEscrito.jsx` según D3. Verificación: tests en verde.
-- [ ] 5.3 RED/GREEN del cursor en `src/index.css`: clase de cursor sobre el `::before` del segundo tramo, con `position: absolute`, color `eva-primary-light` y **sin** `animation` ni keyframes de parpadeo. Con `prefers-reduced-motion: reduce` no se muestra. Guard en `scripts/hero.test.mjs` con `scripts/lib/css-rules.mjs`, y triangular con una regla que tenga `animation` para que falle. Verificación: tests en verde y `npm run build` sin errores. El guard global `limpieza-cyberpunk` sigue en verde.
-- [ ] 5.4 RED/GREEN del keyframe del obturador en `tailwind.config.js` (`evaObturador`, `clip-path` en `steps`, sin `opacity` en la `<img>`). El guard de `hero.test.mjs` exige que la animación solo aparezca detrás de `motion-safe:`, con la regla existente "animate sin motion-safe". Verificación: tests en verde.
+- [x] 5.2 GREEN: crear `TextoEscrito.jsx` según D3. Verificación: tests en verde.
+- [x] 5.3 RED/GREEN del cursor en `src/index.css`: clase de cursor sobre el `::before` del segundo tramo, con `position: absolute`, color `eva-primary-light` y **sin** `animation` ni keyframes de parpadeo. Con `prefers-reduced-motion: reduce` no se muestra. Guard en `scripts/hero.test.mjs` con `scripts/lib/css-rules.mjs`, y triangular con una regla que tenga `animation` para que falle. Verificación: tests en verde y `npm run build` sin errores. El guard global `limpieza-cyberpunk` sigue en verde.
+- [x] 5.4 RED/GREEN del keyframe del obturador en `tailwind.config.js` (`evaObturador`, `clip-path` en `steps`, sin `opacity` en la `<img>`). El guard de `hero.test.mjs` exige que la animación solo aparezca detrás de `motion-safe:`, con la regla existente "animate sin motion-safe". Verificación: tests en verde.
 
 ## 6. Hook `useEscrituraHero` (design D6)
 
