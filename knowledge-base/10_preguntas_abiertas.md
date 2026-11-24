@@ -28,6 +28,13 @@
 | Baja (P-09) | ¿Analytics de embudo (ej. Vercel Analytics) para medir conversión? | Abierta | Facundo |
 | Baja (P-10) | ¿Se agrega sección "Precios" también en la home (sin entrar al configurador)? | Cerrada (obsoleta): no hay precios | Facundo |
 
+### Pendientes del rediseño Evangelion (no bloquean)
+
+| Prioridad | Pregunta | Estado | Dueño |
+|-----------|----------|--------|-------|
+| Baja (P-11) | ¿El PDF del presupuesto pasa al estilo eva? Hoy usa `#00ffc3` (acento), `#030303` y `#0a0a0a` como literales de `@react-pdf` (excepción declarada en `PERMITIDOS` de `scripts/lib/legacy-guard.mjs`; naranja eva sobre blanco da 2.61:1, solo decorativo) | Abierta | Facundo |
+| Baja (P-12) | ¿Se rediseñan `public/favicon.svg` (`#0D1117`/`#00FF88`), `og-image.png` y `screenshot.png` con la estética eva? Están fuera de `src/` y no los cubre el guard | Abierta | Facundo |
+
 ### Nota P-07 — Fallback SPA (resuelto)
 
 El sitio usa `BrowserRouter` (URLs limpias). Para que una **recarga directa** de rutas internas como `/configurador` funcione en producción, el hosting reescribe todas las rutas a `/index.html`.

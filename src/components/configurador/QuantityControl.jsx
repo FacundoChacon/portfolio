@@ -5,16 +5,14 @@ import { Minus, Plus } from 'lucide-react'
  *
  * Presentacional: recibe la cantidad y notifica los cambios. El mínimo real lo
  * impone `setQuantity` (C-05); acá se deshabilita "−" en 1 como feedback
- * inmediato.
+ * inmediato. El deshabilitado se ve por fondo y borde, sin transparencia.
  */
 const buttonClass =
-  'flex size-9 items-center justify-center text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-gray-400'
+  'flex size-11 items-center justify-center text-eva-paper hover:text-eva-secondary focus-visible:text-eva-secondary disabled:cursor-not-allowed disabled:bg-eva-line disabled:text-eva-gray disabled:hover:text-eva-gray'
 
 export default function QuantityControl({ quantity = 1, onChange, className = '' }) {
   return (
-    <div
-      className={`inline-flex items-center rounded-md border border-dark-border bg-dark-card/60 ${className}`}
-    >
+    <div className={`inline-flex items-center border-2 border-eva-gray-dim bg-eva-black ${className}`}>
       <button
         type="button"
         aria-label="Restar una unidad"
@@ -26,7 +24,7 @@ export default function QuantityControl({ quantity = 1, onChange, className = ''
       </button>
       <span
         role="status"
-        className="min-w-8 text-center font-mono text-sm text-white"
+        className="min-w-10 text-center font-mono text-sm text-eva-paper"
         aria-label={`Cantidad: ${quantity}`}
       >
         {quantity}

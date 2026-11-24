@@ -1,273 +1,84 @@
-import { useState } from "react"
-import { ExternalLink } from "lucide-react"
-import { GithubIcon } from "./BrandIcons"
+import { useRef } from "react"
 import { useReveal } from "../hooks/useReveal"
-
-const projects = [
-  {
-    title: "Tienda-Electronica",
-    status: "demo",
-    description:
-      "E-commerce con roles ADMIN/CLIENT, carrito, checkout, panel de administración y API REST protegida con JWT.",
-    tags: ["Java 17", "Spring Boot", "React 18", "Tailwind", "MySQL", "Docker"],
-    image: "/project-ecommerce.webp",
-    repo: "https://github.com/FacundoChacon/Tienda-Electronica",
-    live: "https://tiendaecommerce-electronica.netlify.app/",
-  },
-  {
-    title: "CIMMA-Dentistry",
-    status: "live",
-    description:
-      "Landing page responsiva para clínica dental con integración de WhatsApp, formulario de contacto y SEO. En producción.",
-    tags: ["HTML5", "CSS3", "SEO", "Responsive"],
-    image: "/project-dental.webp",
-    repo: "https://github.com/FacundoChacon/CIMMA-DENTISTRY",
-    live: "https://cimmaodontologia.com",
-  },
-  {
-    title: "Bodega",
-    status: "demo",
-    description:
-      "Aplicación full stack CRUD con backend en Java/Spring Boot, frontend en JavaScript y base de datos MySQL.",
-    tags: ["Java", "Spring Boot", "JavaScript", "MySQL"],
-    image: "/project-bodega.webp",
-    repo: "https://github.com/FacundoChacon/Bodega",
-    live: "https://bodegamaipu.netlify.app/",
-  },
-  {
-    title: "Odontologia-Carolina",
-    status: "inprogress",
-    description:
-      "Landing para el consultorio de Odontología Carolina Simón (endodoncia) en Mendoza, con servicios y contacto por teléfono, WhatsApp e Instagram. En desarrollo.",
-    tags: ["React", "Tailwind CSS", "Vite"],
-    image: "/project-odontologia-carolina.webp",
-    live: "https://test-odontologia-carolina.vercel.app/",
-  },
-  {
-    title: "3-Esquinas",
-    status: "inprogress",
-    description:
-      "Portal de donaciones full stack: frontend en React con Tailwind CSS, API y lógica de negocio en Java con Spring Boot, persistencia en MySQL y despliegue en contenedores con Docker. En desarrollo.",
-    tags: ["React", "Tailwind CSS", "Java", "Spring Boot", "MySQL", "Docker"],
-    image: "/project-3-esquinas.webp",
-    live: "https://3-esquinas-frontend.vercel.app/",
-  },
-]
-
-function StatusBadge({ status }) {
-  const isLive = status === "live"
-  const isInProgress = status === "inprogress"
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] uppercase tracking-widest ${
-        isLive
-          ? "border-accent-green/50 text-accent-green"
-          : isInProgress
-          ? "border-amber-400/50 text-amber-400"
-          : "border-accent-pink/50 text-accent-pink"
-      }`}
-    >
-      <span className={`size-1.5 rounded-full ${isLive ? "bg-accent-green" : isInProgress ? "bg-amber-400" : "bg-accent-pink"} animate-pulse`} />
-      {isLive ? "En el mercado" : isInProgress ? "En curso" : "Demo"}
-    </span>
-  )
-}
-
-const chars = "!<>-_/[]{}—=+*^?#@%"
-
-const REPO_TEXT = "Repo"
-
-function RepoButton({ href }) {
-  const [hovering, setHovering] = useState(false)
-  const [displayText, setDisplayText] = useState(REPO_TEXT)
-  const [blocks, setBlocks] = useState([])
-
-  function startGlitch() {
-    setHovering(true)
-    let step = 0
-    const totalSteps = 8
-
-    const scramble = setInterval(() => {
-      step++
-      setDisplayText(
-        REPO_TEXT.split("")
-          .map((c, i) => (i < Math.floor((step / totalSteps) * REPO_TEXT.length) ? c : chars[Math.floor(Math.random() * chars.length)]))
-          .join("")
-      )
-      if (step >= totalSteps) {
-        clearInterval(scramble)
-        setDisplayText(REPO_TEXT)
-      }
-    }, 40)
-
-    const blockInterval = setInterval(() => {
-      if (Math.random() > 0.4) {
-        setBlocks((prev) => [
-          ...prev.slice(-7),
-          { id: Date.now() + Math.random(), x: Math.random() * 80 + 5, y: Math.random() * 70 + 10, w: Math.random() * 18 + 4, h: Math.random() * 4 + 1, delay: Math.random() * 0.3 },
-        ])
-      }
-    }, 60)
-
-    const cleanup = setTimeout(() => {
-      clearInterval(blockInterval)
-      setBlocks([])
-    }, 800)
-
-    return { scramble, blockInterval, cleanup }
-  }
-
-  function handleMouseEnter() {
-    const { scramble, blockInterval, cleanup } = startGlitch()
-    hoverCleanup = { scramble, blockInterval, cleanup }
-  }
-
-  function handleMouseLeave() {
-    setHovering(false)
-    setDisplayText(REPO_TEXT)
-    setBlocks([])
-    if (hoverCleanup) {
-      clearInterval(hoverCleanup.scramble)
-      clearInterval(hoverCleanup.blockInterval)
-      clearTimeout(hoverCleanup.cleanup)
-      hoverCleanup = null
-    }
-  }
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      onClick={(e) => e.stopPropagation()}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`relative inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest transition-all duration-200 ${
-        hovering
-          ? "text-accent-pink text-glow-magenta"
-          : "text-gray-400 hover:text-accent-pink focus-visible:text-accent-pink"
-      }`}
-    >
-      {blocks.map((b) => (
-        <span
-          key={b.id}
-          className="repo-glitch-block"
-          style={{
-            left: `${b.x}%`,
-            top: `${b.y}%`,
-            width: `${b.w}px`,
-            height: `${b.h}px`,
-            animation: `repo-block-flicker 0.5s steps(1) ${b.delay}s`,
-          }}
-        />
-      ))}
-      <GithubIcon className="size-4 transition-all duration-200" />
-      {" "}
-      {displayText}
-    </a>
-  )
-}
-
-let hoverCleanup = null
+import { useModoProyectos } from "../hooks/useModoProyectos"
+import { useCarrete } from "../hooks/useCarrete"
+import { PROYECTOS } from "../data/proyectos"
+import { pinHeightVh } from "../utils/proyectosScroll"
+import Carrete3D from "./proyectos/Carrete3D"
+import ProyectoCard from "./proyectos/ProyectoCard"
+import ProyectosCierre from "./proyectos/ProyectosCierre"
 
 export default function Projects() {
-  const [ref, visible] = useReveal()
+  const total = PROYECTOS.length
+  const { mode, fail } = useModoProyectos()
+  const reel = mode === "reel"
 
-  const gradientBgs = [
-    "from-accent-green via-emerald-500 to-accent-pink",
-    "from-accent-pink via-purple-600 to-accent-green",
-    "from-accent-green-dark via-teal-800 to-accent-pink-dark",
-  ]
+  const [revealRef, visible] = useReveal()
+  const sectionRef = useRef(null)
+  const pinRef = useRef(null)
+  const stageRef = useRef(null)
+  const lienzoRef = useRef(null)
+  const linksRef = useRef(null)
+  const posterRef = useRef(null)
+
+  useCarrete({
+    enabled: reel,
+    projects: PROYECTOS,
+    onFail: fail,
+    sectionRef,
+    pinRef,
+    stageRef,
+    lienzoRef,
+    linksRef,
+    posterRef,
+  })
 
   return (
-    <section id="proyectos" className="relative border-t border-dark-border py-24">
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <div className="flex items-center gap-4">
-          <span className="font-mono text-sm text-accent-green text-glow-cyan">02.</span>
-          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Proyectos</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-accent-green/50 to-transparent" />
+    <section
+      id="proyectos"
+      ref={sectionRef}
+      data-mode={mode}
+      aria-labelledby="proyectos-titulo"
+      className={`proyectos relative border-t-2 border-eva-line ${reel ? "eva-hex-grid" : ""}`}
+    >
+      {reel ? (
+        <div className="proyectos-pin" ref={pinRef} style={{ "--pin-vh": pinHeightVh(total) }}>
+          <Carrete3D projects={PROYECTOS} stageRef={stageRef} lienzoRef={lienzoRef} linksRef={linksRef} posterRef={posterRef} />
         </div>
-
-          <div
-            ref={ref}
-            className={`reveal reveal-left mt-12 grid gap-6 transition-all duration-1000 md:grid-cols-2 lg:grid-cols-3 ${
-              visible ? "visible" : ""
-            }`}
+      ) : (
+        <div className="proyectos-carrusel">
+          <header
+            ref={revealRef}
+            className={`eva-reveal mx-auto w-[min(100%-2rem,72rem)] md:w-[min(100%-3rem,72rem)] ${visible ? "is-visible" : ""}`}
           >
-          {projects.map((project, i) => {
-            const cardHref = project.live || project.repo
-            return (
-            <article
-              key={project.title}
-              className="group relative flex flex-col overflow-hidden rounded-lg border border-dark-border bg-dark-card/50 transition-all duration-300 hover:-translate-y-2 hover:border-accent-green/60 hover:box-glow-cyan"
-            >
-              <div className="relative overflow-hidden">
-                {project.image ? (
-                  <img
-                    src={project.image}
-                    alt={`Vista previa del proyecto ${project.title}`}
-                    className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-) : (
-  <div className={`h-48 w-full bg-gradient-to-br ${gradientBgs[i % gradientBgs.length]} flex items-center justify-center`}>
-    <span className="text-5xl font-black text-white/30 tracking-tight select-none">
-      {project.title.charAt(0)}
-    </span>
-  </div>
-)}
-                <div className="absolute inset-0 bg-gradient-to-t from-dark-card via-dark-card/20 to-transparent" />
-              </div>
+            <div className="flex items-center gap-4">
+              <h2 id="proyectos-titulo" className="flex items-baseline gap-3">
+                <span aria-hidden="true" className="font-mono text-sm tracking-[0.18em] text-eva-primary-light">
+                  03 //
+                </span>
+                <span className="font-eva-display text-4xl font-bold uppercase text-eva-paper font-stretch-condensed sm:text-5xl">
+                  Proyectos
+                </span>
+              </h2>
+              <span aria-hidden="true" className="eva-stripes h-2 flex-1" />
+              <span aria-hidden="true" className="font-mono text-xs tracking-[0.18em] text-eva-gray">
+                DESLIZÁ →
+              </span>
+            </div>
+          </header>
 
-              <div className="flex flex-1 flex-col p-5">
-                <a
-                  href={cardHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`Ver el proyecto ${project.title} en vivo`}
-                  className="after:absolute after:inset-0"
-                >
-                  <h3 className="font-display text-xl font-semibold text-white transition-colors group-hover:text-accent-green">
-                    {project.title}
-                  </h3>
-                </a>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-400">
-                  {project.description}
-                </p>
-
-                <ul className="mt-4 flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="rounded border border-dark-border bg-dark-secondary/50 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide text-gray-400"
-                    >
-                      {tag}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-5 flex items-center justify-between gap-4 border-t border-dark-border pt-4">
-                  <div className="flex items-center gap-4">
-                    {project.live && (
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="relative z-10 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green"
-                    >
-                      <ExternalLink className="size-4 transition-all duration-200" /> Demo
-                    </a>
-                  )}
-                  {project.repo && <RepoButton href={project.repo} />}
-                  </div>
-                  <StatusBadge status={project.status} />
-                </div>
-              </div>
-            </article>
-            )
-          })}
+          <ul className="proyectos-pista">
+            {PROYECTOS.map((project, i) => (
+              <li key={project.title} data-index={i}>
+                <ProyectoCard project={project} index={i} total={total} />
+              </li>
+            ))}
+            <li data-index={total}>
+              <ProyectosCierre />
+            </li>
+          </ul>
         </div>
-      </div>
+      )}
     </section>
   )
 }

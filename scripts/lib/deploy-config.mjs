@@ -27,6 +27,8 @@ const HARDENED_DIRECTIVES = {
 /** Directivas de endurecimiento: nombre -> fuentes exactas exigidas. */
 export const REQUIRED_CSP = {
   'default-src': ["'self'"],
+  'style-src': ["'self'"],
+  'font-src': ["'self'"],
   'object-src': ["'none'"],
   'base-uri': ["'self'"],
   'form-action': ["'self'"],
@@ -256,14 +258,33 @@ export function checkRobots(txt, sitemapUrl) {
   return errors
 }
 
+/** Orígenes de fuentes de terceros que el HTML construido no puede referenciar. */
+const FORBIDDEN_FONT_ORIGINS = ['fonts.googleapis.com', 'fonts.gstatic.com']
+
+/** Errores de la precarga de la fuente `stem` en una página construida. */
+function checkFontPreload({ url, file, preloads }, stem, assetExists) {
+  const prefix = `/assets/${stem}-`
+  const preload = preloads.find((p) => p.href?.startsWith(prefix) && p.href.endsWith('.woff2'))
+  if (!preload) return [`${url}: ${file} no precarga la fuente principal "${stem}" (<link rel="preload" as="font" href="${prefix}…woff2">)`]
+  const errors = []
+  if (preload.as !== 'font') errors.push(`${url}: ${file} precarga "${stem}" sin as="font"`)
+  if (preload.type !== 'font/woff2') errors.push(`${url}: ${file} precarga "${stem}" con type "${preload.type}" (debe ser font/woff2)`)
+  if (!preload.crossorigin) errors.push(`${url}: ${file} precarga "${stem}" sin crossorigin (el navegador la descargaría dos veces)`)
+  if (!assetExists(preload.href)) errors.push(`${url}: ${file} precarga "${stem}" desde ${preload.href}, que no existe en dist/`)
+  return errors
+}
+
 /**
  * Valida los HTML construidos de las páginas públicas (post-build): cada URL
  * del sitemap debe tener su documento con `canonical` y `og:url` iguales a
- * esa URL.
+ * esa URL. Con `preloadStems` exige además la precarga `woff2` (con
+ * `crossorigin` y archivo existente según `assetExists`) de cada fuente; en
+ * cualquier caso rechaza orígenes de Google Fonts.
  * @param {Array<{ url: string, file: string, html: string | null }>} pages
+ * @param {{ preloadStems?: string[], assetExists?: (href: string) => boolean }} [options]
  * @returns {string[]} errores
  */
-export function checkBuiltPages(pages) {
+export function checkBuiltPages(pages, { preloadStems = [], assetExists = () => true } = {}) {
   const errors = []
   for (const { url, file, html } of pages) {
     if (html === null || html === undefined) {
@@ -300,6 +321,12 @@ export function checkBuiltPages(pages) {
         errors.push(`${url}: ${file} referencia el asset con ruta relativa "${asset}" (con base '/' debe empezar con /)`)
       }
     }
+    for (const origin of meta.externalOrigins) {
+      if (FORBIDDEN_FONT_ORIGINS.includes(origin)) {
+        errors.push(`${url}: ${file} referencia el origen de fuentes externo ${origin} (las fuentes deben ser del propio origen)`)
+      }
+    }
+    for (const stem of preloadStems) errors.push(...checkFontPreload({ url, file, preloads: meta.preloads }, stem, assetExists))
   }
   return errors
 }

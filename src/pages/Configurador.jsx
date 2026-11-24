@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react'
 
+import NavBrand from '../components/NavBrand.jsx'
 import ExtrasCards from '../components/configurador/ExtrasCards.jsx'
 import FormStep from '../components/configurador/FormStep.jsx'
 import QuantityControl from '../components/configurador/QuantityControl.jsx'
@@ -11,6 +12,7 @@ import SummarySidebar from '../components/configurador/SummarySidebar.jsx'
 import SuccessStep from '../components/configurador/SuccessStep.jsx'
 import ErrorStep from '../components/configurador/ErrorStep.jsx'
 import WizardSteps from '../components/configurador/WizardSteps.jsx'
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO, PANEL } from '../components/configurador/estilos.js'
 import { extras, services } from '../data/configurador.js'
 import { useConfigurador } from '../hooks/useConfigurador.js'
 import { buildWhatsAppUrl } from '../utils/contact.js'
@@ -39,10 +41,15 @@ function StepBody({ step, wizard, contactEmail }) {
           selectedId={wizard.serviceId}
           onSelect={wizard.setService}
         />
-        <div className="glass flex items-center justify-between gap-4 p-4">
+        <div className={`${PANEL} flex items-center justify-between gap-4`}>
+          <span aria-hidden="true" className="eva-panel-label">
+            CANT {'//'} UNIDADES
+          </span>
           <div>
-            <p className="font-display text-sm text-white">Cantidad</p>
-            <p className="text-xs text-gray-400">¿Cuántos sitios o líneas de negocio?</p>
+            <p className="font-eva-display text-lg font-black uppercase text-eva-paper font-stretch-condensed">
+              Cantidad
+            </p>
+            <p className="text-xs text-eva-gray">¿Cuántos sitios o líneas de negocio?</p>
           </div>
           <QuantityControl quantity={wizard.quantity} onChange={wizard.setQuantity} />
         </div>
@@ -73,12 +80,6 @@ function StepBody({ step, wizard, contactEmail }) {
   )
 }
 
-const secondaryButton =
-  'inline-flex items-center gap-2 rounded-md border border-dark-border px-4 py-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:border-accent-green/50 hover:text-accent-green focus-visible:text-accent-green disabled:cursor-not-allowed disabled:opacity-50'
-
-const primaryButton =
-  'box-glow-cyan inline-flex items-center gap-2 rounded-md border border-accent-green/50 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent-green transition-colors hover:bg-accent-green hover:text-dark focus-visible:bg-accent-green focus-visible:text-dark'
-
 /**
  * Página `/configurador`: layout de dos columnas con el wizard y el resumen en
  * vivo. Los cuatro pasos quedan operativos tras C-08; el envío se termina de
@@ -99,29 +100,39 @@ export default function Configurador() {
   }, [viewKey])
 
   return (
-    <div className="min-h-screen bg-dark">
-      <header className="border-b border-dark-border bg-dark/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6">
-          <Link
-            to="/"
-            className="font-mono text-sm font-bold tracking-widest text-accent-green text-glow-cyan"
-          >
-            {"<FC/>"}
-          </Link>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-accent-green focus-visible:text-accent-green"
-          >
-            <ArrowLeft className="size-3.5" aria-hidden="true" /> Volver al inicio
-          </Link>
+    <div className="min-h-screen bg-eva-black text-eva-paper">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-eva-primary focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-eva-black"
+      >
+        Saltar al contenido
+      </a>
+      <header>
+        <div className="eva-nav-glass border-b-2 border-eva-primary">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 md:px-6">
+            <NavBrand />
+            <Link
+              to="/"
+              className="inline-flex min-h-11 items-center gap-2 border-2 border-eva-primary px-3 font-mono text-xs uppercase tracking-[0.2em] text-eva-primary-light hover:bg-eva-primary hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-secondary)] motion-safe:transition-[transform,color,background-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5"
+            >
+              <ArrowLeft className="size-3.5" aria-hidden="true" /> Volver al inicio
+            </Link>
+          </div>
         </div>
+        <div className="eva-stripes h-1.5" aria-hidden="true" />
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-10">
-        <h1 className="font-display text-3xl font-bold gradient-text md:text-4xl">
-          Armá tu presupuesto
-        </h1>
-        <p className="mt-2 text-gray-400">Elegí tu sitio, sumá extras y dejame tus datos.</p>
+      <main id="contenido" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none md:px-6 md:py-10">
+        <div className="eva-hex-grid py-6">
+          <p aria-hidden="true" className="font-mono text-xs uppercase tracking-[0.3em] text-eva-primary-light">
+            SYS {'//'} PRESUPUESTO
+          </p>
+          <h1 className="mt-2 font-eva-display text-4xl font-black uppercase text-eva-paper font-stretch-condensed md:text-6xl">
+            Armá tu presupuesto
+          </h1>
+          <p className="mt-2 text-eva-gray">Elegí tu sitio, sumá extras y dejame tus datos.</p>
+        </div>
+        <div className="eva-stripes h-1.5" aria-hidden="true" />
 
         <div className="mt-8">
           <WizardSteps current={wizard.step} />
@@ -151,7 +162,7 @@ export default function Configurador() {
                 <h2
                   ref={headingRef}
                   tabIndex={-1}
-                  className="mb-4 font-display text-lg font-bold text-white outline-none"
+                  className="mb-4 font-eva-display text-2xl font-black uppercase text-eva-paper outline-none font-stretch-condensed"
                 >
                   {stepTitle[wizard.step]}
                 </h2>
@@ -165,7 +176,7 @@ export default function Configurador() {
                   <button
                     type="button"
                     onClick={wizard.prevStep}
-                    className={secondaryButton}
+                    className={BOTON_SECUNDARIO}
                     disabled={wizard.submitting}
                   >
                     <ChevronLeft className="size-4" aria-hidden="true" /> Atrás
@@ -175,7 +186,7 @@ export default function Configurador() {
                 )}
 
                 {wizard.step < LAST_STEP && (
-                  <button type="button" onClick={wizard.nextStep} className={primaryButton}>
+                  <button type="button" onClick={wizard.nextStep} className={BOTON_PRIMARIO}>
                     Continuar <ArrowRight className="size-4" aria-hidden="true" />
                   </button>
                 )}

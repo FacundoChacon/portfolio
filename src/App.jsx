@@ -7,10 +7,10 @@ const Configurador = lazy(() => import('./pages/Configurador'))
 
 function LoadingFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-dark">
+    <div className="flex min-h-screen items-center justify-center bg-eva-black">
       <div className="flex flex-col items-center gap-4">
-        <div className="size-10 animate-spin rounded-full border-2 border-dark-border border-t-accent-green" />
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-gray-400">Cargando…</p>
+        <div className="size-10 animate-spin rounded-full border-2 border-eva-line border-t-eva-primary" />
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-eva-gray">Cargando…</p>
       </div>
     </div>
   )

@@ -10,6 +10,9 @@ import test from 'node:test'
 
 const DIR = new URL('../src/components/configurador/', import.meta.url)
 const PAGE = new URL('../src/pages/Configurador.jsx', import.meta.url)
+const NAV_COMPONENTS = ['SiteNav.jsx', 'NavBrand.jsx', 'Hero.jsx', 'Contact.jsx'] // también inspecciona el hero (hero-brutalista) y contacto (contacto-brutalista)
+// Secciones de la home que también pasan el guard (stack-neumorfico-oscuro, acerca-testimonios-glass)
+const SECTION_COMPONENTS = ['Stack.jsx', 'About.jsx', 'Testimonials.jsx']
 
 /**
  * Clases prohibidas en `src/components/configurador/*.jsx` y `src/pages/Configurador.jsx` (design D6/D7).
@@ -24,7 +27,11 @@ const FORBIDDEN = [
   'focus-visible:ring-0',
   'text-gray-500',
   'text-gray-600',
+  'text-eva-gray-dim', // `gray-dim` es solo para bordes de UI (3:1), nunca texto (incluye `placeholder:`)
 ]
+
+/** Prefijos prohibidos: `disabled:opacity-*` vuelve ilegible el texto (configurador-estilo-eva). */
+const FORBIDDEN_PREFIXES = ['disabled:opacity-']
 
 /**
  * Devuelve las clases prohibidas presentes en `source`. Compara por token
@@ -35,10 +42,24 @@ const FORBIDDEN = [
  */
 function findForbiddenClasses(source) {
   const tokens = source.split(/[\s"'`{}<>=]+/).map((token) => token.replace(/\/\d+$/, ''))
-  return FORBIDDEN.filter((cls) =>
+  const exact = FORBIDDEN.filter((cls) =>
     tokens.some((token) => token === cls || token.endsWith(`:${cls}`)),
   )
+  const byPrefix = FORBIDDEN_PREFIXES.filter((prefix) =>
+    tokens.some((token) => token.startsWith(prefix) || token.includes(`:${prefix}`)),
+  ).map((prefix) => `${prefix}*`)
+  return [...exact, ...byPrefix]
 }
+
+test('findForbiddenClasses: detecta disabled:opacity-* y text-eva-gray-dim, acepta alternativas', () => {
+  assert.deepEqual(findForbiddenClasses('<button className="disabled:opacity-50">'), ['disabled:opacity-*'])
+  assert.deepEqual(findForbiddenClasses('<button className="hover:disabled:opacity-30 x">'), ['disabled:opacity-*'])
+  assert.deepEqual(findForbiddenClasses('<p className="placeholder:text-eva-gray-dim">'), ['text-eva-gray-dim'])
+  assert.deepEqual(
+    findForbiddenClasses('<button className="disabled:bg-eva-line border-eva-gray-dim text-eva-gray opacity-50">'),
+    [],
+  )
+})
 
 test('findForbiddenClasses: detecta una clase prohibida y acepta una permitida', () => {
   assert.deepEqual(findForbiddenClasses('<p className="mt-1 text-gray-500 text-xs">'), ['text-gray-500'])
@@ -68,12 +89,16 @@ test('findForbiddenClasses: permite outline-none sin prefijo de foco (títulos t
 })
 
 test('los componentes y la página del configurador no usan clases que rompen foco o contraste', () => {
-  const files = readdirSync(DIR).filter((name) => name.endsWith('.jsx'))
-  assert.ok(files.length > 0, 'no se encontraron .jsx para inspeccionar')
+  const files = readdirSync(DIR).filter((name) => /\.jsx?$/.test(name)) // .jsx y .js (las clases viven en estilos.js)
+  assert.ok(files.length > 0, 'no se encontraron .jsx/.js para inspeccionar')
 
   const sources = [
     ...files.map((name) => [name, readFileSync(new URL(name, DIR), 'utf8')]),
     ['pages/Configurador.jsx', readFileSync(PAGE, 'utf8')],
+    ...[...NAV_COMPONENTS, ...SECTION_COMPONENTS].map((name) => [
+      `components/${name}`,
+      readFileSync(new URL(`../src/components/${name}`, import.meta.url), 'utf8'),
+    ]),
   ]
   const offenders = sources.flatMap(([name, source]) =>
     findForbiddenClasses(source).map((cls) => `${name}: ${cls}`),

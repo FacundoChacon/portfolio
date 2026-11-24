@@ -328,3 +328,125 @@ El formulario de contacto SHALL limitar el largo de cada campo a los valores que
 #### Scenario: Límite declarado en la interfaz
 - **WHEN** el visitante pega en un campo más texto que su límite
 - **THEN** el navegador trunca el valor al límite del campo
+
+### Requirement: Sistema visual único del configurador
+El cuerpo del configurador (indicador de progreso, pasos, tarjetas, campos, resumen, revisión, éxito y error) SHALL usar solo el sistema visual del sitio (paleta, tipografías y paneles eva) y NO SHALL usar estilos de la paleta anterior, brillos, degradados de texto, cristal ni la tipografía de títulos anterior. Una verificación automática SHALL fallar si alguno de esos estilos vuelve a aparecer.
+
+#### Scenario: Página coherente con la cabecera
+- **WHEN** se abre `/configurador`
+- **THEN** la cabecera y el cuerpo del wizard comparten la misma paleta, tipografía de títulos y tratamiento de paneles
+
+#### Scenario: Estilo anterior reintroducido
+- **WHEN** un componente del configurador vuelve a usar un color, brillo, degradado, cristal o tipografía de la paleta anterior
+- **THEN** la verificación automática falla nombrando el archivo y el estilo encontrado
+
+#### Scenario: Paneles opacos detrás del formulario
+- **WHEN** se muestran los campos de contacto, el resumen o los bloques de revisión
+- **THEN** su fondo es opaco y no deja ver ni desenfocar contenido de atrás
+
+### Requirement: Selección distinguible sin depender del color
+Una tarjeta de tipo de sitio o de extra seleccionada SHALL diferenciarse de una no seleccionada por al menos una señal de forma (indicador con tilde y sombra sólida desplazada), además del color. El estado seleccionado SHALL seguir expuesto con `aria-pressed`.
+
+#### Scenario: Tarjeta seleccionada en escala de grises
+- **WHEN** se observa el paso de tipo de sitio o de extras sin percibir colores
+- **THEN** la tarjeta seleccionada se reconoce por su indicador con tilde y su sombra desplazada
+
+#### Scenario: Tarjeta no seleccionada
+- **WHEN** una tarjeta no está seleccionada
+- **THEN** muestra el indicador vacío, sin tilde y sin sombra desplazada
+
+#### Scenario: Selección y foco a la vez
+- **WHEN** la tarjeta seleccionada recibe el foco con el teclado
+- **THEN** el contorno de foco se distingue del borde y de la sombra del estado seleccionado
+
+### Requirement: Estado de error del campo distinguible sin depender del color
+Un campo con error de validación SHALL mostrar, además de un borde de color de alerta, una marca textual de error junto al mensaje, de modo que el error se perciba sin depender del color. El mensaje y su asociación accesible al campo SHALL mantenerse.
+
+#### Scenario: Campo obligatorio vacío
+- **WHEN** el visitante intenta continuar con el nombre vacío
+- **THEN** el campo muestra el borde de alerta y, debajo, una marca de error seguida del mensaje en español
+
+#### Scenario: Campo corregido
+- **WHEN** el visitante corrige el campo y vuelve a intentar continuar con datos válidos
+- **THEN** el borde de alerta y la marca de error desaparecen
+
+### Requirement: Controles deshabilitados legibles
+Un control deshabilitado del configurador (restar cantidad en 1, botones de edición y de envío durante el envío) SHALL verse distinto del habilitado por su fondo y su borde, SHALL mantener su texto legible y NO SHALL atenuarse con transparencia general. Un control deshabilitado NO SHALL mostrar sombra ni desplazamiento al pasar el puntero.
+
+#### Scenario: Restar con cantidad 1
+- **WHEN** la cantidad es 1
+- **THEN** el control de restar se ve deshabilitado, su icono es visible y no reacciona al puntero
+
+#### Scenario: Envío en curso
+- **WHEN** el envío está en curso
+- **THEN** el botón de envío muestra "Enviando..." legible y los botones "Editar" se ven deshabilitados
+
+### Requirement: Contraste de los estados del configurador
+Los textos del configurador SHALL tener contraste de al menos 4.5:1 contra su fondo en todos los estados (reposo, seleccionado, error, deshabilitado, paso actual); los bordes que identifican un control (tarjetas, campos, control de cantidad, borde de error) y el contorno de foco SHALL tener al menos 3:1 contra el fondo adyacente. Una verificación automática SHALL fallar si un color o una opacidad de fondo cambia y un par queda por debajo de su umbral.
+
+#### Scenario: Texto sobre tarjeta seleccionada
+- **WHEN** una tarjeta está seleccionada y su fondo se tiñe
+- **THEN** su nombre, descripción y etiqueta mantienen al menos 4.5:1
+
+#### Scenario: Marca de error y botón deshabilitado
+- **WHEN** se muestra la marca de error o un botón deshabilitado
+- **THEN** su texto alcanza al menos 4.5:1 contra su fondo
+
+#### Scenario: Fondo del seleccionado más intenso
+- **WHEN** la opacidad del tinte de la tarjeta seleccionada sube hasta dejar un texto por debajo de 4.5:1
+- **THEN** la verificación automática falla nombrando el par y el contraste obtenido
+
+### Requirement: Movimiento del configurador
+El configurador NO SHALL tener animaciones en bucle. Los desplazamientos de tarjetas y botones al pasar el puntero o enfocar SHALL ocurrir solo si el visitante no pidió reducir el movimiento; con movimiento reducido los estados SHALL cambiar igual de borde, sombra y color, sin desplazamiento ni transición.
+
+#### Scenario: Movimiento reducido
+- **WHEN** el visitante tiene activada la preferencia de reducir el movimiento y pasa el puntero o el foco por una tarjeta o un botón
+- **THEN** el estado cambia sin desplazarse ni animarse
+
+#### Scenario: Sin preferencia de movimiento
+- **WHEN** el visitante no pidió reducir el movimiento y pasa el puntero por una tarjeta no seleccionada
+- **THEN** la tarjeta puede desplazarse levemente y mostrar su sombra sólida
+
+### Requirement: Aviso de envío verificado en celeste
+
+Cuando el presupuesto se envía con éxito y el receptor lo confirma, el aviso de éxito del configurador SHALL destacarse con el color de estado celeste (línea de aviso, etiqueta del panel y barra de acento), con contraste ≥ 4.5:1 para su texto y ≥ 3:1 para sus gráficos. El aviso SHALL comunicar el éxito también sin color: título textual e icono.
+
+#### Scenario: Envío confirmado
+- **WHEN** el visitante envía la solicitud y el receptor responde con éxito
+- **THEN** el panel de éxito muestra el aviso en celeste, con su título "¡Solicitud enviada!" y un icono de confirmación
+
+#### Scenario: Contraste del aviso de éxito
+- **WHEN** se evalúa el texto celeste del aviso contra el fondo de panel, y el texto negro de su etiqueta contra el celeste
+- **THEN** ambos pares alcanzan al menos 4.5:1
+
+#### Scenario: Éxito sin percibir colores
+- **WHEN** el panel de éxito se observa en escala de grises
+- **THEN** el título y el icono siguen indicando que la solicitud se envió
+
+#### Scenario: Celeste fuera del configurador
+- **WHEN** un componente de la home usa el color de estado de éxito
+- **THEN** la verificación automática falla nombrando el archivo
+
+### Requirement: Avisos de error en rojo claro
+
+Todo aviso de error del configurador (envío fallido, marca `ERR`, borde y mensaje de un campo con error de validación) SHALL usar el color de estado rojo claro, con contraste ≥ 4.5:1 como texto normal y ≥ 3:1 en bordes e iconos. Cada error SHALL comunicarse también sin color, con marca textual o icono y un mensaje.
+
+#### Scenario: Envío fallido
+- **WHEN** el envío de la solicitud falla por un error del receptor o de la red
+- **THEN** el panel de error muestra la franja, la etiqueta y la línea de aviso en rojo claro, con el título "No se pudo enviar" y las alternativas de contacto
+
+#### Scenario: Error de validación de un campo
+- **WHEN** un campo obligatorio del formulario de contacto queda con error
+- **THEN** el campo muestra el borde en rojo claro y, debajo, la marca `ERR` en negro sobre rojo claro seguida del mensaje en rojo claro
+
+#### Scenario: Contraste del error como texto normal
+- **WHEN** se evalúa el mensaje de error en rojo claro contra el fondo negro del campo y contra el panel
+- **THEN** alcanza al menos 4.5:1 en ambos, sin depender de un tamaño de texto grande
+
+#### Scenario: Error sin percibir colores
+- **WHEN** el formulario con errores se observa en escala de grises
+- **THEN** la marca `ERR` y el mensaje siguen indicando qué campo tiene error
+
+#### Scenario: Colores de estado fuera de la jerarquía
+- **WHEN** se cuentan los usos de los colores de acento para verificar la jerarquía violeta, naranja y verde agua
+- **THEN** los usos del celeste de éxito y del rojo claro de error no se cuentan

@@ -27,7 +27,7 @@ El hosting SHALL servir una cabecera `Permissions-Policy` que deshabilite para e
 
 ### Requirement: Política de seguridad de contenido
 
-El hosting SHALL servir una `Content-Security-Policy` que solo permita los orígenes que el sitio usa: scripts, estilos, imágenes y conexiones del propio origen; hojas de estilo de `https://fonts.googleapis.com`; fuentes de `https://fonts.gstatic.com`; imágenes `data:`; y conexiones a `https://script.google.com` y `https://script.googleusercontent.com` para el envío del lead y su redirección.
+El hosting SHALL servir una `Content-Security-Policy` que solo permita los orígenes que el sitio usa: scripts, estilos, fuentes, imágenes y conexiones del propio origen; imágenes `data:`; y conexiones a `https://script.google.com` y `https://script.googleusercontent.com` para el envío del lead y su redirección. Estilos y fuentes SHALL limitarse al propio origen (`'self'`), sin orígenes de terceros.
 
 #### Scenario: Sin ejecución de código no confiable
 - **WHEN** se inspecciona la CSP vigente
@@ -41,13 +41,17 @@ El hosting SHALL servir una `Content-Security-Policy` que solo permita los oríg
 - **WHEN** se inspecciona `connect-src`
 - **THEN** contiene `'self'`, `https://script.google.com` y `https://script.googleusercontent.com` y ningún comodín
 
+#### Scenario: Estilos y fuentes solo del propio origen
+- **WHEN** se inspecciona la CSP vigente
+- **THEN** `style-src` es exactamente `'self'` y `font-src` es exactamente `'self'`, sin `https://fonts.googleapis.com` ni `https://fonts.gstatic.com`
+
 ### Requirement: La CSP no rompe el sitio
 
-Con la CSP aplicada, el sitio SHALL funcionar igual que sin ella: la home y el configurador cargan con sus fuentes y estilos, y el envío del lead llega al webhook siguiendo la redirección, sin violaciones de CSP en la consola del navegador.
+Con la CSP aplicada, el sitio SHALL funcionar igual que sin ella: la home y el configurador cargan con sus fuentes autoalojadas y estilos, y el envío del lead llega al webhook siguiendo la redirección, sin violaciones de CSP en la consola del navegador.
 
 #### Scenario: Recorrido sin violaciones
 - **WHEN** un navegador real recorre la home, abre `/configurador` y completa los pasos hasta la revisión
-- **THEN** la consola no registra violaciones de CSP (ni en modo Report-Only ni en modo enforcing) y las fuentes de Google se aplican
+- **THEN** la consola no registra violaciones de CSP (ni en modo Report-Only ni en modo enforcing) y las fuentes autoalojadas se aplican
 
 #### Scenario: Envío del lead permitido
 - **WHEN** el configurador envía el lead al webhook de Apps Script y este redirige a `script.googleusercontent.com`
@@ -72,3 +76,7 @@ El repositorio SHALL incluir una verificación automática, ejecutada en CI, que
 #### Scenario: CSP solo en modo reporte
 - **WHEN** la CSP está declarada únicamente como `Content-Security-Policy-Report-Only`
 - **THEN** la verificación pasa con una advertencia visible de que la política no se aplica
+
+#### Scenario: Origen externo en estilos o fuentes
+- **WHEN** se agrega `https://fonts.googleapis.com` a `style-src` o `https://fonts.gstatic.com` a `font-src`, o se quita alguna de esas dos directivas
+- **THEN** la verificación falla nombrando la directiva y su valor

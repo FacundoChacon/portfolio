@@ -43,9 +43,22 @@
 **Justificación**: sin backend; descarga inmediata; datos personales no salen del navegador hasta el envío.
 **Trade-offs aceptados**: bundle extra (lazy) y posible variación de render entre navegadores.
 
-### DD-07 — Estética: calculadora modular sobre la base cyber/neón del portfolio
-**Decisión**: tomar el patrón de "tarjetas + total siempre visible" del concepto calculadora, con la paleta del portfolio.
-**Justificación**: pedido explícito del dueño; combina lo visual del carrito con el flujo guiado del wizard.
+### DD-07 — Estética: Evangelion brutalista (calculadora modular con la paleta eva)
+**Decisión**: el sitio y el configurador usan la estética Evangelion: fondo negro, naranja de acento, serif condensada, paneles con etiquetas en mono y texturas hexagonales. El configurador conserva el patrón de "tarjetas + resumen siempre visible" del concepto calculadora.
+**Justificación**: pedido explícito del dueño. Reemplaza la base cyber/neón original (rediseño completado y limpiado en `limpieza-cyberpunk`); la estética vieja queda vedada por un guard en los tests.
+**Histórico**: la versión original de esta decisión usaba la paleta cyber/neón (verde `#00ffc3` y magenta `#ff6eff`); ya no existe en el código, salvo en el PDF del presupuesto (ver P-11).
+
+### DD-08 — Fuente de cuerpo: pila del sistema
+**Decisión**: `font-sans` es la pila de fuentes del sistema operativo (`EVA_FONT_SANS`). Se retiran Orbitron y Rajdhani.
+**Alternativas consideradas**: JetBrains Mono para todo (ancho fijo, borra la jerarquía de etiquetas), Noto Serif Display (corte display: se degrada a 14-16 px), Inter o Noto Sans autoalojada (+25-50 KB y un swap en todo el cuerpo).
+**Justificación**: 0 KB, sin swap ni CLS, mejor `hinting` a tamaños chicos en cada plataforma y cercana a la Helvetica de la interfaz de NERV. La identidad la dan la serif condensada y la mono.
+**Trade-offs aceptados**: la sans varía entre plataformas; se reportaron los cortes de línea distintos al migrar desde Rajdhani (condensada) y se verificaron sin desbordes a 1440 y 375 px.
+
+### DD-09 — Jerarquía de color: violeta > naranja > verde agua, por roles
+**Decisión**: el color de acento se reparte en roles que los componentes nombran en lugar del color. `primary` = violeta `#9B5CF0` (rellenos y bordes de UI, con texto negro encima), `primary-light` = violeta claro `#B08AFF` (texto de acento), `secondary` = naranja `#FF7A1A` (sombras desplazadas, hover y franjas), `tertiary` = verde agua `#74F8D4` (detalles de estado) y `focus` = verde agua (anillo de foco). Los estados del configurador quedan fuera de la jerarquía: `success` = celeste `#7CC8FF` (envío verificado) y `error` = rojo claro `#FF8A9A` (errores de campo y de envío). Salen `#8A4FD8`, `#3DFF7A` y `#E8202A`.
+**Alternativas consideradas**: dejar los nombres de color en los componentes y cambiar solo los valores (miente con los nombres), un naranja claro (sería más luminoso que el violeta y le ganaría la atención) y un foco violeta claro (se funde con los bordes violeta).
+**Justificación**: pedido del dueño (el violeta lo más notorio, el naranja acompaña, el verde agua para detalles, éxito en celeste y errores en rojo claro). Todos los pares declarados cumplen WCAG 2.2 AA; el verde agua llega a 3:1 incluso contra el relleno violeta. La fuente de verdad es `EVA_ROLES` y `EVA_STATUS_ROLES` en `src/styles/eva-tokens.js`.
+**Verificación**: `scripts/jerarquia-color.test.mjs` impide nombres de color de acento en `src/`, impide los roles de estado fuera del configurador y exige `primary > secondary > tertiary` con `primary >= 1.5 x secondary` (conteo de usos en reposo). La proporción de área real se mide con Playwright.
 
 ## Supuestos inferidos
 

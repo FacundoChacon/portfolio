@@ -34,7 +34,8 @@ portfolio/
     ├── pages/
     │   └── Configurador.jsx          # NUEVO — página /configurador
     ├── components/
-    │   ├── (existentes: SiteNav, Hero, About, Projects, Stack, Contact, GlitchText, BrandIcons)
+    │   ├── (existentes: SiteNav, NavBrand, Hero, About, Projects, Stack, Testimonials, Contact, BrandIcons)
+    │   ├── proyectos/                # Carrete3D, ProyectoCard, ProyectosCierre (carrete 3D de la sección Proyectos)
     │   ├── SiteNav.jsx               # EXTENDER: link "Armá tu web" (navegación router)
     │   └── configurador/             # NUEVO
     │       ├── WizardSteps.jsx       # indicador de progreso (4 pasos)
@@ -46,8 +47,12 @@ portfolio/
     │       ├── SummarySidebar.jsx    # resumen en vivo de la selección
     │       ├── SuccessStep.jsx       # confirmación
     │       └── ErrorStep.jsx         # fallback mailto/WhatsApp
+    ├── styles/
+    │   ├── eva-tokens.js             # paleta eva (EVA_COLORS), roles (EVA_ROLES, EVA_STATUS_ROLES, EVA_THEME_COLORS), pila de sistema (EVA_FONT_SANS) y pares de contraste
+    │   └── fonts.css                 # @font-face autoalojados: Noto Serif Display y JetBrains Mono (solo latin)
     ├── hooks/
     │   ├── useReveal.js              # existente
+    │   ├── useCarrete.js, useModoProyectos.js, useRouteMeta.js
     │   └── useConfigurador.js        # NUEVO — estado del wizard
     ├── utils/
     │   ├── wizard.js, wizardView.js, summary.js, review.js, contact.js, motion.js
@@ -57,6 +62,13 @@ portfolio/
         └── configurador.js           # NUEVO — catálogo (servicios + extras)
 ```
 
+## Sistema visual
+
+- **Estética**: Evangelion (brutalista). Paleta única `eva` (negro, panel, línea, papel, grises, violeta, violeta claro, naranja, verde agua, celeste y rojo claro), con `src/styles/eva-tokens.js` como fuente de verdad. Los componentes nombran **roles** (`eva-primary`, `eva-primary-light`, `eva-secondary`, `eva-tertiary`, `eva-focus` y los de estado `eva-success` y `eva-error`), que `EVA_ROLES` y `EVA_STATUS_ROLES` resuelven a un color; Tailwind (`eva-*`), las variables CSS `--eva-*` y los tests de contraste leen de ahí. Ya no existen los tokens `accent-*`, `neon-*`, `dark-*` ni `muted-*`.
+- **Tipografías**: títulos en Noto Serif Display (variable, eje de ancho), etiquetas y código en JetBrains Mono (ambas autoalojadas, solo subset latin) y cuerpo en la pila de fuentes del sistema (`EVA_FONT_SANS`: `system-ui`, Segoe UI, Roboto…), sin archivos que descargar.
+- **Guards**: `scripts/limpieza-cyberpunk.test.mjs` (con `scripts/lib/legacy-guard.mjs`) falla si `src/` o `index.html` vuelven a usar la paleta, las fuentes, los brillos, el glitch o las clases del diseño anterior. La única excepción declarada (`PERMITIDOS`) es el color del PDF del presupuesto. Cada sección además tiene su guard propio (hero, contacto, stack, testimonios, configurador, proyectos). `scripts/jerarquia-color.test.mjs` (con `scripts/lib/color-roles.mjs`) falla si un componente usa un nombre de color en lugar de un rol, si un color de estado aparece fuera del configurador o si el violeta deja de dominar al naranja y al verde agua.
+- **Pesos**: `node scripts/pesos-build.mjs [dist]` resume CSS, fuentes y JS de `dist/assets` (crudo y gzip).
+
 ## Seguridad
 
 - **Autenticación**: ninguna (sitio público, actores anónimos).
@@ -65,7 +77,7 @@ portfolio/
 - **Secrets management**: `VITE_*` es **público** por definición en Vite. No poner tokens/credenciales ahí. El webhook debe usar su propia auth (secret en el query param o header), asumiendo que la URL es descubrible.
 - **Anti-abuso**: honeypot + bloqueo de doble submit + rate limiting en el webhook.
 - **Cabeceras HTTP** (`vercel.json`, bloque `source: "/(.*)"`, validado por `npm run verify:deploy` en CI): `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`.
-- **CSP**: `default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`. Sin `'unsafe-inline'` ni `'unsafe-eval'`.
+- **CSP**: `default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`. Sin `'unsafe-inline'` ni `'unsafe-eval'`.
 - **Rollout de la CSP**: Deploy 1 como `Content-Security-Policy-Report-Only`; Deploy 2 (tras verificar producción sin violaciones) con la clave `Content-Security-Policy` enforcing. Mientras esté en Report-Only, `verify:deploy` muestra una advertencia.
 - **Cómo actualizarla**: si se cambia el proveedor del webhook, ajustar `connect-src` en `vercel.json` y las constantes de `scripts/lib/deploy-config.mjs` (con sus tests); si se integra el PDF (`yoga-layout` compila WebAssembly), agregar `'wasm-unsafe-eval'` a `script-src`.
 - **Datos personales**: solo nombre/email/teléfono/descripción; se transmiten por HTTPS al webhook. No se persisten en el front ni en `localStorage`.

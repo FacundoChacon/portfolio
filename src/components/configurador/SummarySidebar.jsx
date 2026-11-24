@@ -1,3 +1,5 @@
+import { PANEL } from './estilos.js'
+
 /**
  * Panel de resumen de la solicitud (C-06).
  *
@@ -8,39 +10,42 @@ export default function SummarySidebar({ summary, className = '' }) {
   const { service, extras } = summary
 
   return (
-    <aside className={`glass p-6 ${className}`} aria-label="Resumen de la solicitud">
-      <h2 className="font-display text-sm uppercase tracking-widest text-gray-400">
-        Tu solicitud
-      </h2>
+    <aside className={`${PANEL} ${className}`} aria-label="Resumen de la solicitud">
+      <span aria-hidden="true" className="eva-panel-label">
+        SYS {'//'} RESUMEN
+      </span>
+      <span aria-hidden="true" className="eva-panel-code">
+        EXT-{String(extras.length).padStart(2, '0')}
+      </span>
+
+      <h2 className="font-mono text-sm uppercase tracking-widest text-eva-gray">Tu solicitud</h2>
 
       <div className="mt-4 space-y-3">
         {service ? (
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm text-gray-300">
+            <span className="text-sm text-eva-paper">
               {service.name}
-              {service.quantity > 1 && (
-                <span className="text-gray-400"> × {service.quantity}</span>
-              )}
+              {service.quantity > 1 && <span className="text-eva-gray"> × {service.quantity}</span>}
             </span>
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Elegí un tipo de sitio para empezar.</p>
+          <p className="text-sm text-eva-gray">Elegí un tipo de sitio para empezar.</p>
         )}
 
         {extras.length > 0 ? (
-          <ul className="space-y-2 border-t border-dark-border pt-3">
+          <ul className="space-y-2 border-t-2 border-eva-line pt-3">
             {extras.map((extra) => (
-              <li key={extra.id} className="text-sm text-gray-400">
+              <li key={extra.id} className="text-sm text-eva-gray">
                 {extra.name}
               </li>
             ))}
           </ul>
         ) : (
-          service && <p className="border-t border-dark-border pt-3 text-xs text-gray-400">Sin extras</p>
+          service && <p className="border-t-2 border-eva-line pt-3 text-xs text-eva-gray">Sin extras</p>
         )}
       </div>
 
-      <p className="mt-6 border-t border-dark-border pt-4 text-xs text-gray-400">
+      <p className="mt-6 border-t-2 border-eva-line pt-4 text-xs text-eva-gray">
         Te respondo por email con el presupuesto a medida, sin cargo.
       </p>
     </aside>

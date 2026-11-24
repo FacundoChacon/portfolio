@@ -1,4 +1,5 @@
 import { FIELD_MAX_LENGTH, HONEYPOT_FIELD } from '../../utils/wizard.js'
+import { claseCampo } from './estilos.js'
 
 /**
  * Paso 3: datos de contacto (C-08).
@@ -7,17 +8,20 @@ import { FIELD_MAX_LENGTH, HONEYPOT_FIELD } from '../../utils/wizard.js'
  * hace `nextStep`/`submit` (C-05); acá solo se renderizan los mensajes con
  * `aria-invalid` + `aria-describedby` + `role="alert"` (RN-VL-04).
  */
-const inputClass = (hasError) =>
-  `w-full rounded-md border bg-dark-card/60 px-3 py-2 text-sm text-white placeholder:text-gray-400 transition-colors ${
-    hasError
-      ? 'border-accent-pink/60 focus:border-accent-pink/80'
-      : 'border-dark-border focus:border-accent-green/60'
-  }`
+const labelClass = 'mb-1 block font-mono text-xs uppercase tracking-widest text-eva-gray'
 
+/** Mensaje de error: marca textual ERR (aria-hidden) + mensaje; no depende del color. */
 function FieldError({ id, error }) {
   if (!error) return null
   return (
-    <p id={`${id}-error`} role="alert" className="mt-1 text-xs text-accent-pink">
+    <p
+      id={`${id}-error`}
+      role="alert"
+      className="mt-1 flex items-start gap-2 font-mono text-xs text-eva-error"
+    >
+      <span aria-hidden="true" className="shrink-0 bg-eva-error px-1 text-eva-black">
+        ERR
+      </span>
       {error}
     </p>
   )
@@ -26,18 +30,15 @@ function FieldError({ id, error }) {
 function Field({ id, label, required = false, error, className = '', ...props }) {
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="mb-1 block text-xs font-medium uppercase tracking-widest text-gray-400"
-      >
+      <label htmlFor={id} className={labelClass}>
         {label}
-        {required && <span className="text-accent-pink"> *</span>}
+        {required && <span className="text-eva-secondary"> *</span>}
       </label>
       <input
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`${inputClass(Boolean(error))} ${className}`}
+        className={`${claseCampo(Boolean(error))} ${className}`}
         {...props}
       />
       <FieldError id={id} error={error} />
@@ -48,10 +49,7 @@ function Field({ id, label, required = false, error, className = '', ...props })
 function TextArea({ id, label, error, className = '', ...props }) {
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="mb-1 block text-xs font-medium uppercase tracking-widest text-gray-400"
-      >
+      <label htmlFor={id} className={labelClass}>
         {label}
       </label>
       <textarea
@@ -59,7 +57,7 @@ function TextArea({ id, label, error, className = '', ...props }) {
         rows={3}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`${inputClass(Boolean(error))} ${className}`}
+        className={`${claseCampo(Boolean(error))} ${className}`}
         {...props}
       />
       <FieldError id={id} error={error} />

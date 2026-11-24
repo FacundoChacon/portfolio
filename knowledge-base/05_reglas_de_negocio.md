@@ -69,6 +69,6 @@ Cada regla tiene un código único `RN-{DOMINIO}-{NN}` para trazabilidad.
 ## Dominio: Excepciones globales
 
 - **RN-EX-01**: toda la copia de UI es en **español (es-AR)**.
-- **RN-EX-02**: el configurador respeta la estética del portfolio (fondo `#030303`, acentos verde `#00ffc3` y magenta `#ff6eff`) pero adopta el patrón "tarjetas modulares" del concepto calculadora.
+- **RN-EX-02**: el configurador respeta la estética del portfolio (paleta `eva`: fondo `#050505`, papel `#EDE6D6`, acento naranja `#FF7A1A`, violeta `#8A4FD8` y verde fósforo `#3DFF7A`, definida en `src/styles/eva-tokens.js`) pero adopta el patrón "tarjetas modulares" del concepto calculadora.
 - **RN-EX-03**: el wizard es navegable hacia atrás sin perder el estado ya cargado.
 - **RN-EX-04**: el sitio es **responsive** y operable por teclado (focus visible, contraste AA).
