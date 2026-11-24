@@ -18,6 +18,16 @@ export const FICHA = [
   { id: 'estado', etiqueta: 'Estado', valor: 'Operativo · disponible', tono: 'ok' },
 ]
 
+/** Kicker del hero (se escribe en la entrada; el resto del hero lo reutiliza como texto real). */
+export const KICKER = '01 // Presentación'
+
+/** Subtítulo del hero: rol y especialidad. */
+export const SUBTITULO = `${PERFIL.rol} · ${PERFIL.especialidad}`
+
+/** Descripción del hero. */
+export const DESCRIPCION =
+  'Construyo experiencias full stack de punta a punta: APIs robustas con Java 17 y Spring Boot, interfaces reactivas con React y Tailwind CSS. Actualmente buscando mi primera oportunidad profesional.'
+
 export const ENLACES_PERFIL = [
   { id: 'github', label: 'GitHub', href: 'https://github.com/FacundoChacon' },
   { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/facundo-chacon-61362735a' },

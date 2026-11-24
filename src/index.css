@@ -571,3 +571,16 @@
     display: none;
   }
 }
+
+/* Cursor de la entrada escrita del hero: bloque sólido sobre el próximo carácter, que NO parpadea (spec "Sin efectos
+   intermitentes"). Es el fondo del propio carácter (que ya ocupa su caja): no es un elemento que se desplaza, así que no
+   suma CLS ni cambia cortes de línea. */
+.eva-cursor-escritura {
+  background-color: var(--eva-primary-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eva-cursor-escritura {
+    background-color: transparent;
+  }
+}

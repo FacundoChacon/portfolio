@@ -6,6 +6,10 @@
 
 ---
 
+> **Nota (2026-11-24) — `hero-escritura`.** Hero con entrada escrita en tres fases (texto izq→der, retrato tras un obturador, ficha der→izq), una vez por carga y con movimiento reducido en estado final. Se cierran los huecos bajo las acciones del hero y bajo los canales de Contáctame. No revive `texto-animado` (sin glitch). Trade-off de LCP: el retrato se pinta desde el primer frame bajo el obturador. Ver `openspec/changes/hero-escritura/`.
+
+---
+
 > **Nota (2026-11-23) — Rediseño Evangelion.** Sitio y configurador pasan de la estética cyber/neón a Evangelion brutalista. Changes en orden:
 > 1. `tokens-fuentes-texturas-eva`: paleta `eva`, Noto Serif Display y JetBrains Mono autoalojadas, texturas y paneles.
 > 2. `navbar-brutalista-glass`: barra con cristal oscuro y marca `FC //00`.

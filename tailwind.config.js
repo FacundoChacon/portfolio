@@ -18,8 +18,13 @@ export default {
       },
       animation: {
         'eva-boot': 'evaBoot 0.36s steps(6, end) backwards',
+        'eva-obturador': 'evaObturador 0.3s steps(6, end) forwards',
       },
       keyframes: {
+        evaObturador: {
+          '0%': { 'clip-path': 'inset(0 0 0 0)' },
+          '100%': { 'clip-path': 'inset(0 0 0 100%)' },
+        },
         evaBoot: {
           '0%': { 'clip-path': 'inset(0 100% 0 0)' },
           '100%': { 'clip-path': 'inset(0 0 0 0)' },

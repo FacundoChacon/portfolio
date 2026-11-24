@@ -19,7 +19,7 @@ const ICONS = { email: Mail, github: GithubIcon, linkedin: LinkedinIcon }
  * (`.eva-channel` + `data-brand` en `index.css`): acá no hay colores con variante de estado.
  */
 const CHANNEL_CLASSES =
-  "eva-channel relative flex min-h-[4.5rem] items-stretch border-2 border-eva-gray-dim bg-eva-panel active:shadow-none motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:active:translate-y-0"
+  "eva-channel relative flex min-h-[4.5rem] lg:h-full items-stretch border-2 border-eva-gray-dim bg-eva-panel active:shadow-none motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:active:translate-y-0"
 
 export default function Contact() {
   const { code } = HOME_NAV_LINKS.find((link) => link.id === "contacto")
@@ -63,7 +63,7 @@ export default function Contact() {
             <div aria-hidden="true" className="eva-stripes mt-8 h-2" />
           </div>
 
-          <ul className="grid content-start gap-5 lg:col-span-7">
+          <ul className="grid content-start gap-5 lg:auto-rows-fr lg:content-stretch lg:col-span-7">
             {CHANNELS.map((channel, index) => {
               const Icon = ICONS[channel.id]
               const external = isExternalHref(channel.href)
