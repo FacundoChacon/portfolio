@@ -131,6 +131,39 @@ test('NavBrand: el código //00 acompaña con el color secundario', () => {
   assert.doesNotMatch(brand, /eva-orange/)
 })
 
+/**
+ * Errores de `NavBrand.jsx` (change `logo-eva`): el glifo simple va ANTES de "FC" y no lo reemplaza.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function navBrandLogoErrors(source) {
+  const errors = []
+  if (!/import\s+LogoEva\s+from\s+["']\.\/LogoEva["']/.test(source)) errors.push('no importa LogoEva')
+  const glifo = source.indexOf('<LogoEva variante="simple"')
+  const texto = source.search(/^\s*FC\s*$/m)
+  if (glifo === -1) errors.push('no monta <LogoEva variante="simple"')
+  else if (texto !== -1 && glifo > texto) errors.push('el glifo debe ir antes de FC')
+  if (texto === -1) errors.push('el texto FC desaparecio')
+  for (const requerido of ['navCode(BRAND_CODE)', 'tracking-[0.2em] text-eva-secondary', 'sr-only', ', ir al inicio', 'to="/"', 'font-eva-display']) {
+    if (!source.includes(requerido)) errors.push(`falta ${requerido}`)
+  }
+  return errors
+}
+
+test('NavBrand monta el glifo simple junto a FC', () => {
+  assert.deepEqual(navBrandLogoErrors(read('src/components/NavBrand.jsx')), [])
+})
+
+test('navBrandLogoErrors: sin glifo, glifo despues de FC, sin FC o sin sr-only fallan', () => {
+  const real = read('src/components/NavBrand.jsx')
+  assert.ok(navBrandLogoErrors(real.replace(/<LogoEva[^>]*\/>/, '')).includes('no monta <LogoEva variante="simple"'))
+  const despues = real.replace(/ *<LogoEva[^>]*\/>\r?\n/, '').replace(/^(\s*FC\s*)$/m, '$1\n<LogoEva variante="simple" className="h-7 w-auto" />')
+  assert.notEqual(despues, real)
+  assert.ok(navBrandLogoErrors(despues).includes('el glifo debe ir antes de FC'))
+  assert.ok(navBrandLogoErrors(real.replace(/^\s*FC\s*$/m, '')).includes('el texto FC desaparecio'))
+  assert.ok(navBrandLogoErrors(real.replace('sr-only', 'hidden')).includes('falta sr-only'))
+})
+
 // --- pulido-post-auditoria: enlaces visibles y panel móvil ---
 
 test('SiteNav consume HOME_NAV_LINKS (no NAV_LINKS) para enlaces y scroll-spy', () => {
