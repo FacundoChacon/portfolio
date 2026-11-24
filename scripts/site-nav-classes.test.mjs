@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import { NAV_HEIGHT_PX } from '../src/utils/siteNav.js'
+import { findStyleViolations } from './lib/class-guard.mjs'
 import { ruleBody } from './lib/css-rules.mjs'
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
@@ -29,28 +30,6 @@ test('index.css: scroll-padding-top usa --eva-nav-h y coincide con NAV_HEIGHT_PX
 })
 
 const NAV_FILES = ['src/components/SiteNav.jsx', 'src/components/NavBrand.jsx']
-
-const tokenize = (source) => source.split(/[\s"'`{}<>=]+/).filter(Boolean)
-
-/**
- * Problemas de estilo en una fuente JSX de la barra: clases del sistema viejo,
- * radios, hex literales y traslación en hover sin `motion-safe:`.
- * @param {string} source
- * @returns {string[]}
- */
-function findStyleViolations(source) {
-  const found = []
-  for (const token of tokenize(source)) {
-    const base = token.replace(/\/\d+$/, '')
-    const util = base.split(':').pop()
-    if (/^(accent|neon)-/.test(util) || /-(accent|neon)-/.test(util)) found.push(token)
-    else if (/-glow-/.test(util) || /^(text|box)-glow/.test(util)) found.push(token)
-    else if (/^rounded(-|$)/.test(util)) found.push(token)
-    else if (/(^|\[)#[0-9a-f]{3,8}\]?$/i.test(util)) found.push(token)
-    else if (/\bhover:/.test(base) && /translate/.test(util) && !/motion-safe:/.test(base)) found.push(token)
-  }
-  return found
-}
 
 test('findStyleViolations: detecta lo prohibido y acepta lo permitido', () => {
   assert.deepEqual(findStyleViolations('<a className="text-accent-green">'), ['text-accent-green'])

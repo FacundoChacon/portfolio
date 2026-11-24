@@ -16,6 +16,8 @@ import {
   logoBaseStyles,
 } from '../src/styles/eva-tokens.js'
 import { LOGO_VARIANTES, logoSvg, trazoPath } from '../src/data/logo.js'
+import { findStyleViolations } from './lib/class-guard.mjs'
+import { ruleBody } from './lib/css-rules.mjs'
 import { checkContrastPairs } from './lib/contrast.mjs'
 
 // --- Colores del logotipo como tokens (design D2) ---------------------------
@@ -618,4 +620,96 @@ test('logoSvg: con colores falsos y variante simple usa esos hex y no los reales
 
 test('logoSvg: una variante inexistente lanza un error que la nombra', () => {
   assert.throws(() => logoSvg({ variante: 'nope', colores: EVA_LOGO_COLORS }), (e) => e.message.includes('nope'))
+})
+
+// --- Componente LogoEva (design D3, D4) -------------------------------------
+
+const LOGO_JSX = 'src/components/LogoEva.jsx'
+
+/**
+ * Errores del guard estatico de `LogoEva.jsx`.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function logoComponentErrors(source) {
+  const errors = []
+  if (!/import\s*\{[^}]*\bLOGO_VARIANTES\b[^}]*\}\s*from\s*["']\.\.\/data\/logo["']/.test(source)) {
+    errors.push('no importa LOGO_VARIANTES de ../data/logo')
+  }
+  if (!/\.sombra\b/.test(source) || !/\.filo\b|trazoDelFilo/.test(source)) errors.push('no usa sombra y filo de la variante')
+  for (const requerido of ['aria-hidden="true"', 'focusable="false"', 'eva-logo-sombra', 'eva-logo-filo', 'eva-logo-relleno']) {
+    if (!source.includes(requerido)) errors.push(`falta ${requerido}`)
+  }
+  for (const prohibido of ['style=', 'dangerouslySetInnerHTML']) {
+    if (source.includes(prohibido)) errors.push(`no debe contener ${prohibido}`)
+  }
+  errors.push(...findStyleViolations(source).map((token) => `violacion de estilo: ${token}`))
+  return errors
+}
+
+test('LogoEva.jsx: cumple el guard (datos de la fuente unica, decorativo, sin estilos ni hex)', () => {
+  assert.deepEqual(logoComponentErrors(read(LOGO_JSX)), [])
+})
+
+test('logoComponentErrors: detecta style, hex, dangerouslySetInnerHTML y datos propios', () => {
+  const fuente = '<svg style={{ fill: "red" }} focusable="false"><path className="eva-logo-sombra" fill="#FFC21A" dangerouslySetInnerHTML={{ __html: x }} /></svg>'
+  const errores = logoComponentErrors(fuente)
+  for (const esperado of [
+    'no importa LOGO_VARIANTES de ../data/logo',
+    'falta aria-hidden="true"',
+    'falta eva-logo-filo',
+    'falta eva-logo-relleno',
+    'no debe contener style=',
+    'no debe contener dangerouslySetInnerHTML',
+  ]) {
+    assert.ok(errores.includes(esperado), esperado)
+  }
+  assert.ok(errores.some((e) => e.startsWith('violacion de estilo')))
+})
+
+// --- Reglas CSS del logo (design D3) ----------------------------------------
+
+const CSS = read('src/index.css')
+
+/**
+ * Errores de las reglas `.eva-logo-*` de un CSS.
+ * @param {string} css
+ * @returns {string[]}
+ */
+function logoCssErrors(css) {
+  const errors = []
+  const contorno = ruleBody(css, '.eva-logo-sombra, .eva-logo-filo')
+  const relleno = ruleBody(css, '.eva-logo-relleno')
+  if (contorno === null) errors.push('falta la regla de .eva-logo-sombra y .eva-logo-filo')
+  else {
+    for (const decl of ['fill: var(--eva-logo-edge)', 'stroke: var(--eva-logo-edge)', 'stroke-linejoin: miter', 'stroke-miterlimit: 2']) {
+      if (!contorno.includes(decl)) errors.push(`sombra/filo: falta ${decl}`)
+    }
+  }
+  if (relleno === null) errors.push('falta la regla de .eva-logo-relleno')
+  else {
+    if (!relleno.includes('fill: var(--eva-logo-fill)')) errors.push('relleno: falta fill: var(--eva-logo-fill)')
+    if (!relleno.includes('stroke: none')) errors.push('relleno: falta stroke: none')
+  }
+  for (const regla of [contorno, relleno].filter((r) => r !== null)) {
+    if (/animation|glow|var\(--eva-secondary\)/.test(regla)) errors.push('las reglas del logo no usan animation, glow ni --eva-secondary')
+  }
+  return errors
+}
+
+test('index.css: las reglas .eva-logo-* usan las variables del logo y miter con limite 2', () => {
+  assert.deepEqual(logoCssErrors(CSS), [])
+})
+
+test('logoCssErrors: relleno con --eva-secondary, sin reglas o con animation fallan', () => {
+  const secundario = CSS.replace('fill: var(--eva-logo-fill)', 'fill: var(--eva-secondary)')
+  assert.notEqual(secundario, CSS)
+  assert.ok(logoCssErrors(secundario).some((e) => e.includes('relleno: falta fill')))
+  assert.ok(logoCssErrors(secundario).some((e) => e.includes('--eva-secondary')))
+  assert.deepEqual(logoCssErrors('.otra { color: red }'), [
+    'falta la regla de .eva-logo-sombra y .eva-logo-filo',
+    'falta la regla de .eva-logo-relleno',
+  ])
+  const animado = CSS.replace('stroke: none', 'stroke: none; animation: x 1s')
+  assert.ok(logoCssErrors(animado).some((e) => e.includes('animation')))
 })

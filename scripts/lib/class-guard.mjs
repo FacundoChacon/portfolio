@@ -28,3 +28,26 @@ export function findForbiddenTokens(source, rules) {
 export function withoutMotionSafe(utilitySource) {
   return new RegExp(String.raw`(?<![\w:-])(?:(?!motion-safe:)[\w-]+:)*${utilitySource}(?![\w-])`)
 }
+
+const tokenize = (source) => source.split(/[\s"'`{}<>=]+/).filter(Boolean)
+
+/**
+ * Problemas de estilo en una fuente JSX de la barra: clases del sistema viejo,
+ * radios, hex literales y traslación en hover sin `motion-safe:`.
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function findStyleViolations(source) {
+  const found = []
+  for (const token of tokenize(source)) {
+    const base = token.replace(/\/\d+$/, '')
+    const util = base.split(':').pop()
+    if (/^(accent|neon)-/.test(util) || /-(accent|neon)-/.test(util)) found.push(token)
+    else if (/-glow-/.test(util) || /^(text|box)-glow/.test(util)) found.push(token)
+    else if (/^rounded(-|$)/.test(util)) found.push(token)
+    else if (/(^|\[)#[0-9a-f]{3,8}\]?$/i.test(util)) found.push(token)
+    else if (/\bhover:/.test(base) && /translate/.test(util) && !/motion-safe:/.test(base)) found.push(token)
+  }
+  return found
+}
+
