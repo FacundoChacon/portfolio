@@ -118,3 +118,35 @@ test('guard de márgenes: rechaza mt-12 y acepta mt-8', () => {
   assert.deepEqual(margenesAnchos('<div className="mt-12 grid">'), ['mt-12'])
   assert.deepEqual(margenesAnchos('<div className="mt-8 grid">'), [])
 })
+
+// --- 3.1 Proyectos compacto --------------------------------------------------
+
+test('index.css: .proyectos no tiene padding-block propio y conserva --por-vista', () => {
+  const body = ruleBody(CSS, '.proyectos')
+  assert.notEqual(body, null, '.proyectos no existe')
+  assert.equal(decl(body, 'padding-block'), null)
+  assert.equal(decl(body, '--por-vista'), '1')
+  assert.equal(decl(body, '--proyectos-gap'), '1rem')
+})
+
+test('index.css: .proyectos-panel deja 2.5rem de relleno inferior', () => {
+  assert.equal(decl(ruleBody(CSS, '.proyectos-panel'), 'padding'), '1rem 1rem 2.5rem')
+})
+
+test('guard de Proyectos: rechaza el CSS anterior (padding-block 5rem, relleno 4.5rem)', () => {
+  const viejo = '.proyectos { --por-vista: 1; padding-block: 5rem; } .proyectos-panel { padding: 1rem 1rem 4.5rem; }'
+  assert.equal(decl(ruleBody(viejo, '.proyectos'), 'padding-block'), '5rem')
+  assert.equal(decl(ruleBody(viejo, '.proyectos-panel'), 'padding'), '1rem 1rem 4.5rem')
+})
+
+test('Projects.jsx: la sección usa eva-seccion y el panel va a mt-6', () => {
+  const source = read('src/components/Projects.jsx')
+  assert.deepEqual(violacionesSeccion(source), [])
+  assert.match(source, /<div className="mt-6">\s*<PanelProyectos/)
+  assert.deepEqual(margenesAnchos(source), [])
+})
+
+test('guard de Proyectos: rechaza el marcado anterior (sin eva-seccion, mt-10)', () => {
+  assert.deepEqual(violacionesSeccion('<section id="proyectos" className="proyectos eva-hex-grid relative">'), ['falta eva-seccion'])
+  assert.deepEqual(margenesAnchos('<div className="mt-10"><PanelProyectos />'), ['mt-10'])
+})

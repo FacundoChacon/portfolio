@@ -335,7 +335,6 @@
 .proyectos {
   --proyectos-gap: 1rem;
   --por-vista: 1;
-  padding-block: 5rem;
 }
 
 /* Cortes de cards por ancho: mismos valores que CORTES en src/utils/panelProyectos.js (guarda en scripts/panel-guard.test.mjs). */
@@ -355,8 +354,8 @@
 .proyectos-panel {
   width: min(100% - 2rem, 72rem);
   margin-inline: auto;
-  /* Margen inferior amplio: el líquido y su superficie asoman bajo las cards. */
-  padding: 1rem 1rem 4.5rem;
+  /* Margen inferior justo: el líquido y su superficie asoman 40 px bajo las cards. */
+  padding: 1rem 1rem 2.5rem;
   overflow: hidden;
   overflow: clip;
 }

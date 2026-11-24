@@ -18,8 +18,8 @@
 
 ## 3. Proyectos compacto (design D3)
 
-- [ ] 3.1 RED en `scripts/secciones-encuadre.test.mjs`: `.proyectos` no tiene `padding-block` (pero conserva `--por-vista`), `.proyectos-panel` tiene relleno inferior de `2.5rem`, el `<section id="proyectos">` lleva `eva-seccion` y el envoltorio del panel usa `mt-6` (no `mt-10`). Triangular con el CSS actual (`padding-block: 5rem`, `padding: 1rem 1rem 4.5rem`), que tiene que fallar. Verificación: el test falla.
-- [ ] 3.2 GREEN: aplicar D3 en `src/index.css` y `Projects.jsx`. Verificación: `npm test` en verde, incluidos `panel-guard`, `foil-guard`, `lcl` y `proyectos-guard`; `npm run build` sin errores. Playwright en 1366×768, 1280×800 y 1440×900: al activar "Proyectos" el título queda a ≤ 64 px de la barra y el fin del botón "Repositorio" de las cards visibles queda dentro de la pantalla; el LCL sigue visible bajo las cards (captura `encuadre-despues-proyectos-<ancho>.png`).
+- [x] 3.1 RED en `scripts/secciones-encuadre.test.mjs`: `.proyectos` no tiene `padding-block` (pero conserva `--por-vista`), `.proyectos-panel` tiene relleno inferior de `2.5rem`, el `<section id="proyectos">` lleva `eva-seccion` y el envoltorio del panel usa `mt-6` (no `mt-10`). Triangular con el CSS actual (`padding-block: 5rem`, `padding: 1rem 1rem 4.5rem`), que tiene que fallar. Verificación: el test falla.
+- [x] 3.2 GREEN: aplicar D3 en `src/index.css` y `Projects.jsx`. Verificación: `npm test` en verde, incluidos `panel-guard`, `foil-guard`, `lcl` y `proyectos-guard`; `npm run build` sin errores. Playwright en 1366×768, 1280×800 y 1440×900: al activar "Proyectos" el título queda a ≤ 64 px de la barra y el fin del botón "Repositorio" de las cards visibles queda dentro de la pantalla; el LCL sigue visible bajo las cards (captura `encuadre-despues-proyectos-<ancho>.png`).
 
 ## 4. Contacto como cierre (design D4)
 

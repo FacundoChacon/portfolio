@@ -10,7 +10,7 @@ export default function Projects() {
     <section
       id="proyectos"
       aria-labelledby="proyectos-titulo"
-      className="proyectos eva-hex-grid relative border-t-2 border-eva-line"
+      className="proyectos eva-seccion eva-hex-grid relative border-t-2 border-eva-line"
     >
       <header
         ref={revealRef}
@@ -29,7 +29,7 @@ export default function Projects() {
         </div>
       </header>
 
-      <div className="mt-10">
+      <div className="mt-6">
         <PanelProyectos projects={PROYECTOS} />
       </div>
       <ProyectosCierre />
