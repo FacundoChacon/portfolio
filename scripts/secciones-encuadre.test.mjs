@@ -150,3 +150,65 @@ test('guard de Proyectos: rechaza el marcado anterior (sin eva-seccion, mt-10)',
   assert.deepEqual(violacionesSeccion('<section id="proyectos" className="proyectos eva-hex-grid relative">'), ['falta eva-seccion'])
   assert.deepEqual(margenesAnchos('<div className="mt-10"><PanelProyectos />'), ['mt-10'])
 })
+
+// --- 4.1 Contacto como cierre -------------------------------------------------
+
+/** Todas las declaraciones de `prop` (en orden) de un cuerpo de regla. */
+function declAll(body, prop) {
+  if (body === null) return []
+  return [...body.matchAll(new RegExp(String.raw`(?:^|[;\s])${prop}\s*:\s*([^;]+)`, 'g'))].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim(),
+  )
+}
+
+test('index.css: .contacto-cierre anula el aire del foco y limita el relleno inferior a 2rem', () => {
+  const body = ruleBody(CSS, '.contacto-cierre')
+  assert.notEqual(body, null, '.contacto-cierre no existe')
+  assert.equal(decl(body, 'scroll-margin-top'), 'calc(-1 * var(--eva-foco-aire))')
+  assert.ok(parseFloat(decl(body, 'padding-bottom')) <= 2, decl(body, 'padding-bottom'))
+})
+
+test('index.css: .contacto-cierre fuera de @media no fija alto mínimo ni flex (móvil: alto natural)', () => {
+  const body = ruleBody(CSS, '.contacto-cierre')
+  assert.notEqual(body, null, '.contacto-cierre no existe')
+  assert.deepEqual(declAll(body, 'min-height'), [])
+  assert.equal(decl(body, 'display'), null)
+})
+
+test('index.css: desde 768px .contacto-cierre es columna flex con alto útil topado a 52rem (vh y luego svh)', () => {
+  const body = ruleBody(CSS, '.contacto-cierre', { within: MD })
+  assert.notEqual(body, null, '.contacto-cierre no existe dentro de @media (min-width: 768px)')
+  assert.equal(decl(body, 'display'), 'flex')
+  assert.equal(decl(body, 'flex-direction'), 'column')
+  assert.deepEqual(declAll(body, 'min-height'), [
+    'min(calc(100vh - var(--eva-nav-h)), 52rem)',
+    'min(calc(100svh - var(--eva-nav-h)), 52rem)',
+  ])
+})
+
+test('guard de Contacto: rechaza un min-height fuera del @media y uno sin tope', () => {
+  const fuera = '.contacto-cierre { min-height: min(calc(100vh - var(--eva-nav-h)), 52rem); }'
+  assert.deepEqual(declAll(ruleBody(fuera, '.contacto-cierre'), 'min-height'), ['min(calc(100vh - var(--eva-nav-h)), 52rem)'])
+  assert.equal(ruleBody(fuera, '.contacto-cierre', { within: MD }), null)
+  const sinTope = '@media (min-width: 768px) { .contacto-cierre { min-height: calc(100vh - var(--eva-nav-h)); } }'
+  assert.deepEqual(declAll(ruleBody(sinTope, '.contacto-cierre', { within: MD }), 'min-height'), ['calc(100vh - var(--eva-nav-h))'])
+})
+
+test('Contact.jsx: la sección es contacto-cierre sin pb-24; contenedor, envoltorio, grilla y pie con el ritmo nuevo', () => {
+  const source = read('src/components/Contact.jsx')
+  const clases = clasesDeSeccion(source)
+  assert.ok(clases.includes('contacto-cierre'), 'falta contacto-cierre')
+  assert.deepEqual(clases.filter((c) => PADDING_UTIL.test(c)), [])
+  assert.match(source, /<div className="mx-auto [^"]*\bpt-14\b[^"]*\bmd:flex\b[^"]*\bmd:flex-1\b[^"]*\bmd:flex-col\b[^"]*">/)
+  assert.match(source, /<div className="md:my-auto">/)
+  assert.match(source, /\bmt-8 grid gap-12 lg:grid-cols-12/)
+  assert.match(source, /<footer className="mt-12 /)
+  assert.doesNotMatch(source, /\bpt-20\b|\bmt-14\b|\bmt-20\b/)
+})
+
+test('guard de Contacto: rechaza el marcado anterior', () => {
+  const viejo = '<section id="contacto" className="relative pb-24"><div className="mx-auto max-w-6xl px-4 pt-20 md:px-6">'
+  assert.ok(!clasesDeSeccion(viejo).includes('contacto-cierre'))
+  assert.deepEqual(clasesDeSeccion(viejo).filter((c) => PADDING_UTIL.test(c)), ['pb-24'])
+  assert.doesNotMatch(viejo, /\bpt-14\b/)
+})

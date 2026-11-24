@@ -83,6 +83,20 @@
       padding-block: 3.5rem;
     }
   }
+  /* Contacto como cierre: desde 768 px ocupa el alto útil bajo la barra (tope 52rem para no estirarse en
+     pantallas altas) y reparte el sobrante con my-auto del marcado, nunca entre los canales. En móvil, alto natural. */
+  .contacto-cierre {
+    scroll-margin-top: calc(-1 * var(--eva-foco-aire));
+    padding-bottom: 2rem;
+  }
+  @media (min-width: 768px) {
+    .contacto-cierre {
+      display: flex;
+      flex-direction: column;
+      min-height: min(calc(100vh - var(--eva-nav-h)), 52rem);
+      min-height: min(calc(100svh - var(--eva-nav-h)), 52rem);
+    }
+  }
   /* Cristal de la barra: negro translúcido con desenfoque; opaco si no hay backdrop-filter */
   .eva-nav-glass {
     background-color: rgb(5 5 5 / 0.85);

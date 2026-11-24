@@ -6,6 +6,10 @@
 
 ---
 
+> **Nota (2026-11-24) — `secciones-encuadre`.** Al navegar con la barra, cada sección (Quién soy, Proyectos, Stack, Testimonios, Contáctame) queda pegada a la barra y con su título a ~57 px de ella, con el mismo ritmo vertical (clase `.eva-seccion`, 48/56 px). Proyectos entra completo en 1366×768 y Contáctame cierra la página como un bloque de alto útil (`.contacto-cierre`, tope 52rem). No cambian el hero, la barra ni los textos. Ver `openspec/changes/secciones-encuadre/`.
+
+---
+
 > **Nota (2026-11-24) — `hero-escritura`.** Hero con entrada escrita en tres fases (texto izq→der, retrato tras un obturador, ficha der→izq), una vez por carga y con movimiento reducido en estado final. Se cierran los huecos bajo las acciones del hero y bajo los canales de Contáctame. No revive `texto-animado` (sin glitch). Trade-off de LCP: el retrato se pinta desde el primer frame bajo el obturador. Ver `openspec/changes/archive/2026-11-24-hero-escritura/`.
 
 ---
