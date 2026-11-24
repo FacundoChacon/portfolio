@@ -18,10 +18,11 @@
     --eva-success: theme('colors.eva.success');
     --eva-error: theme('colors.eva.error');
     --eva-nav-h: 70px;
+    --eva-foco-aire: 1rem;
   }
 
   html {
-    scroll-padding-top: calc(var(--eva-nav-h) + 1rem);
+    scroll-padding-top: calc(var(--eva-nav-h) + var(--eva-foco-aire));
     scrollbar-color: var(--eva-gray-dim) var(--eva-black);
   }
 
@@ -70,6 +71,32 @@
 }
 
 @layer components {
+  /* Ritmo común de Quién soy, Proyectos, Stack y Testimonios. El scroll-margin negativo anula el aire
+     del foco (--eva-foco-aire) solo para la sección: al navegar queda pegada a la barra (scroll-padding
+     + scroll-margin = --eva-nav-h) y un control enfocado conserva su aire. Va atado al token. */
+  .eva-seccion {
+    scroll-margin-top: calc(-1 * var(--eva-foco-aire));
+    padding-block: 3rem;
+  }
+  @media (min-width: 768px) {
+    .eva-seccion {
+      padding-block: 3.5rem;
+    }
+  }
+  /* Contacto como cierre: desde 768 px ocupa el alto útil bajo la barra (tope 52rem para no estirarse en
+     pantallas altas) y reparte el sobrante con my-auto del marcado, nunca entre los canales. En móvil, alto natural. */
+  .contacto-cierre {
+    scroll-margin-top: calc(-1 * var(--eva-foco-aire));
+    padding-bottom: 2rem;
+  }
+  @media (min-width: 768px) {
+    .contacto-cierre {
+      display: flex;
+      flex-direction: column;
+      min-height: min(calc(100vh - var(--eva-nav-h)), 52rem);
+      min-height: min(calc(100svh - var(--eva-nav-h)), 52rem);
+    }
+  }
   /* Cristal de la barra: negro translúcido con desenfoque; opaco si no hay backdrop-filter */
   .eva-nav-glass {
     background-color: rgb(5 5 5 / 0.85);
@@ -322,7 +349,6 @@
 .proyectos {
   --proyectos-gap: 1rem;
   --por-vista: 1;
-  padding-block: 5rem;
 }
 
 /* Cortes de cards por ancho: mismos valores que CORTES en src/utils/panelProyectos.js (guarda en scripts/panel-guard.test.mjs). */
@@ -342,8 +368,8 @@
 .proyectos-panel {
   width: min(100% - 2rem, 72rem);
   margin-inline: auto;
-  /* Margen inferior amplio: el líquido y su superficie asoman bajo las cards. */
-  padding: 1rem 1rem 4.5rem;
+  /* Margen inferior justo: el líquido y su superficie asoman 40 px bajo las cards. */
+  padding: 1rem 1rem 2.5rem;
   overflow: hidden;
   overflow: clip;
 }

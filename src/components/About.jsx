@@ -33,7 +33,7 @@ export default function About() {
     <section
       id="quien-soy"
       aria-labelledby="quien-soy-titulo"
-      className="eva-hex-grid relative border-t border-eva-line bg-eva-black py-24"
+      className="eva-hex-grid relative eva-seccion border-t border-eva-line bg-eva-black"
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex items-center gap-4">
@@ -47,7 +47,7 @@ export default function About() {
           <div aria-hidden="true" className="eva-stripes h-1 flex-1" />
         </div>
 
-        <div ref={ref} className="mt-12 grid gap-12 lg:grid-cols-[1.2fr_1fr]">
+        <div ref={ref} className="mt-8 grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <article
             className={`eva-glass eva-reveal space-y-5 p-6 pt-8 text-lg leading-relaxed text-eva-gray text-pretty ${shown}`}
             style={stagger(0)}
