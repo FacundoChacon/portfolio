@@ -47,6 +47,7 @@ test('buildContactChannels: orden, ids y mailto con el email recibido', () => {
   assert.deepEqual(channels.map((c) => c.id), ['email', 'github', 'linkedin'])
   assert.equal(channels[0].value, 'hola@ejemplo.com')
   assert.equal(channels[0].href, 'mailto:hola@ejemplo.com')
+  assert.deepEqual(channels.map((c) => c.brand), ['email', 'github', 'linkedin'])
 })
 
 test('buildContactChannels: triangulación con otro email y externos https', () => {
@@ -59,6 +60,7 @@ test('buildContactChannels: triangulación con otro email y externos https', () 
   for (const c of [email, ...externos]) {
     assert.ok(c.label.trim() && c.value.trim())
   }
+  assert.deepEqual([email, ...externos].map((c) => c.brand), ['email', 'github', 'linkedin'])
 })
 
 test('isExternalHref: solo http(s)', () => {
@@ -134,6 +136,11 @@ const FORBIDDEN_RULES = [
   { rule: 'texto eva-primary/gray-dim', pattern: /text-eva-(?:primary|gray-dim)(?![\w-])/ },
   { rule: 'nombre de color de acento', pattern: /eva-(?:orange|purple|green|red|violet|aqua|sky)(?![\w-])/ },
   { rule: 'animate-', pattern: util(String.raw`animate-[\w-]+`) },
+  { rule: 'var(--brand) en JSX', pattern: /var\(--brand/ },
+  {
+    rule: 'color con variante de estado',
+    pattern: util(String.raw`(?:hover|focus-visible|group-hover|group-focus-visible):(?:border-eva-|shadow-\[|bg-eva-|text-eva-)[\w/[\]().,-]*`),
+  },
   { rule: 'hover translate sin motion-safe', pattern: withoutMotionSafe(String.raw`hover:-?translate-[xy]-[\w.]+`) },
   { rule: 'focus translate sin motion-safe', pattern: withoutMotionSafe(String.raw`focus-visible:-?translate-[xy]-[\w.]+`) },
   { rule: 'active translate sin motion-safe', pattern: withoutMotionSafe(String.raw`active:-?translate-[xy]-[\w.]+`) },
@@ -160,8 +167,21 @@ test('guard de Contact: las reglas detectan la sección cyberpunk anterior (tria
 test('guard de Contact: sombras con blur se detectan y las sólidas no (triangulación)', () => {
   const blur = findForbiddenTokens('hover:shadow-[0_0_12px_var(--eva-orange)]', FORBIDDEN_RULES).map((f) => f.rule)
   assert.ok(blur.includes('sombra con blur'))
-  const solida = 'hover:shadow-[6px_6px_0_0_var(--eva-secondary)] active:shadow-none'
+  const solida = 'shadow-[6px_6px_0_0_var(--eva-gray-dim)] active:shadow-none'
   assert.deepEqual(findForbiddenTokens(solida, FORBIDDEN_RULES), [])
+})
+
+test('guard de Contact: el color de hover/foco solo viene del CSS (colores con variante de estado y var(--brand) se detectan)', () => {
+  for (const viejo of [
+    'hover:border-eva-secondary',
+    'focus-visible:shadow-[6px_6px_0_0_var(--eva-secondary)]',
+    'group-hover:bg-eva-secondary',
+    'group-focus-visible:text-eva-black',
+  ]) {
+    assert.deepEqual(findForbiddenTokens(viejo, FORBIDDEN_RULES).map((f) => f.rule), ['color con variante de estado'], viejo)
+  }
+  assert.deepEqual(findForbiddenTokens('text-[var(--brand)]', FORBIDDEN_RULES).map((f) => f.rule), ['var(--brand) en JSX'])
+  assert.deepEqual(findForbiddenTokens('eva-channel eva-brand-accent active:shadow-none motion-safe:hover:-translate-y-0.5', FORBIDDEN_RULES), [])
 })
 
 test('guard de Contact: lo permitido no dispara reglas (font-eva-display, motion-safe)', () => {
@@ -172,7 +192,7 @@ test('guard de Contact: lo permitido no dispara reglas (font-eva-display, motion
 test('Contact.jsx: contiene los elementos requeridos', () => {
   const required = [
     'id="contacto"', '<h2', '<ul', 'font-eva-display', 'eva-stripes', 'eva-panel', 'aria-hidden', 'sr-only',
-    'group-hover:', 'group-focus-visible:', 'focus-visible:border-eva-secondary', 'useReveal', 'eva-reveal',
+    'eva-channel', 'eva-channel-cta', 'eva-brand-accent', 'data-brand={channel.brand}', 'useReveal', 'eva-reveal',
     'buildContactChannels', 'resolveContactEmail', 'channelLinkProps', 'VITE_CONTACT_EMAIL',
   ]
   assert.deepEqual(required.filter((token) => !CONTACT.includes(token)), [])
@@ -187,8 +207,7 @@ test('Contact.jsx: borde superior y franja ancha primary; eyebrow, flechas y ABR
     'tracking-[0.3em] text-eva-primary-light',
     'text-eva-primary-light">juntos?',
     'px-3 text-eva-primary-light sm:px-4',
-    'text-eva-primary-light group-hover:bg-eva-secondary group-hover:text-eva-black group-focus-visible:bg-eva-secondary',
-    'hover:border-eva-secondary hover:shadow-[6px_6px_0_0_var(--eva-secondary)]',
+    'px-3 font-mono text-xs font-bold uppercase tracking-[0.15em] text-eva-primary-light',
     'size-4 text-eva-secondary',
     'text-eva-tertiary',
     'inline-block size-2.5 bg-eva-tertiary',

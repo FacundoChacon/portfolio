@@ -41,7 +41,7 @@ const errors = urls.length === 0 ? ['dist/sitemap.xml no lista ninguna URL'] : c
       assetExists: (href) => existsSync(`${dist}${href.slice(1)}`),
     })
 
-// Chunks JS: Three.js solo en su chunk bajo demanda y dentro del presupuesto.
+// Chunks JS: ninguno debe contener un motor 3D (guarda de regresión).
 const assetsDir = `${dist}assets/`
 const chunks = existsSync(assetsDir)
   ? readdirSync(assetsDir)
@@ -62,7 +62,4 @@ if (errors.length > 0) {
   process.exit(1)
 }
 
-const three = chunks.find((c) => c !== entry && c.code.includes('WebGLRenderer'))
-console.log(
-  `verify:build OK (${urls.length} páginas; entrada ${((entry?.gzipBytes ?? 0) / 1024).toFixed(1)} KB gz, chunk 3D ${((three?.gzipBytes ?? 0) / 1024).toFixed(1)} KB gz)`,
-)
+console.log(`verify:build OK (${urls.length} páginas; entrada ${((entry?.gzipBytes ?? 0) / 1024).toFixed(1)} KB gz, sin motor 3D)`)

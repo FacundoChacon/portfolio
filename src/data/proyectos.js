@@ -60,7 +60,7 @@ export const PROYECTOS = [
   },
 ]
 
-/** Texto de cada estado (fuente única para las cards y la descripción del carrete). */
+/** Texto de cada estado (fuente única para las cards). */
 export const STATUS_LABELS = {
   demo: "Demo",
   live: "En el mercado",

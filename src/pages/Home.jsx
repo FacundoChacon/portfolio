@@ -29,7 +29,7 @@ function useAnclaDirecta() {
 
     const ir = () => el.scrollIntoView({ behavior: 'instant', block: 'start' })
     ir()
-    // Imágenes, fuentes y el modo del carrete mueven la sección mientras carga: reajusta (sin animar)
+    // Imágenes, fuentes y el panel de proyectos mueven la sección mientras carga: reajusta (sin animar)
     // durante un rato, solo si el usuario no tocó nada.
     let tocado = false
     const marcar = () => {

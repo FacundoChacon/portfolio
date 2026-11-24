@@ -1,21 +1,23 @@
 /**
- * Tecnologías de la sección Stack. Todas comparten la paleta eva: se
- * distinguen por monograma, nombre, categoría y código de módulo, no por color.
- * @type {{ name: string, glyph: string, category: string }[]}
+ * Tecnologías de la sección Stack. La identificación la dan monograma, nombre, categoría y
+ * código de módulo; el color de marca (`brand`, clave de `EVA_BRAND_COLORS` en
+ * `src/styles/eva-tokens.js`) es solo decorativo y se enciende al interactuar
+ * (change `colores-de-marca-hover`). Los datos no llevan hex.
+ * @type {{ name: string, brand: string, glyph: string, category: string }[]}
  */
 export const STACK = [
-  { name: 'Java 17', glyph: 'Jv', category: 'Lenguaje' },
-  { name: 'Spring Boot', glyph: 'Sp', category: 'Backend' },
-  { name: 'React 18', glyph: 'Re', category: 'Frontend' },
-  { name: 'Tailwind CSS', glyph: 'Tw', category: 'Frontend' },
-  { name: 'JavaScript', glyph: 'Js', category: 'Lenguaje' },
-  { name: 'MySQL', glyph: 'Sql', category: 'Base de datos' },
-  { name: 'Python', glyph: 'Py', category: 'Lenguaje' },
-  { name: 'Docker', glyph: 'Dk', category: 'DevOps' },
-  { name: 'Git', glyph: 'Git', category: 'Herramienta' },
-  { name: 'REST API', glyph: 'Api', category: 'Backend' },
-  { name: 'JWT', glyph: 'Jwt', category: 'Seguridad' },
-  { name: 'HTML5 / CSS3', glyph: 'Web', category: 'Frontend' },
+  { name: 'Java 17', brand: 'java', glyph: 'Jv', category: 'Lenguaje' },
+  { name: 'Spring Boot', brand: 'spring', glyph: 'Sp', category: 'Backend' },
+  { name: 'React 18', brand: 'react', glyph: 'Re', category: 'Frontend' },
+  { name: 'Tailwind CSS', brand: 'tailwind', glyph: 'Tw', category: 'Frontend' },
+  { name: 'JavaScript', brand: 'javascript', glyph: 'Js', category: 'Lenguaje' },
+  { name: 'MySQL', brand: 'mysql', glyph: 'Sql', category: 'Base de datos' },
+  { name: 'Python', brand: 'python', glyph: 'Py', category: 'Lenguaje' },
+  { name: 'Docker', brand: 'docker', glyph: 'Dk', category: 'DevOps' },
+  { name: 'Git', brand: 'git', glyph: 'Git', category: 'Herramienta' },
+  { name: 'REST API', brand: 'rest', glyph: 'Api', category: 'Backend' },
+  { name: 'JWT', brand: 'jwt', glyph: 'Jwt', category: 'Seguridad' },
+  { name: 'HTML5 / CSS3', brand: 'web', glyph: 'Web', category: 'Frontend' },
 ]
 
 /**

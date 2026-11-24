@@ -91,11 +91,30 @@
     box-shadow: inset 0 1px 0 rgb(237 230 214 / 0.06);
     backdrop-filter: blur(8px);
   }
+  /* Cristal del panel de proyectos (estático): mucho más translúcido que .eva-glass para que se vea la grilla desenfocada detrás.
+     No toca .eva-glass (About/Testimonios). Contraste de la barra: scripts/panel-guard.test.mjs */
+  .eva-glass-panel {
+    position: relative;
+    background-color: rgb(16 14 12 / 0.42);
+    background-image:
+      linear-gradient(180deg, rgb(237 230 214 / 0.16), rgb(237 230 214 / 0.03) 14%, transparent 40%),
+      linear-gradient(135deg, rgb(155 92 240 / 0.1), transparent 50%);
+    border: 1px solid rgb(155 92 240 / 0.35);
+    box-shadow:
+      inset 0 1px 0 rgb(237 230 214 / 0.22),
+      inset 0 0 32px rgb(155 92 240 / 0.1),
+      0 8px 32px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(16px) saturate(1.4);
+  }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .eva-nav-glass {
       background-color: var(--eva-black);
     }
     .eva-glass {
+      background-color: var(--eva-panel);
+      background-image: none;
+    }
+    .eva-glass-panel {
       background-color: var(--eva-panel);
       background-image: none;
     }
@@ -196,13 +215,65 @@
   @media (hover: hover) and (pointer: fine) {
     .eva-neu-module:hover {
       background-color: var(--eva-black);
-      border-color: var(--eva-secondary);
+      border-color: var(--brand, var(--eva-secondary));
       box-shadow: inset 4px 4px 8px rgb(5 5 5 / 0.7), inset -4px -4px 8px rgb(237 230 214 / 0.04);
+    }
+    .eva-neu-module:hover .eva-brand-accent {
+      color: var(--brand);
+    }
+  }
+  /* Táctil: sin hover, borde y monograma siempre en color de marca (--brand viene de [data-brand]),
+     en relieve: sombras y fondo no cambian */
+  @media (hover: none), (pointer: coarse) {
+    .eva-neu-module[data-brand] {
+      border-color: var(--brand);
+    }
+    .eva-channel[data-brand] {
+      border-color: var(--brand);
+    }
+    [data-brand] .eva-brand-accent {
+      color: var(--brand);
     }
   }
   @media (prefers-reduced-motion: no-preference) {
     .eva-neu-module {
       transition: box-shadow 200ms ease-out, border-color 200ms ease-out, background-color 200ms ease-out;
+    }
+  }
+
+  /* Color de marca (change colores-de-marca-hover): --brand lo define [data-brand] (capa base, desde
+     eva-tokens.js) y estas reglas solo lo consumen, sin estilos inline ni hex. Especificidad >= 0,2,0:
+     ganan a las utilidades de reposo del JSX (text-eva-primary-light, border-eva-gray-dim) sin !important.
+     Canal de Contacto: hover y foco-visible van en reglas separadas (los tests leen cada selector exacto)
+     y SIN media de puntero, igual que la traslación. El anillo de foco global (--eva-focus) no se toca. */
+  .eva-channel:hover {
+    border-color: var(--brand);
+    box-shadow: 6px 6px 0 0 var(--brand);
+  }
+  .eva-channel:focus-visible {
+    border-color: var(--brand);
+    box-shadow: 6px 6px 0 0 var(--brand);
+  }
+  .eva-channel:hover .eva-brand-accent {
+    color: var(--brand);
+  }
+  .eva-channel:focus-visible .eva-brand-accent {
+    color: var(--brand);
+  }
+  .eva-channel:hover .eva-channel-cta {
+    background-color: var(--brand);
+    color: var(--eva-black);
+  }
+  .eva-channel:focus-visible .eva-channel-cta {
+    background-color: var(--brand);
+    color: var(--eva-black);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .eva-brand-accent {
+      transition: color 200ms ease-out, background-color 200ms ease-out;
+    }
+    .eva-channel-cta {
+      transition: color 200ms ease-out, background-color 200ms ease-out;
     }
   }
 }
@@ -233,222 +304,240 @@
   50% { opacity: 0; }
 }
 
-/* Sección de proyectos: carrete 3D (reel) o carrusel nativo de respaldo (carousel). */
+/* Sección de proyectos: panel de comando con ventana deslizante de cards y tanque de LCL. */
 .proyectos {
-  --proyectos-gap: 1.5rem;
+  --proyectos-gap: 1rem;
+  --por-vista: 1;
+  padding-block: 5rem;
+}
+
+/* Cortes de cards por ancho: mismos valores que CORTES en src/utils/panelProyectos.js (guarda en scripts/panel-guard.test.mjs). */
+@media (min-width: 640px) {
+  .proyectos {
+    --por-vista: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .proyectos {
+    --por-vista: 3;
+  }
+}
+
+/* Panel de comando: cristal estático (clase eva-glass en el marcado) con el tanque de LCL detrás de las cards. */
+.proyectos-panel {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+  /* Margen inferior amplio: el líquido y su superficie asoman bajo las cards. */
+  padding: 1rem 1rem 4.5rem;
+  overflow: hidden;
+  overflow: clip;
+}
+
+.proyectos-barra {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  /* La barra también es de cristal: tinte claro, borde violeta y desenfoque propio. */
+  background-color: rgb(237 230 214 / 0.05);
+  border: 1px solid rgb(155 92 240 / 0.3);
+  box-shadow: inset 0 1px 0 rgb(237 230 214 / 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.proyectos-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.proyectos-segmentos {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.proyectos-segmento {
+  width: 1rem;
+  height: 0.375rem;
+  background-color: var(--eva-gray-dim);
+}
+
+.proyectos-segmento[data-activo] {
+  background-color: var(--eva-primary);
+}
+
+.proyectos-flecha {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--eva-primary);
+  background-color: transparent;
+  color: var(--eva-paper);
+}
+
+.proyectos-flecha:hover {
+  background-color: var(--eva-primary);
+  color: var(--eva-black);
+}
+
+.proyectos-flecha[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.proyectos-flecha[aria-disabled="true"]:hover {
+  background-color: transparent;
+  color: var(--eva-paper);
+}
+
+/* La ventana recorta sin ser contenedor de scroll: el foco no puede correr scrollLeft y desincronizar la pista. */
+.proyectos-ventana {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  overflow: clip;
+  touch-action: pan-y;
+  /* Margen para la elevación/giro de las cards (foil) sin cambiar el layout. */
+  padding-block: 1.5rem;
+  margin-block: -1.5rem;
+  padding-inline: 0.9rem;
+  margin-inline: -0.9rem;
 }
 
 .proyectos-pista {
+  display: flex;
+  gap: var(--proyectos-gap);
+  margin: 0;
+  padding: 0;
   list-style: none;
+  transform: translateX(calc((100% + var(--proyectos-gap)) / var(--por-vista) * var(--inicio, 0) * -1));
 }
 
-.proyecto-card-img {
-  height: clamp(6rem, 20vh, 11rem);
+@media (prefers-reduced-motion: no-preference) {
+  .proyectos-pista {
+    transition: transform 320ms ease-out;
+  }
 }
 
 .proyectos-pista > li {
   min-width: 0;
+  flex: 0 0 calc((100% - (var(--por-vista) - 1) * var(--proyectos-gap)) / var(--por-vista));
 }
 
-/* Carrete: la sección queda fija bajo la barra mientras el scroll hace girar el carrete. */
-.proyectos[data-mode="reel"] .proyectos-pin {
-  height: calc(var(--pin-vh) * 1vh);
-  height: calc(var(--pin-vh) * 1svh);
-}
-
-.carrete-escenario {
-  --carrete-card-w: 37vw;
-  position: sticky;
-  top: var(--eva-nav-h, 4.5rem);
-  height: calc(100vh - var(--eva-nav-h, 4.5rem));
-  height: calc(100svh - var(--eva-nav-h, 4.5rem));
-  overflow: clip;
-}
-
-.carrete-titulo {
+/* Tanque de LCL: el canvas cubre todo el panel (el líquido llena 2/3 desde abajo), debajo de las cards y de la barra; decorativo. */
+.lcl-tanque {
   position: absolute;
   inset: 0;
   z-index: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin: 0;
-  padding: clamp(0.75rem, 3svh, 2rem) clamp(1rem, 5vw, 4.5rem);
-  /* Arriba a la izquierda: el centro lo ocupa la card del frente y ocultaba el título. */
-  font-size: clamp(3rem, min(9vw, 15svh), 9rem);
-  line-height: 0.85;
-  letter-spacing: -0.01em;
-  text-align: left;
+  height: 100%;
   pointer-events: none;
-  user-select: none;
 }
 
-.carrete-titulo-linea:first-child {
-  margin-bottom: 0.12em;
-  font-size: 0.4em;
-  letter-spacing: 0.08em;
-}
-
-.carrete-lienzo {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  touch-action: pan-y;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.carrete-lienzo[data-dragging] {
-  cursor: grabbing;
-}
-
-.carrete-lienzo canvas {
+.lcl-tanque canvas {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-.carrete-poster {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--carrete-card-w);
-  aspect-ratio: 2.38 / 1.5771;
-  object-fit: cover;
-  border-radius: 3%;
-  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 
-.carrete-lienzo[data-ready="true"] .carrete-poster {
-  display: none;
+/* Respaldo sin contexto 2D (o con el líquido en plan B): degradé ámbar equivalente. */
+.lcl-tanque[data-lcl="estatico"] {
+  inset: 33.333% 0 0;
+  height: auto;
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--eva-secondary) 55%, transparent),
+    color-mix(in srgb, var(--eva-secondary) 85%, transparent)
+  );
+  border-top: 2px solid color-mix(in srgb, var(--eva-paper) 50%, transparent);
 }
 
-.carrete-enlaces {
+/* Card plana del panel: fondo propio semiopaco (sin backdrop-filter: las cards se desplazan). Contraste: scripts/panel-guard.test.mjs */
+.proyecto-card {
+  background-color: rgb(16 14 12 / 0.94);
+  isolation: isolate;
+  overflow: clip;
+  transform: translateZ(var(--tz, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--s, 1));
+  filter: drop-shadow(0 calc(8px + 26px * var(--hover, 0)) calc(16px + 34px * var(--hover, 0)) rgb(0 0 0 / calc(0.28 + 0.32 * var(--hover, 0))));
+  /* Borde interior violeta, filo cristalino blanco de 1px y resplandores (violeta y helado) que crecen con el hover. */
+  box-shadow:
+    inset 0 0 0 1px rgb(155 92 240 / calc(0.5 * var(--hover, 0))),
+    inset 0 0 0 2px rgb(255 255 255 / calc(0.25 * var(--hover, 0))),
+    inset 0 0 calc(18px * var(--hover, 0)) rgb(155 92 240 / calc(0.18 * var(--hover, 0))),
+    inset 0 0 calc(24px * var(--hover, 0)) rgb(255 255 255 / calc(0.08 * var(--hover, 0)));
+}
+
+/* Foil 2.5D (design D13): el envoltorio no se transforma y da la perspectiva; la cara gira dentro de él. */
+.proyecto-foil {
+  position: relative;
+  perspective: 1500px;
+}
+
+.proyecto-foil:hover,
+.proyecto-foil:has(.proyecto-enlace:focus-visible) {
+  z-index: 3;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .proyecto-card {
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), filter 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease-out;
+  }
+}
+
+/* Brillo: banda blanca que sigue al puntero (mxf), por encima de foto y texto. */
+.foil-brillo,
+.foil-iris {
   position: absolute;
-  z-index: 20;
-  top: calc(50% + var(--carrete-card-w) * 0.3314 + 1.5rem);
-  left: 50%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  transform: translateX(-50%);
-}
-
-.carrete-enlace {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  padding-inline: 0.5rem;
-  border-bottom: 2px solid var(--eva-primary);
-  color: var(--eva-paper);
-  font-family: theme('fontFamily.mono');
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.carrete-enlace:hover {
-  background-color: var(--eva-secondary);
-  color: var(--eva-black);
-}
-
-/* Solo el del proyecto al frente se ve; los otros siguen en el árbol de accesibilidad y en el orden de Tab. */
-.carrete-enlace:not([data-activo]):not(:focus-visible) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.carrete-github {
-  position: absolute;
-  z-index: 20;
-  right: 1.5rem;
-  bottom: 1.25rem;
-  display: inline-flex;
-  min-height: 2rem;
-  align-items: center;
-  color: var(--eva-gray);
-  font-family: theme('fontFamily.mono');
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.carrete-github:hover {
-  color: var(--eva-secondary);
-}
-
-.carrete-pista {
-  position: absolute;
-  z-index: 20;
-  bottom: 1.25rem;
-  left: 50%;
-  margin: 0;
-  color: var(--eva-gray);
-  font-family: theme('fontFamily.mono');
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transform: translateX(-50%);
+  inset: 0;
   pointer-events: none;
 }
 
-@media (max-width: 767.98px) {
-  .carrete-titulo {
-    font-size: min(15vw, 11svh);
+.foil-brillo {
+  background-image: linear-gradient(102deg, transparent 36%, rgb(255 255 255 / 0.2) 46%, rgb(255 255 255 / 0.45) 50%, rgb(255 255 255 / 0.2) 54%, transparent 64%);
+  background-size: 260% 100%;
+  background-position-x: calc(var(--mxf, 0.5) * 100%);
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  opacity: calc(0.7 * var(--hover, 0));
+}
+
+/* Velo cristalino: blanco con apenas un matiz helado, sin color (vidrio claro, no iridiscente). */
+.foil-iris {
+  background-image: linear-gradient(115deg, rgb(255 255 255 / 0) 0%, rgb(235 245 255 / 0.35) 40%, rgb(200 235 255 / 0.18) 55%, transparent 70%);
+  mix-blend-mode: soft-light;
+  opacity: calc(0.35 * var(--hover, 0));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .foil-brillo {
+    transition: opacity 0.25s;
   }
-
-  .carrete-github {
-    right: auto;
-    bottom: 3rem;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .carrete-pista {
-    font-size: 0.6875rem;
-    letter-spacing: 0.1em;
+  .foil-iris {
+    transition: opacity 0.3s;
   }
 }
 
-/* Carrusel nativo de respaldo (sin WebGL 2, falla de carga, ventana baja o sin overflow: clip). */
-.proyectos[data-mode="carousel"] {
-  padding-block: 5rem;
+/* Foco de teclado: card levantada, sin giro, con anillo dentro de la card. Escape (data-reposo) la devuelve al reposo. */
+.proyecto-card:has(.proyecto-enlace:focus-visible):not([data-reposo]) {
+  --tz: 46px;
+  --s: 1.05;
+  --hover: 1;
+  --mxf: 0.5;
 }
 
-.proyectos-carrusel {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+.proyecto-card:has(.proyecto-enlace:focus-visible) {
+  outline: 2px solid var(--eva-focus);
+  outline-offset: -6px;
 }
 
-.proyectos[data-mode="carousel"] .proyectos-pista {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scroll-padding-inline: 1rem;
-  padding: 0.5rem 1rem 1.5rem;
-}
-
-.proyectos[data-mode="carousel"] .proyectos-pista > li {
-  flex: 0 0 min(85vw, 26rem);
-  scroll-snap-align: start;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .eva-reveal,
@@ -456,5 +545,15 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  /* Foil: sin giro, sin transiciones ni brillos; el hover solo refuerza el borde. */
+  .proyecto-card {
+    transform: none !important;
+    transition: none;
+  }
+  .foil-brillo,
+  .foil-iris {
+    display: none;
   }
 }

@@ -1,4 +1,4 @@
-import { EVA_THEME_COLORS, EVA_FONT_SANS } from './src/styles/eva-tokens.js'
+import { EVA_THEME_COLORS, EVA_FONT_SANS, brandBaseStyles } from './src/styles/eva-tokens.js'
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -27,5 +27,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [({ addBase }) => addBase(brandBaseStyles())],
 }

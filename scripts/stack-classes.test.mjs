@@ -1,6 +1,7 @@
 /**
  * Guard estático de `Stack.jsx` (change `stack-neumorfico-oscuro`, design D6):
- * sin color de marca, sin foco ni rol falsos, con la semántica y el material
+ * el color de marca solo entra por data-brand (change colores-de-marca-hover: sin hex ni
+ * var(--brand) en el JSX), sin foco ni rol falsos, con la semántica y el material
  * exigidos. Detector por tokens probado con fuentes de ejemplo.
  */
 import assert from 'node:assert/strict'
@@ -14,6 +15,7 @@ const STACK_SOURCE = readFileSync(new URL('../src/components/Stack.jsx', import.
 /** Reglas prohibidas en `Stack.jsx` (nombre legible + patrón). */
 const FORBIDDEN_RULES = [
   { rule: '--tech', pattern: /--tech\b/ },
+  { rule: 'var(--brand) en JSX', pattern: /var\(--brand/ },
   { rule: 'tabIndex', pattern: /\btabIndex\b/ },
   { rule: 'role="button"', pattern: /role=["']button["']/ },
   { rule: 'cursor-pointer', pattern: /(?<![\w-])cursor-pointer(?![\w-])/ },
@@ -36,6 +38,8 @@ const FORBIDDEN_RULES = [
 const REQUIRED = [
   'eva-neu-surface',
   'eva-neu-module',
+  'data-brand={tech.brand}',
+  'eva-brand-accent',
   'eva-reveal',
   'role="list"',
   'id="stack"',
@@ -65,6 +69,11 @@ test('detector: encuentra cada patrón prohibido', () => {
   ])
   assert.deepEqual(forbiddenIn('color: "#f89820" reveal reveal-right'), ['hex literal', 'reveal legacy', 'reveal legacy'])
   assert.deepEqual(forbiddenIn('Tocá o pasá el cursor para verlas'), ['pasá el cursor'])
+})
+
+test('detector: prohíbe var(--brand) en el JSX (el color solo se aplica desde el CSS)', () => {
+  assert.deepEqual(forbiddenIn('<span className="text-[var(--brand)]">'), ['var(--brand) en JSX'])
+  assert.deepEqual(forbiddenIn('<div data-brand={tech.brand} className="eva-brand-accent">'), [])
 })
 
 test('detector: acepta clases eva y no confunde prefijos', () => {

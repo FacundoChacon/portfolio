@@ -1,12 +1,12 @@
 /**
  * Tests de la sección Stack neumórfica (change `stack-neumorfico-oscuro`):
- * datos, contraste del material en reposo y hundido, y guards del CSS real.
+ * datos (con su marca, change colores-de-marca-hover), contraste del material en reposo y hundido, y guards del CSS real.
  */
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
-import { EVA_COLORS } from '../src/styles/eva-tokens.js'
+import { EVA_BRAND_COLORS, EVA_COLORS } from '../src/styles/eva-tokens.js'
 import { STACK, moduleCode } from '../src/data/stack.js'
 import { blendOver, CONTRAST_THRESHOLDS, contrastRatio } from './lib/contrast.mjs'
 import { parseRgbAlpha, parseShadowColors, ruleBody } from './lib/css-rules.mjs'
@@ -14,27 +14,27 @@ import { parseRgbAlpha, parseShadowColors, ruleBody } from './lib/css-rules.mjs'
 // --- Datos (design D1) -----------------------------------------------------
 
 const EXPECTED_STACK = [
-  { name: 'Java 17', glyph: 'Jv', category: 'Lenguaje' },
-  { name: 'Spring Boot', glyph: 'Sp', category: 'Backend' },
-  { name: 'React 18', glyph: 'Re', category: 'Frontend' },
-  { name: 'Tailwind CSS', glyph: 'Tw', category: 'Frontend' },
-  { name: 'JavaScript', glyph: 'Js', category: 'Lenguaje' },
-  { name: 'MySQL', glyph: 'Sql', category: 'Base de datos' },
-  { name: 'Python', glyph: 'Py', category: 'Lenguaje' },
-  { name: 'Docker', glyph: 'Dk', category: 'DevOps' },
-  { name: 'Git', glyph: 'Git', category: 'Herramienta' },
-  { name: 'REST API', glyph: 'Api', category: 'Backend' },
-  { name: 'JWT', glyph: 'Jwt', category: 'Seguridad' },
-  { name: 'HTML5 / CSS3', glyph: 'Web', category: 'Frontend' },
+  { name: 'Java 17', brand: 'java', glyph: 'Jv', category: 'Lenguaje' },
+  { name: 'Spring Boot', brand: 'spring', glyph: 'Sp', category: 'Backend' },
+  { name: 'React 18', brand: 'react', glyph: 'Re', category: 'Frontend' },
+  { name: 'Tailwind CSS', brand: 'tailwind', glyph: 'Tw', category: 'Frontend' },
+  { name: 'JavaScript', brand: 'javascript', glyph: 'Js', category: 'Lenguaje' },
+  { name: 'MySQL', brand: 'mysql', glyph: 'Sql', category: 'Base de datos' },
+  { name: 'Python', brand: 'python', glyph: 'Py', category: 'Lenguaje' },
+  { name: 'Docker', brand: 'docker', glyph: 'Dk', category: 'DevOps' },
+  { name: 'Git', brand: 'git', glyph: 'Git', category: 'Herramienta' },
+  { name: 'REST API', brand: 'rest', glyph: 'Api', category: 'Backend' },
+  { name: 'JWT', brand: 'jwt', glyph: 'Jwt', category: 'Seguridad' },
+  { name: 'HTML5 / CSS3', brand: 'web', glyph: 'Web', category: 'Frontend' },
 ]
 
-test('STACK: las 12 tecnologías actuales, en orden, con name/glyph/category', () => {
+test('STACK: las 12 tecnologías actuales, en orden, con name/brand/glyph/category', () => {
   assert.deepEqual(STACK, EXPECTED_STACK)
 })
 
-test('STACK: ninguna tecnología tiene color propio ni claves extra', () => {
+test('STACK: cada tecnología tiene exactamente brand, category, glyph y name (sin hex propio)', () => {
   for (const tech of STACK) {
-    assert.deepEqual(Object.keys(tech).sort(), ['category', 'glyph', 'name'], tech.name)
+    assert.deepEqual(Object.keys(tech).sort(), ['brand', 'category', 'glyph', 'name'], tech.name)
   }
 })
 
@@ -122,11 +122,14 @@ const ratio2 = (value) => (Math.floor(value * 100) / 100).toFixed(2)
 /**
  * Evalúa los pares de contraste del módulo en reposo y hundido. El peor caso
  * es la sombra a opacidad completa (cota superior de su desenfoque).
- * @param {{ lightAlpha: number, darkAlpha: number, insetLightAlpha: number }} alphas
+ * @param {{ lightAlpha: number, darkAlpha: number, insetLightAlpha: number, sunkBorder?: string, touchBorder?: string, accent?: string }} options
+ *   `sunkBorder`: borde hundido (por defecto el naranja de respaldo); `touchBorder` y `accent`: borde y
+ *   monograma de marca en relieve táctil / hundido (si se pasan, se evalúan sus pares)
  * @returns {string[]} errores legibles (estado, par, valor); vacío si todo cumple
  */
-function evaluateNeu({ lightAlpha, darkAlpha, insetLightAlpha }) {
+function evaluateNeu({ lightAlpha, darkAlpha, insetLightAlpha, sunkBorder, touchBorder, accent }) {
   const { paper, gray, orange, black, panel } = EVA_COLORS
+  const sunkEdge = sunkBorder ?? orange
   const violetLight = EVA_COLORS['violet-light']
   const grayDim = EVA_COLORS['gray-dim']
   const ui = CONTRAST_THRESHOLDS.ui
@@ -143,9 +146,9 @@ function evaluateNeu({ lightAlpha, darkAlpha, insetLightAlpha }) {
     ['reposo', 'texto paper vs fondo', paper, panel, text],
     ['reposo', 'texto gray vs fondo', gray, panel, text],
     ['reposo', 'texto violet-light vs fondo', violetLight, panel, text],
-    ['hundido', 'borde vs superficie', orange, panel, ui],
-    ['hundido', 'borde vs fondo del módulo', orange, black, ui],
-    ['hundido', 'borde vs sombra interior clara', orange, sunkLight, ui],
+    ['hundido', 'borde vs superficie', sunkEdge, panel, ui],
+    ['hundido', 'borde vs fondo del módulo', sunkEdge, black, ui],
+    ['hundido', 'borde vs sombra interior clara', sunkEdge, sunkLight, ui],
     ['hundido', 'texto paper vs fondo', paper, black, text],
     ['hundido', 'texto gray vs fondo', gray, black, text],
     ['hundido', 'texto violet-light vs fondo', violetLight, black, text],
@@ -153,6 +156,19 @@ function evaluateNeu({ lightAlpha, darkAlpha, insetLightAlpha }) {
     ['hundido', 'texto gray vs sombra interior clara', gray, sunkLight, text],
     ['hundido', 'texto violet-light vs sombra interior clara', violetLight, sunkLight, text],
   ]
+  if (touchBorder) {
+    pairs.push(
+      ['táctil', 'borde vs superficie', touchBorder, panel, ui],
+      ['táctil', 'borde vs sombra clara', touchBorder, restLight, ui],
+      ['táctil', 'borde vs sombra oscura', touchBorder, restDark, ui],
+    )
+  }
+  if (accent) {
+    pairs.push(
+      ['táctil', 'monograma vs caja del monograma', accent, black, text],
+      ['hundido', 'monograma vs caja del monograma', accent, black, text],
+    )
+  }
   return pairs.flatMap(([state, pair, fg, bg, threshold]) => {
     const value = contrastRatio(fg, bg)
     return value >= threshold ? [] : [`${state}: ${pair} ${ratio2(value)} < ${threshold}`]
@@ -171,6 +187,26 @@ test('evaluateNeu: aclarar la sombra clara al 6% rompe el borde en reposo', () =
 
 test('evaluateNeu: subir la sombra oscura al 90% sigue cumpliendo', () => {
   assert.deepEqual(evaluateNeu({ lightAlpha: 0.04, darkAlpha: 0.9, insetLightAlpha: 0.04 }), [])
+})
+
+test('evaluateNeu: cada marca de Stack cumple borde hundido, borde táctil y monograma', () => {
+  for (const tech of STACK) {
+    const brand = EVA_BRAND_COLORS[tech.brand]
+    assert.deepEqual(
+      evaluateNeu({ lightAlpha: 0.04, darkAlpha: 0.7, insetLightAlpha: 0.04, sunkBorder: brand, touchBorder: brand, accent: brand }),
+      [],
+      tech.name,
+    )
+  }
+})
+
+test('evaluateNeu: el CSS3 oficial (#264DE4) como borde hundido nombra el par y su contraste', () => {
+  const errors = evaluateNeu({ lightAlpha: 0.04, darkAlpha: 0.7, insetLightAlpha: 0.04, sunkBorder: '#264DE4' })
+  assert.ok(errors.some((e) => e.startsWith('hundido: borde vs superficie 2.99')), errors.join(' | '))
+})
+
+test('evaluateNeu: con el naranja de respaldo sigue en verde (sin regresión del fallback)', () => {
+  assert.deepEqual(evaluateNeu({ lightAlpha: 0.04, darkAlpha: 0.7, insetLightAlpha: 0.04, sunkBorder: EVA_COLORS.orange }), [])
 })
 
 test('el CSS real: sombras de reposo y hundido son paper/black y cumplen contraste', () => {
@@ -206,11 +242,13 @@ test('el :hover del módulo existe solo dentro de la media de puntero fino con h
   assert.equal(ruleBody(CSS, '.eva-neu-module:hover'), null, ':hover fuera de la media query')
 })
 
-test('el borde cambia de gris (reposo) a naranja (hundido) y los fondos son panel/black', () => {
+test('el borde cambia de gris (reposo) al color de marca (hundido, con naranja de respaldo) y los fondos son panel/black', () => {
   const rest = ruleBody(CSS, '.eva-neu-module')
   const sunk = ruleBody(CSS, '.eva-neu-module:hover', { within: HOVER_MEDIA })
   assert.match(rest, /border:\s*1px solid var\(--eva-gray-dim\)/)
-  assert.match(sunk, /border-color:\s*var\(--eva-secondary\)/)
+  assert.match(sunk, /border-color:\s*var\(--brand, var\(--eva-secondary\)\)/)
+  const accent = ruleBody(CSS, '.eva-neu-module:hover .eva-brand-accent', { within: HOVER_MEDIA })
+  assert.match(accent ?? '', /color:\s*var\(--brand\)/)
   assert.match(rest, /background-color:\s*var\(--eva-panel\)/)
   assert.match(sunk, /background-color:\s*var\(--eva-black\)/)
   assert.match(ruleBody(CSS, '.eva-neu-surface'), /background-color:\s*var\(--eva-panel\)/)
@@ -235,4 +273,22 @@ test('la transition del módulo solo existe bajo prefers-reduced-motion: no-pref
 test('ruleBody: con varias at-rules iguales usa la que contiene el selector', () => {
   const css = '@media (x) { .p { a: 1 } } @media (x) { .q { b: 2 } }'
   assert.match(ruleBody(css, '.q', { within: '@media (x)' }), /b: 2/)
+})
+
+// --- Táctil: color de marca permanente en relieve (change colores-de-marca-hover, D3) ---
+
+const TOUCH_MEDIA = '@media (hover: none), (pointer: coarse)'
+
+test('táctil: borde y monograma en color de marca, sin tocar sombras ni fondo (siguen en relieve)', () => {
+  const border = ruleBody(CSS, '.eva-neu-module[data-brand]', { within: TOUCH_MEDIA })
+  assert.match(border ?? '', /border-color:\s*var\(--brand\)/)
+  assert.doesNotMatch(border, /box-shadow|background-color/)
+  const accent = ruleBody(CSS, '[data-brand] .eva-brand-accent', { within: TOUCH_MEDIA })
+  assert.match(accent ?? '', /(^|[\s;])color:\s*var\(--brand\)/)
+  assert.doesNotMatch(accent, /box-shadow|background-color/)
+})
+
+test('táctil: la regla dentro de la media de puntero fino no cuenta como táctil', () => {
+  const movida = `@media (hover: hover) and (pointer: fine) { .eva-neu-module[data-brand] { border-color: var(--brand); } }`
+  assert.equal(ruleBody(movida, '.eva-neu-module[data-brand]', { within: TOUCH_MEDIA }), null)
 })
