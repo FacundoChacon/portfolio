@@ -278,3 +278,38 @@ test('heroLogoLeaks: detecta el import, el uso y las clases del logo (triangulac
 test('Hero.jsx: el contenido de la columna de texto no es relative (sin envoltorio del glifo)', () => {
   assert.ok(!HERO.includes('relative md:col-span-7'))
 })
+
+// --- Hueco del hero (change hero-escritura, D1) ---------------------------
+
+/**
+ * Problemas de layout que reabren el hueco bajo las acciones del hero.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function heroLayoutProblems(source) {
+  const problems = []
+  const section = source.match(/<section\b[^>]*>/)?.[0] ?? ''
+  if (/min-h-screen/.test(section)) problems.push('la sección fuerza min-h-screen')
+  if (/(?<![\w-])md:mt-16(?![\w-])/.test(source)) problems.push('la columna derecha se desplaza con md:mt-16')
+  if (/(?<![\w-])md:-mt-10(?![\w-])/.test(source)) problems.push('la ficha conserva el solape antiguo md:-mt-10')
+  for (const token of ['md:-mt-24', 'lg:-mt-36']) {
+    if (!source.includes(token)) problems.push(`falta ${token} en la ficha`)
+  }
+  if (!source.includes('aspect-[4/5]')) problems.push('el retrato perdió aspect-[4/5]')
+  if (!/eva-panel relative z-10 mt-10 /.test(source)) problems.push('la ficha perdió mt-10 en móvil')
+  return problems
+}
+
+test('Hero.jsx: sin min-h-screen ni md:mt-16 y con la ficha superpuesta al retrato', () => {
+  assert.deepEqual(heroLayoutProblems(HERO), [])
+})
+
+test('heroLayoutProblems: rechaza el markup anterior y acepta el nuevo (triangulación)', () => {
+  const anterior = `<section id="presentacion" className="relative flex min-h-screen flex-col"><div className="md:col-span-5 md:mt-16"><img className="aspect-[4/5]" /><div className="eva-panel relative z-10 mt-10 p-5 md:-ml-8 md:-mt-10">`
+  const problemas = heroLayoutProblems(anterior)
+  assert.equal(problemas.length, 5)
+  assert.ok(problemas.some((p) => p.includes('min-h-screen')))
+  assert.ok(problemas.some((p) => p.includes('md:mt-16')))
+  const nuevo = `<section id="presentacion" className="relative"><div className="md:col-span-5"><img className="aspect-[4/5]" /><div className="eva-panel relative z-10 mt-10 p-5 md:-ml-8 md:-mt-24 lg:-mt-36">`
+  assert.deepEqual(heroLayoutProblems(nuevo), [])
+})

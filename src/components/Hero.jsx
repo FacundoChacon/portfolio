@@ -18,9 +18,9 @@ export default function Hero() {
   return (
     <section
       id="presentacion"
-      className="eva-hex-grid relative flex min-h-screen flex-col overflow-x-clip bg-eva-black pt-24"
+      className="eva-hex-grid relative overflow-x-clip bg-eva-black pt-24"
     >
-      <div className="mx-auto grid w-full max-w-6xl flex-1 content-center gap-y-12 px-4 pb-16 md:grid-cols-12 md:gap-x-8 md:px-6">
+      <div className="mx-auto grid w-full max-w-6xl gap-y-12 px-4 pb-16 md:grid-cols-12 md:gap-x-8 md:px-6">
         <div className="md:col-span-7">
           <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-primary-light">
             01 {"//"} Presentación
@@ -68,7 +68,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="md:col-span-5 md:mt-16">
+        <div className="md:col-span-5">
           <div className="mx-auto w-full max-w-[320px] md:ml-auto md:mr-0 md:max-w-[440px]">
             <figure className="relative border-2 border-eva-primary bg-eva-panel shadow-[10px_10px_0_0_var(--eva-secondary)]">
               <img
@@ -95,7 +95,7 @@ export default function Hero() {
             </figure>
 
             <div
-              className={`eva-panel relative z-10 mt-10 p-5 pt-6 md:-ml-8 md:-mt-10 ${BOOT} motion-safe:[animation-delay:120ms]`}
+              className={`eva-panel relative z-10 mt-10 p-5 pt-6 md:-ml-8 md:-mt-24 lg:-mt-36 ${BOOT} motion-safe:[animation-delay:120ms]`}
             >
               <span aria-hidden="true" className="eva-panel-label">
                 SYS {"//"} FICHA
