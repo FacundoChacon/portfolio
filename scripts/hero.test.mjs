@@ -254,41 +254,27 @@ test('Hero.jsx: la franja vertical de la figura sigue siendo secondary (eva-stri
   assert.ok(linea && !linea.includes('eva-stripes-primary'))
 })
 
-// --- Glifo decorativo (change logo-eva, design D5) ---
+// --- Sin glifo del logotipo (change logo-eva: el hero lo descarto el usuario) ---
 
 /**
- * Errores del glifo completo en `Hero.jsx`: decorativo, fuera del flujo (absoluto, sin eventos), tamaño
- * móvil y de escritorio, y animación de entrada solo con `motion-safe:`.
+ * Referencias al logotipo que el hero no debe tener.
  * @param {string} source
  * @returns {string[]}
  */
-function heroLogoErrors(source) {
-  const errors = []
-  if (!/import\s+LogoEva\s+from\s+["']\.\/LogoEva["']/.test(source)) errors.push('no importa LogoEva')
-  const tag = /<LogoEva\s+variante="completo"[^>]*\/>/.exec(source)?.[0]
-  if (!tag) return [...errors, 'no monta <LogoEva variante="completo"']
-  const clases = /className="([^"]*)"/.exec(tag)?.[1] ?? ''
-  const tokens = clases.split(/\s+/)
-  for (const requerido of ['pointer-events-none', 'absolute', 'z-0', 'h-32']) {
-    if (!tokens.includes(requerido)) errors.push(`el glifo no tiene ${requerido}`)
-  }
-  if (!tokens.some((t) => /^md:h-/.test(t))) errors.push('el glifo no tiene tamaño md:h-*')
-  if (!tokens.includes('motion-safe:animate-eva-boot')) errors.push('el glifo no tiene motion-safe:animate-eva-boot')
-  if (withoutMotionSafe(String.raw`animate-[\w-]+`).test(clases)) errors.push('el glifo tiene una animacion sin motion-safe:')
-  return errors
+function heroLogoLeaks(source) {
+  return [/LogoEva/, /data\/logo/, /eva-logo/].filter((p) => p.test(source)).map(String)
 }
 
-test('Hero monta el glifo completo decorativo', () => {
-  assert.deepEqual(heroLogoErrors(HERO), [])
+test('Hero no renderiza el glifo del logotipo', () => {
+  assert.deepEqual(heroLogoLeaks(HERO), [])
 })
 
-test('heroLogoErrors: animate-eva-boot sin motion-safe, sin tamaño md o sin glifo fallan (triangulación)', () => {
-  const tagLogo = /<LogoEva[^>]*\/>/.exec(HERO)?.[0] ?? ''
-  assert.ok(tagLogo, 'el Hero debe tener LogoEva')
-  const soloLogo = HERO.replace(tagLogo, tagLogo.replace('motion-safe:animate-eva-boot', 'animate-eva-boot'))
-  assert.ok(heroLogoErrors(soloLogo).includes('el glifo tiene una animacion sin motion-safe:'))
-  assert.ok(heroLogoErrors(soloLogo).includes('el glifo no tiene motion-safe:animate-eva-boot'))
-  assert.ok(heroLogoErrors(HERO.replace(/\bmd:h-\S+/, '')).includes('el glifo no tiene tamaño md:h-*'))
-  assert.ok(heroLogoErrors(HERO.replace(tagLogo, '')).includes('no monta <LogoEva variante="completo"'))
-  assert.ok(heroLogoErrors(HERO.replace('pointer-events-none', '')).includes('el glifo no tiene pointer-events-none'))
+test('heroLogoLeaks: detecta el import, el uso y las clases del logo (triangulación)', () => {
+  assert.equal(heroLogoLeaks('import LogoEva from "./LogoEva"; <LogoEva variante="completo" />').length, 1)
+  assert.equal(heroLogoLeaks('<g className="eva-logo-relleno" />').length, 1)
+  assert.equal(heroLogoLeaks('import { LOGO_VARIANTES } from "../data/logo"').length, 1)
+})
+
+test('Hero.jsx: el contenido de la columna de texto no es relative (sin envoltorio del glifo)', () => {
+  assert.ok(!HERO.includes('relative md:col-span-7'))
 })

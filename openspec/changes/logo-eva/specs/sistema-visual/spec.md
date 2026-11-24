@@ -5,7 +5,7 @@ El sistema SHALL definir en un único lugar los dos colores del logotipo (rellen
 
 #### Scenario: Cambio de un color del logotipo
 - **WHEN** se cambia el color de relleno o de filo en su definición central y se regeneran los recursos derivados
-- **THEN** el glifo de la barra, de la presentación, del favicon y de la imagen para compartir cambia de color sin tocar ningún componente ni hoja de estilos
+- **THEN** el glifo de la barra, del favicon y de la imagen para compartir cambia de color sin tocar ningún componente ni hoja de estilos
 
 #### Scenario: Regresión de contraste del logotipo
 - **WHEN** un color del logotipo cambia y queda por debajo de su umbral contra el fondo negro o el de panel

@@ -36,11 +36,10 @@
 - [x] 5.2 GREEN: editar `NavBrand.jsx` (`inline-flex items-center gap-2` en el `Link`, `<LogoEva variante="simple" className="h-7 w-auto" />`). Tests en verde, incluidos `findStyleViolations` sin hex, `font-preload.test.mjs`, `a11y-classes.test.mjs` y `configurador-estilo.test.mjs`.
 - [x] 5.3 Verificación en navegador: `npm run build && npm run preview` y con Playwright en `/` y `/configurador` a 375 y 1440 px: la barra mide 70 px de alto, el nombre accesible del enlace sigue siendo "FC, ir al inicio" (snapshot de accesibilidad), el glifo no aparece en el árbol de accesibilidad y la consola no registra violaciones de CSP. Adjuntar capturas al resumen.
 
-## 6. Glifo decorativo en el hero (D5)
+## 6. Glifo decorativo en el hero (D5): retirado por decisión del usuario
 
-- [x] 6.1 RED: en `scripts/hero.test.mjs`, test "Hero monta el glifo completo decorativo": `Hero.jsx` contiene `<LogoEva variante="completo"` con `pointer-events-none`, `absolute`, tamaño móvil `h-32` y uno ≥ md, y su animación solo con prefijo `motion-safe:` (usar `withoutMotionSafe` de `class-guard.mjs`: sin el prefijo no queda ninguna `animate-*`). TRIANGULATE: el guard falla sobre una copia en memoria con `animate-eva-boot` sin `motion-safe:`. Ver fallar.
-- [x] 6.2 GREEN: agregar el glifo en `Hero.jsx` según D5 (hijo de la `section`, `z-0`; contenido en `relative z-10`). Tests de `hero.test.mjs`, `motion.test.mjs` y `a11y-classes.test.mjs` en verde.
-- [x] 6.3 Verificación en navegador (checkpoint visual): con Playwright sobre el preview, a 320, 375, 768, 1024 y 1440 px: la caja del glifo no intersecta la del `h1`, la del retrato ni la de las acciones; `document.documentElement.scrollWidth === innerWidth`; CLS ≤ 0.1 con `PerformanceObserver` (`layout-shift`); con `reducedMotion: 'reduce'` el glifo no tiene animación computada. Mostrar capturas a 375 y 1440 a Facundo y ajustar solo tamaño/posición si lo pide.
+- [x] 6.1 Se implementó el glifo en el hero y el usuario pidió sacarlo ("no me gusta que esté en el hero"). Retirado: `Hero.jsx` vuelve a su marcado previo.
+- [x] 6.2 `scripts/hero.test.mjs` reemplaza los tests de presencia por un guard que falla si el Hero referencia `LogoEva`, `data/logo` o clases `eva-logo` (RED visto antes de quitar el glifo).
 
 ## 7. Favicon e ícono táctil (D6)
 

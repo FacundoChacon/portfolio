@@ -4,7 +4,7 @@
 
 ## Context
 
-- Motivación: ver `proposal.md`. Requisitos: `specs/logotipo`, `specs/sistema-visual`, `specs/navegacion-del-sitio`, `specs/seccion-de-presentacion`, `specs/metadatos-por-ruta`.
+- Motivación: ver `proposal.md`. Requisitos: `specs/logotipo`, `specs/sistema-visual`, `specs/navegacion-del-sitio`, `specs/metadatos-por-ruta`.
 - Referencia de forma: `public/simbolo.jpeg` (idéntico byte a byte al original de Facundo, 1600×1600, neón cian + eco rosa). Referencia de estilo: el lenguaje de trazo del título de Evangelion (solo el trazo; no se copia el logotipo, sus katakana ni su tipografía).
 - Paleta: `src/styles/eva-tokens.js` es la fuente única; `EVA_BRAND_COLORS` + `brandBaseStyles()` ya establecieron el patrón "colores decorativos fuera de la jerarquía, llegan al CSS como variables vía `addBase`". `jerarquia-color.test.mjs` cuenta roles y prohíbe nombres de color (`eva-orange`, `eva-red`...) en componentes; `site-nav-classes.test.mjs` prohíbe hex literales en `NavBrand.jsx`; `legacy-guard` prohíbe la palabra `glow`.
 - CSP de producción: `style-src 'self'`, sin `'unsafe-inline'` → nada de `style=""` ni `style={{}}`; los colores del SVG inline van por clases + variables CSS.
@@ -69,14 +69,9 @@ El filo no puede ser un `stroke` por trazo (dibuja la línea interna en cada cru
 
 - *Alternativa descartada*: reemplazar "FC" por el glifo (rompe precarga y pierde lectura del nombre) o usar la variante completa en la barra (a 28 px sus 11 trazos se empastan; ver `logo-preview.png`).
 
-### D5 — Hero: glifo completo grande, absoluto, entrada única con `eva-boot`
+### D5 — Hero: descartado por el usuario
 
-- Posición: `<LogoEva variante="completo">` como hijo directo de la `<section>` del hero, `pointer-events-none absolute` (fuera del flujo → no hay CLS posible) y `z-0` con el contenido existente en `relative z-10`.
-- **≥ md**: alto ~`min(78vh, 640px)`, anclado a la izquierda del retrato (entre la columna de texto y la del retrato), asomando por detrás del marco del retrato; el panel de datos y el retrato quedan por encima.
-- **< md**: alto `h-32` (128 px; ancho ≈ 59 px por la proporción 112:243), arriba a la derecha (`right-4`, a la altura de la etiqueta `01 // Presentación`), donde el nombre en 15vw no llega: "FACUNDO" en la serif extra condensada mide ~200 px de 375. El apply verifica con Playwright que la caja del glifo no intersecta la del `h1` a 320, 375 y 768 px y que no hay scroll horizontal (`overflow-x-clip` ya está en la sección).
-- Movimiento: `motion-safe:animate-eva-boot` (el recorte por pasos que ya usa el hero, 0.36 s) con `motion-safe:[animation-delay:120ms]`; sin preferencia aparece una vez y queda quieto; con movimiento reducido no hay clase de animación activa. Cero keyframes nuevos y nada en bucle.
-- LCP: un SVG inline no es candidato a LCP; el retrato sigue siendo el elemento LCP con `fetchpriority="high"`.
-- *Alternativas descartadas*: glifo en el flujo (corre el contenido y complica el CLS), marca de agua con opacidad baja detrás del `h1` (baja el contraste del nombre sobre amarillo), trazado animado de los bordes (más JS/CSS y efecto más ruidoso que lo que pide el usuario).
+El glifo completo grande en el hero se implementó y se probó (absoluto, entrada única `eva-boot`, sin solapes), pero al verlo el usuario pidió sacarlo. El hero queda exactamente como antes del change y `hero.test.mjs` tiene un guard que impide que vuelva a referenciar `LogoEva`. La variante `completo` se sigue usando en la imagen para compartir (D7).
 
 ### D6 — Favicon e ícono táctil generados desde la fuente única
 
@@ -91,12 +86,11 @@ El filo no puede ser un `stroke` por trazo (dibuja la línea interna en cada cru
 ### D8 — Tests (`node:test`) por capa
 
 - `scripts/logotipo.test.mjs` (nuevo): datos de `LOGO_VARIANTES` (ids y cantidad de trazos por variante, simple ≤ 5 trazos, puntos dentro del `viewBox`), reglas de aletas sobre los parámetros (como máximo una por barra, `inicio + rampa + meseta ≤ 1`, `meseta > rampa`, ángulo de rampa ≤ 25°, `0.3·ancho ≤ alto ≤ 0.7·ancho`, una en cada una de las siete barras con zona + una en el aro, ninguna en `reloj-superior`, `chico-superior`, `chico-inferior` ni en la variante simple; aro: un solo tramo, rampa 25°–35° de arco con inclinación ≤ 25°, meseta 90°–120°, `0.3·grosor ≤ alto ≤ 0.7·grosor`), uniones (cada `corte*` apunta a una barra existente; en un inglete ambas barras comparten el vértice y se referencian entre sí; en una T el extremo cae sobre el eje de la anfitriona; ningún extremo libre), ejes rectos (barras a < 4° de un eje exactamente alineadas), `trazoPath` (solo `M L Z` en barras, en el anillo `M L A L A Z` (meseta concéntrica de radio `radio + alto`) + el círculo interior, 4 + 4 vértices por aleta, los dos polígonos de un inglete comparten los puntos del corte), `logoSvg` (tres capas sombra/filo/relleno con un `<path>` de barras + uno de anillo cada una, relleno sin `stroke`, `stroke-width` = 2 × filo; la misma técnica es obligatoria en `LogoEva.jsx`, en la plantilla de `og-image` y en el favicon, todos vía `LOGO_VARIANTES`; colores inyectados, sin `<image>`/`gradient`/`filter`/`animate`, triangulación con colores falsos), `EVA_LOGO_COLORS` + contraste + `logoBaseStyles` + plugin de `tailwind.config.js`, guard de hex del logo fuera de `eva-tokens.js`/`public/`, `favicon.svg` sincronizado, `apple-touch-icon.png` 180×180 y declarado en `index.html`, guard estático de `LogoEva.jsx` (`aria-hidden="true"`, `focusable="false"`, sin `style`, clases `eva-logo-*`).
-- Se extienden `site-nav-classes.test.mjs` (NavBrand monta `<LogoEva variante="simple"`, conserva `FC`, `navCode(BRAND_CODE)` y `sr-only`), `hero.test.mjs` (Hero monta `<LogoEva variante="completo"`, `absolute`, `pointer-events-none`, animación solo `motion-safe:`) y `og-image.test.mjs` (glifo exactamente una vez, colores del logo de la fuente única, triangulación cambiando `logoColors`).
+- Se extienden `site-nav-classes.test.mjs` (NavBrand monta `<LogoEva variante="simple"`, conserva `FC`, `navCode(BRAND_CODE)` y `sr-only`), `hero.test.mjs` (guard: el Hero NO referencia el logo) y `og-image.test.mjs` (glifo exactamente una vez, colores del logo de la fuente única, triangulación cambiando `logoColors`).
 
 ## Risks / Trade-offs
 
 - [El boceto no convence a Facundo] → los ajustes se hacen en los SVG de `bocetos/` antes del apply; specs y tareas no cambian porque los tests verifican estructura (variantes, trazos, reglas de aletas, colores), no coordenadas exactas.
-- [El amarillo grande del hero compite con la jerarquía violeta > naranja > agua y con el retrato] → el glifo no cuenta en la jerarquía por spec, pero el apply hace una captura a 1440 y 375 px y la presenta como checkpoint visual; si pesa demasiado se baja el tamaño en ≥ md (decisión de tamaño, no de spec).
 - [Glifo tapa el `h1` en anchos intermedios (md justo en 768 px)] → verificación de cajas con Playwright en 320/375/768/1024/1440 como tarea explícita.
 - [El filo rojo de 0.15 unidades se pierde a 16 px] → aceptado: a 16 px se lee la silueta amarilla sobre negro; el filo y la sombra suman a partir de 32 px.
 - [Safari viejo ignora el favicon SVG] → el `apple-touch-icon.png` cubre la pantalla de inicio de iOS; en pestañas, Safari cae al ícono genérico, igual que hoy.
@@ -108,9 +102,9 @@ El filo no puede ser un `stroke` por trazo (dibuja la línea interna en cada cru
 ## Migration Plan
 
 1. Aprobación del boceto (bloqueante).
-2. Apply por grupos de `tasks.md` (tokens → geometría → componente → barra → hero → favicon/ícono → og-image → integración).
+2. Apply por grupos de `tasks.md` (tokens → geometría → componente → barra → favicon/ícono → og-image → integración).
 3. Rollback: revertir el merge; `favicon.svg` y `og-image.png` vuelven a la versión anterior desde git. No hay datos ni migraciones.
 
 ## Open Questions
 
-- Ninguna que cambie specs o tareas. El tamaño exacto del glifo en el hero (≥ md) y el desplazamiento de la sombra se afinan en el checkpoint visual del apply.
+- Ninguna que cambie specs o tareas. El desplazamiento de la sombra se afina en el checkpoint visual del apply.
