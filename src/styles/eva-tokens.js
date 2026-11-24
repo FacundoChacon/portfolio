@@ -85,3 +85,47 @@ export const EVA_CONTRAST_PAIRS = [
   { fg: 'gray-dim', bg: 'black', level: 'ui' },
   { fg: 'gray-dim', bg: 'panel', level: 'ui' },
 ]
+
+/**
+ * Colores de marca de Stack y Contacto (change `colores-de-marca-hover`). Son decorativos y
+ * viven FUERA de `EVA_COLORS`, de `EVA_THEME_COLORS` y de la jerarquía de roles: no generan
+ * clases de Tailwind. Llegan al CSS como `--brand` vía `[data-brand="<clave>"]`
+ * (`brandBaseStyles`). Todos dan >= 4.5:1 contra black y panel; los que en su color oficial
+ * no llegan (mysql, web, linkedin) son una variante más clara del mismo tono.
+ */
+export const EVA_BRAND_COLORS = {
+  java: '#F89820',
+  spring: '#6DB33F',
+  react: '#61DAFB',
+  tailwind: '#2DD4BF', // teal
+  javascript: '#F7DF1E',
+  mysql: '#6FA8DC', // aclarado de #4479A1
+  python: '#FFD43B',
+  docker: '#2496ED',
+  git: '#F05032',
+  rest: '#93D500', // sin marca oficial: verde lima
+  jwt: '#FB015B',
+  web: '#6C8BFF', // aclarado del azul CSS3 #264DE4
+  email: '#EA4335',
+  github: '#3FB950',
+  linkedin: '#70B5F9', // aclarado de #0A66C2
+}
+
+const BRAND_KEY_PATTERN = /^[a-z][a-z0-9-]*$/
+
+/**
+ * Estilos de la capa base de Tailwind: una regla `[data-brand="<clave>"] { --brand: <hex> }`
+ * por marca, para que los componentes solo pongan `data-brand` (sin estilos inline: la CSP
+ * de producción no admite `'unsafe-inline'`).
+ * @param {Record<string, string>} [colors] clave -> hex
+ * @returns {Record<string, { '--brand': string }>}
+ * @throws {Error} si una clave no cumple `^[a-z][a-z0-9-]*$` (va dentro de un selector)
+ */
+export function brandBaseStyles(colors = EVA_BRAND_COLORS) {
+  return Object.fromEntries(
+    Object.entries(colors).map(([key, hex]) => {
+      if (!BRAND_KEY_PATTERN.test(key)) throw new Error(`eva-tokens: clave de marca inválida ${JSON.stringify(key)}`)
+      return [`[data-brand="${key}"]`, { '--brand': hex }]
+    }),
+  )
+}

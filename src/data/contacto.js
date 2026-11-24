@@ -22,19 +22,21 @@ export function resolveContactEmail(value, fallback = DEFAULT_CONTACT_EMAIL) {
 /**
  * Canales de contacto en orden de presentación.
  * @param {string} email
- * @returns {{ id: 'email'|'github'|'linkedin', label: string, value: string, href: string }[]}
+ * @returns {{ id: 'email'|'github'|'linkedin', brand: string, label: string, value: string, href: string }[]}
  */
 export function buildContactChannels(email) {
   return [
-    { id: 'email', label: 'Email', value: email, href: `mailto:${email}` },
+    { id: 'email', brand: 'email', label: 'Email', value: email, href: `mailto:${email}` },
     {
       id: 'github',
+      brand: 'github',
       label: 'GitHub',
       value: 'github.com/FacundoChacon',
       href: 'https://github.com/FacundoChacon',
     },
     {
       id: 'linkedin',
+      brand: 'linkedin',
       label: 'LinkedIn',
       value: 'in/facundo-chacon-61362735a',
       href: 'https://www.linkedin.com/in/facundo-chacon-61362735a',

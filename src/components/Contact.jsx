@@ -13,9 +13,13 @@ import {
 const CHANNELS = buildContactChannels(resolveContactEmail(import.meta.env.VITE_CONTACT_EMAIL))
 const ICONS = { email: Mail, github: GithubIcon, linkedin: LinkedinIcon }
 
-/** Estados de hover/foco/activo con forma (sombra sólida + indicador invertido), traslación solo con movimiento permitido. */
+/**
+ * Estados de hover/foco/activo con forma (sombra sólida + indicador invertido), traslación solo con
+ * movimiento permitido. El color de marca de borde, sombra, ícono e indicador lo aplica el CSS
+ * (`.eva-channel` + `data-brand` en `index.css`): acá no hay colores con variante de estado.
+ */
 const CHANNEL_CLASSES =
-  "group relative flex min-h-[4.5rem] items-stretch border-2 border-eva-gray-dim bg-eva-panel hover:border-eva-secondary hover:shadow-[6px_6px_0_0_var(--eva-secondary)] focus-visible:border-eva-secondary focus-visible:shadow-[6px_6px_0_0_var(--eva-secondary)] active:shadow-none motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:active:translate-y-0"
+  "eva-channel relative flex min-h-[4.5rem] items-stretch border-2 border-eva-gray-dim bg-eva-panel active:shadow-none motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-x-0.5 motion-safe:focus-visible:-translate-y-0.5 motion-safe:active:translate-x-0 motion-safe:active:translate-y-0"
 
 export default function Contact() {
   const { code } = HOME_NAV_LINKS.find((link) => link.id === "contacto")
@@ -65,14 +69,14 @@ export default function Contact() {
               const external = isExternalHref(channel.href)
               return (
                 <li key={channel.id}>
-                  <a href={channel.href} {...channelLinkProps(channel.href)} className={CHANNEL_CLASSES}>
+                  <a href={channel.href} data-brand={channel.brand} {...channelLinkProps(channel.href)} className={CHANNEL_CLASSES}>
                     <span
                       aria-hidden="true"
                       className="hidden items-center border-r-2 border-eva-gray-dim px-3 font-mono text-xs text-eva-gray sm:flex"
                     >
                       {channelCode(index)}
                     </span>
-                    <span aria-hidden="true" className="flex items-center px-3 text-eva-primary-light sm:px-4">
+                    <span aria-hidden="true" className="eva-brand-accent flex items-center px-3 text-eva-primary-light sm:px-4">
                       <Icon className="size-6" />
                     </span>
                     <span className="flex min-w-0 flex-1 flex-col justify-center py-3">
@@ -85,7 +89,7 @@ export default function Contact() {
                     </span>
                     <span
                       aria-hidden="true"
-                      className="flex items-center border-l-2 border-eva-gray-dim px-3 font-mono text-xs font-bold uppercase tracking-[0.15em] text-eva-primary-light group-hover:bg-eva-secondary group-hover:text-eva-black group-focus-visible:bg-eva-secondary group-focus-visible:text-eva-black"
+                      className="eva-channel-cta flex items-center border-l-2 border-eva-gray-dim px-3 font-mono text-xs font-bold uppercase tracking-[0.15em] text-eva-primary-light"
                     >
                       <span className="hidden sm:inline">{external ? "Abrir " : "Escribir "}</span>
                       {external ? "↗" : "→"}

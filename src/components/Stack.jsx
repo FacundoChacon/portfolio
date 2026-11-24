@@ -34,13 +34,13 @@ export default function Stack() {
                 className={`eva-reveal ${visible ? "is-visible" : ""}`}
                 style={{ transitionDelay: `${i * 50}ms` }}
               >
-                <div className="eva-neu-module relative flex h-full flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                <div data-brand={tech.brand} className="eva-neu-module relative flex h-full flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
                   <span aria-hidden="true" className="absolute right-2 top-2 font-mono text-[10px] text-eva-gray">
                     {moduleCode(i)}
                   </span>
                   <span
                     aria-hidden="true"
-                    className="flex size-12 shrink-0 items-center justify-center bg-eva-black font-mono text-sm font-bold text-eva-primary-light shadow-[inset_2px_2px_5px_rgb(5_5_5/0.9)]"
+                    className="eva-brand-accent flex size-12 shrink-0 items-center justify-center bg-eva-black font-mono text-sm font-bold text-eva-primary-light shadow-[inset_2px_2px_5px_rgb(5_5_5/0.9)]"
                   >
                     {tech.glyph}
                   </span>

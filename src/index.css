@@ -196,13 +196,65 @@
   @media (hover: hover) and (pointer: fine) {
     .eva-neu-module:hover {
       background-color: var(--eva-black);
-      border-color: var(--eva-secondary);
+      border-color: var(--brand, var(--eva-secondary));
       box-shadow: inset 4px 4px 8px rgb(5 5 5 / 0.7), inset -4px -4px 8px rgb(237 230 214 / 0.04);
+    }
+    .eva-neu-module:hover .eva-brand-accent {
+      color: var(--brand);
+    }
+  }
+  /* Táctil: sin hover, borde y monograma siempre en color de marca (--brand viene de [data-brand]),
+     en relieve: sombras y fondo no cambian */
+  @media (hover: none), (pointer: coarse) {
+    .eva-neu-module[data-brand] {
+      border-color: var(--brand);
+    }
+    .eva-channel[data-brand] {
+      border-color: var(--brand);
+    }
+    [data-brand] .eva-brand-accent {
+      color: var(--brand);
     }
   }
   @media (prefers-reduced-motion: no-preference) {
     .eva-neu-module {
       transition: box-shadow 200ms ease-out, border-color 200ms ease-out, background-color 200ms ease-out;
+    }
+  }
+
+  /* Color de marca (change colores-de-marca-hover): --brand lo define [data-brand] (capa base, desde
+     eva-tokens.js) y estas reglas solo lo consumen, sin estilos inline ni hex. Especificidad >= 0,2,0:
+     ganan a las utilidades de reposo del JSX (text-eva-primary-light, border-eva-gray-dim) sin !important.
+     Canal de Contacto: hover y foco-visible van en reglas separadas (los tests leen cada selector exacto)
+     y SIN media de puntero, igual que la traslación. El anillo de foco global (--eva-focus) no se toca. */
+  .eva-channel:hover {
+    border-color: var(--brand);
+    box-shadow: 6px 6px 0 0 var(--brand);
+  }
+  .eva-channel:focus-visible {
+    border-color: var(--brand);
+    box-shadow: 6px 6px 0 0 var(--brand);
+  }
+  .eva-channel:hover .eva-brand-accent {
+    color: var(--brand);
+  }
+  .eva-channel:focus-visible .eva-brand-accent {
+    color: var(--brand);
+  }
+  .eva-channel:hover .eva-channel-cta {
+    background-color: var(--brand);
+    color: var(--eva-black);
+  }
+  .eva-channel:focus-visible .eva-channel-cta {
+    background-color: var(--brand);
+    color: var(--eva-black);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .eva-brand-accent {
+      transition: color 200ms ease-out, background-color 200ms ease-out;
+    }
+    .eva-channel-cta {
+      transition: color 200ms ease-out, background-color 200ms ease-out;
     }
   }
 }
