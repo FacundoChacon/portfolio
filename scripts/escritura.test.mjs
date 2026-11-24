@@ -13,51 +13,56 @@ import {
   debeAnimar,
   estadoEn,
   estadoFinal,
+  estadosDeCaracteres,
   faseAlcanza,
   faseEn,
   mismoEstado,
-  partirTexto,
 } from '../src/utils/escritura.js'
 
-// --- partirTexto (4.2) ------------------------------------------------------
+// --- estadosDeCaracteres (4.2) ----------------------------------------------
 
-test('partirTexto izq: 0, n y largo visibles', () => {
-  assert.deepEqual(partirTexto('Facundo', 0, 'izq'), { visible: '', reservado: 'Facundo' })
-  assert.deepEqual(partirTexto('Facundo', 3, 'izq'), { visible: 'Fac', reservado: 'undo' })
-  assert.deepEqual(partirTexto('Facundo', 7, 'izq'), { visible: 'Facundo', reservado: '' })
+const E = 'escrito'
+const C = 'cursor'
+const P = 'pendiente'
+
+test('estadosDeCaracteres izq: 0, n y largo visibles; el cursor va sobre el próximo carácter', () => {
+  assert.deepEqual(estadosDeCaracteres('Facundo', 0, 'izq'), [P, P, P, P, P, P, P])
+  assert.deepEqual(estadosDeCaracteres('Facundo', 3, 'izq'), [E, E, E, C, P, P, P])
+  assert.deepEqual(estadosDeCaracteres('Facundo', 7, 'izq'), [E, E, E, E, E, E, E])
 })
 
-test('partirTexto der: 0, n y largo visibles (los visibles son los del extremo derecho)', () => {
-  assert.deepEqual(partirTexto('Facundo', 0, 'der'), { visible: '', reservado: 'Facundo' })
-  assert.deepEqual(partirTexto('Facundo', 3, 'der'), { visible: 'ndo', reservado: 'Facu' })
-  assert.deepEqual(partirTexto('Facundo', 7, 'der'), { visible: 'Facundo', reservado: '' })
+test('estadosDeCaracteres der: los escritos son los del extremo derecho y el cursor queda a su izquierda', () => {
+  assert.deepEqual(estadosDeCaracteres('Facundo', 0, 'der'), [P, P, P, P, P, P, P])
+  assert.deepEqual(estadosDeCaracteres('Facundo', 3, 'der'), [P, P, P, C, E, E, E])
+  assert.deepEqual(estadosDeCaracteres('Facundo', 7, 'der'), [E, E, E, E, E, E, E])
 })
 
-test('partirTexto: no parte caracteres (puntos de código) en "Chacón" ni en "Operativo · disponible"', () => {
-  assert.deepEqual(partirTexto('Chacón', 5, 'izq'), { visible: 'Chacó', reservado: 'n' })
-  assert.deepEqual(partirTexto('Chacón', 2, 'der'), { visible: 'ón', reservado: 'Chac' })
-  assert.deepEqual(partirTexto('Operativo · disponible', 11, 'izq'), { visible: 'Operativo ·', reservado: ' disponible' })
-  assert.deepEqual(partirTexto('Operativo · disponible', 12, 'der'), { visible: '· disponible', reservado: 'Operativo ' })
-  // un carácter fuera del plano básico (2 unidades UTF-16) cuenta como uno solo
-  assert.deepEqual(partirTexto('a😀b', 2, 'izq'), { visible: 'a😀', reservado: 'b' })
-  assert.deepEqual(partirTexto('a😀b', 2, 'der'), { visible: '😀b', reservado: 'a' })
+test('estadosDeCaracteres: una entrada por punto de código ("ó", "·" y emojis no se parten)', () => {
+  assert.equal(estadosDeCaracteres('Chacón', 2, 'izq').length, 6)
+  assert.deepEqual(estadosDeCaracteres('Chacón', 2, 'der'), [P, P, P, C, E, E])
+  assert.equal(estadosDeCaracteres('Operativo · disponible', 5, 'izq').length, 22)
+  assert.deepEqual(estadosDeCaracteres('a😀b', 2, 'izq'), [E, E, C])
+  assert.deepEqual(estadosDeCaracteres('a😀b', 1, 'der'), [P, C, E])
 })
 
-test('partirTexto: visibles fuera de rango, negativos o no enteros se recortan', () => {
-  assert.deepEqual(partirTexto('abc', -4, 'izq'), { visible: '', reservado: 'abc' })
-  assert.deepEqual(partirTexto('abc', 99, 'der'), { visible: 'abc', reservado: '' })
-  assert.deepEqual(partirTexto('abc', 1.9, 'izq'), { visible: 'a', reservado: 'bc' })
-  assert.deepEqual(partirTexto('abc', Number.NaN, 'izq'), { visible: '', reservado: 'abc' })
+test('estadosDeCaracteres: visibles fuera de rango, negativos o no enteros se recortan', () => {
+  assert.deepEqual(estadosDeCaracteres('abc', -4, 'izq'), [P, P, P])
+  assert.deepEqual(estadosDeCaracteres('abc', 99, 'der'), [E, E, E])
+  assert.deepEqual(estadosDeCaracteres('abc', 1.9, 'izq'), [E, C, P])
+  assert.deepEqual(estadosDeCaracteres('abc', Number.NaN, 'izq'), [P, P, P])
+  assert.deepEqual(estadosDeCaracteres('', 3, 'izq'), [])
 })
 
-test('partirTexto: las dos partes reconstruyen siempre el texto en su orden de lectura', () => {
-  for (const texto of ['', 'a', 'Chacón', 'Java 17 · Spring Boot · React']) {
+test('estadosDeCaracteres: el cursor aparece solo mientras se escribe (nunca antes ni después) y es único', () => {
+  for (const texto of ['a', 'Chacón', 'Java 17 · Spring Boot · React']) {
     const largo = Array.from(texto).length
-    for (let n = 0; n <= largo + 1; n += 1) {
-      const izq = partirTexto(texto, n, 'izq')
-      assert.equal(izq.visible + izq.reservado, texto)
-      const der = partirTexto(texto, n, 'der')
-      assert.equal(der.reservado + der.visible, texto)
+    for (const direccion of ['izq', 'der']) {
+      for (let n = 0; n <= largo + 1; n += 1) {
+        const estados = estadosDeCaracteres(texto, n, direccion)
+        const cursores = estados.filter((e) => e === C).length
+        assert.equal(cursores, n > 0 && n < largo ? 1 : 0, `${texto} ${direccion} ${n}`)
+        assert.equal(estados.filter((e) => e === E).length, Math.min(n, largo))
+      }
     }
   }
 })

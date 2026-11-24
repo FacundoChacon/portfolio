@@ -116,8 +116,8 @@ const extend = tailwindConfig.theme.extend
 
 test('tailwind.config: sin tokens ni animaciones cyberpunk', () => {
   assert.deepEqual(Object.keys(extend.colors), ['eva'])
-  assert.deepEqual(Object.keys(extend.animation), ['eva-boot'])
-  assert.deepEqual(Object.keys(extend.keyframes), ['evaBoot'])
+  assert.deepEqual(Object.keys(extend.animation), ['eva-boot', 'eva-obturador'])
+  assert.deepEqual(Object.keys(extend.keyframes).sort(), ['evaBoot', 'evaObturador'])
   for (const name of ['flicker', 'fade-in', 'slide-up', 'pulse-slow']) assert.ok(!(name in extend.animation), name)
   for (const name of ['flicker', 'fadeIn', 'slideUp']) assert.ok(!(name in extend.keyframes), name)
 })

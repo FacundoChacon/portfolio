@@ -4,21 +4,23 @@
  */
 
 /**
- * Parte un texto en el tramo ya escrito y el tramo reservado, por puntos de
- * código (no corta "ó" ni "·").
+ * Estado de cada carácter (por punto de código, no corta "ó" ni "·") de un texto que se escribe.
+ * El cursor va sobre el próximo carácter a escribir y solo mientras se escribe.
+ * Cada carácter conserva su caja siempre: solo cambia su estado, así el layout no se mueve.
  * @param {string} texto
  * @param {number} visibles caracteres escritos; se recorta al rango válido
  * @param {'izq'|'der'} direccion 'izq' escribe desde el inicio; 'der', desde el final
- * @returns {{ visible: string, reservado: string }}
+ * @returns {('escrito'|'cursor'|'pendiente')[]}
  */
-export function partirTexto(texto, visibles, direccion) {
-  const caracteres = Array.from(texto)
-  const n = Math.min(Math.max(Math.trunc(visibles) || 0, 0), caracteres.length)
-  if (direccion === 'der') {
-    const corte = caracteres.length - n
-    return { visible: caracteres.slice(corte).join(''), reservado: caracteres.slice(0, corte).join('') }
-  }
-  return { visible: caracteres.slice(0, n).join(''), reservado: caracteres.slice(n).join('') }
+export function estadosDeCaracteres(texto, visibles, direccion) {
+  const largo = Array.from(texto).length
+  const n = Math.min(Math.max(Math.trunc(visibles) || 0, 0), largo)
+  const escribiendo = n > 0 && n < largo
+  return Array.from({ length: largo }, (_, i) => {
+    const distancia = direccion === 'der' ? largo - 1 - i : i
+    if (distancia < n) return 'escrito'
+    return escribiendo && distancia === n ? 'cursor' : 'pendiente'
+  })
 }
 
 /**

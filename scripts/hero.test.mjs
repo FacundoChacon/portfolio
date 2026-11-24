@@ -179,13 +179,58 @@ test('Hero.jsx: contiene los elementos requeridos', () => {
   assert.equal((HERO.match(/<h1\b/g) ?? []).length, 1)
 })
 
-test('Hero.jsx: el retrato y el h1 no se animan ni se ocultan (candidatos a LCP)', () => {
-  const img = HERO.match(/<img\b[\s\S]*?\/>/)?.[0] ?? ''
-  const h1 = HERO.match(/<h1\b[^>]*>/)?.[0] ?? ''
-  assert.ok(img && h1, 'faltan <img> o <h1>')
-  for (const tag of [img, h1]) {
-    assert.ok(!/animate-|opacity-0|invisible|hidden/.test(tag), `${tag.slice(0, 40)}... se anima u oculta`)
+/**
+ * Problemas de integración de la entrada escrita en el marcado del hero (D4, D7).
+ * @param {string} source
+ * @returns {string[]}
+ */
+function integracionHeroProblems(source) {
+  const problems = []
+  const img = source.match(/<img\b[\s\S]*?\/>/)?.[0] ?? ''
+  const h1 = source.match(/<h1\b[^>]*>/)?.[0] ?? ''
+  if (!img || !h1) return ['faltan <img> o <h1>']
+  if (/(?<![\w-])(?:animate-|opacity-|invisible|hidden|clip)/.test(img.replace(/aria-hidden/g, ''))) problems.push('la <img> se anima, oculta o recorta')
+  if (!img.includes('fetchpriority="high"')) problems.push('la <img> perdió fetchpriority="high"')
+  if (!h1.includes('aria-label=')) problems.push('el h1 perdió su aria-label')
+  if (/(?<![\w-])(?:[\w-]+:)*(?:animate-|opacity-|invisible|hidden)/.test(h1)) problems.push('el h1 se anima u oculta')
+  const figure = source.match(/<figure\b[\s\S]*?<\/figure>/)?.[0] ?? ''
+  if (!/<span\b[^>]*aria-hidden="true"[^>]*data-obturador|<span\b[^>]*data-obturador[^>]*aria-hidden="true"/.test(figure)) {
+    problems.push('falta el obturador aria-hidden dentro de la figure')
   }
+  if (!/<section\b[^>]*data-escritura=/.test(source)) problems.push('la sección no expone data-escritura')
+  if (!/opacity-0/.test(source)) problems.push('las acciones y la ficha no usan opacity-0')
+  const fuera = source.replace(/aria-hidden/g, '')
+  if (/(?<![\w-])(?:[\w-]+:)*(?:invisible|hidden)(?![\w-])/.test(fuera.replace(/\bhidden items-center\b|\bhidden w-2\b|\bhidden\s+w-2\b/g, ''))) {
+    problems.push('oculta con invisible/hidden')
+  }
+  const usos = (source.match(/<TextoEscrito\b/g) ?? []).length
+  if (usos < 7) problems.push('' + usos + ' usos de TextoEscrito (se esperan 5 + dt y dd)')
+  if (/\bstyle=/.test(source)) problems.push('usa style= (CSP)')
+  return problems
+}
+
+test('Hero.jsx: la escritura se integra sin tocar la <img> ni el h1 (candidatos a LCP)', () => {
+  assert.deepEqual(integracionHeroProblems(HERO), [])
+})
+
+test('integracionHeroProblems: rechaza una <img> animada y un hero sin escritura (triangulación)', () => {
+  const malo = '<section id="presentacion"><h1 className="animate-x"><figure><img className="opacity-0" fetchpriority="high" /></figure>'
+  const problemas = integracionHeroProblems(malo)
+  for (const esperado of [
+    'la <img> se anima, oculta o recorta',
+    'el h1 perdió su aria-label',
+    'el h1 se anima u oculta',
+    'falta el obturador aria-hidden dentro de la figure',
+    'la sección no expone data-escritura',
+  ]) assert.ok(problemas.includes(esperado), esperado)
+  assert.ok(problemas.includes('0 usos de TextoEscrito (se esperan 5 + dt y dd)'))
+})
+
+test('package.json: sin librerías de animación ni de tipeo (la escritura es CSS + rAF)', () => {
+  const pkg = JSON.parse(read('package.json'))
+  const todas = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies })
+  const prohibidas = ['gsap', 'framer-motion', 'motion', 'typed.js', 'react-type-animation']
+  assert.deepEqual(todas.filter((nombre) => prohibidas.includes(nombre)), [])
 })
 
 test('Home.jsx: un único <h1> en los componentes montados', () => {
@@ -243,7 +288,7 @@ test('contraste: con alpha 0.6 el gris sobre la grilla falla (protege la opacida
 test('Hero.jsx: eyebrow y apellido en primary-light, CTA y figura en primary con sombra secondary', () => {
   const faltan = [
     'tracking-[0.3em] text-eva-primary-light',
-    'text-eva-primary-light">{PERFIL.apellido}',
+    'whitespace-nowrap text-eva-primary-light">',
     'border-2 border-eva-primary bg-eva-primary',
     'shadow-[6px_6px_0_0_var(--eva-secondary)]',
     'border-2 border-eva-primary bg-eva-panel shadow-[10px_10px_0_0_var(--eva-secondary)]',
@@ -354,7 +399,7 @@ function textoEscritoProblems(source) {
   const problems = []
   if (!/className="sr-only"/.test(source)) problems.push('falta la copia sr-only con el texto real')
   if (!/aria-hidden="true"/.test(source)) problems.push('la capa visual no es aria-hidden')
-  if (!/partirTexto/.test(source)) problems.push('no usa partirTexto')
+  if (!/estadosDeCaracteres/.test(source)) problems.push('no usa estadosDeCaracteres')
   if (!/text-transparent/.test(source)) problems.push('el tramo reservado no usa text-transparent')
   if (/(?<![\w-])(?:invisible|hidden|opacity-0)(?![\w-])/.test(source)) problems.push('oculta con invisible/hidden/opacity-0')
   if (/\bstyle=/.test(source)) problems.push('usa style= (CSP)')
@@ -371,48 +416,46 @@ test('TextoEscrito.jsx: copia sr-only, capa aria-hidden, reserva transparente y 
 })
 
 test('textoEscritoProblems: rechaza un componente con invisible o style inline (triangulación)', () => {
-  const conInvisible = `<span className="sr-only">{texto}</span><span aria-hidden="true">{p.visible}<span className="invisible">{p.reservado}</span></span> partirTexto direccion accesible`
+  const conInvisible = `<span className="sr-only">{texto}</span><span aria-hidden="true">{p.visible}<span className="invisible">{p.reservado}</span></span> estadosDeCaracteres direccion accesible`
   assert.deepEqual(textoEscritoProblems(conInvisible), [
     'el tramo reservado no usa text-transparent',
     'oculta con invisible/hidden/opacity-0',
   ])
-  const conStyle = `<span className="sr-only">{texto}</span><span aria-hidden="true" style={{ width }}><b className="text-transparent" /></span> partirTexto direccion accesible`
+  const conStyle = `<span className="sr-only">{texto}</span><span aria-hidden="true" style={{ width }}><b className="text-transparent" /></span> estadosDeCaracteres direccion accesible`
   assert.deepEqual(textoEscritoProblems(conStyle), ['usa style= (CSP)'])
-  const sinCopia = `<span aria-hidden="true"><b className="text-transparent" /></span> partirTexto direccion accesible`
+  const sinCopia = `<span aria-hidden="true"><b className="text-transparent" /></span> estadosDeCaracteres direccion accesible`
   assert.deepEqual(textoEscritoProblems(sinCopia), ['falta la copia sr-only con el texto real'])
 })
 
 /**
- * Problemas del cursor de la escritura en `index.css`: bloque sólido sin parpadeo.
+ * Problemas del cursor de la escritura en `index.css`: bloque sólido sin parpadeo ni elementos que se desplacen.
  * @param {string} css
  * @returns {string[]}
  */
 function cursorEscrituraProblems(css) {
-  const problems = []
-  const base = ruleBody(css, '.eva-cursor-escritura[data-cursor]::before')
+  const base = ruleBody(css, '.eva-cursor-escritura')
   if (base === null) return ['falta la regla del cursor']
-  if (!/position:\s*absolute/.test(base)) problems.push('el cursor ocupa espacio (no es absolute)')
+  const problems = []
   if (!/background-color:\s*var\(--eva-primary-light\)/.test(base)) problems.push('el cursor no usa eva-primary-light')
-  if (/animation/.test(base)) problems.push('el cursor tiene animation')
+  if (/animation|position:\s*absolute/.test(base)) problems.push('el cursor tiene animation o se posiciona (suma CLS)')
   if (/@keyframes\s+eva-cursor-escritura/.test(css)) problems.push('hay keyframes de parpadeo del cursor')
-  const reducido = ruleBody(css, '.eva-cursor-escritura[data-cursor]::before', { within: '@media (prefers-reduced-motion: reduce)' })
-  if (reducido === null || !/display:\s*none/.test(reducido)) problems.push('con movimiento reducido el cursor se muestra')
+  const reducido = ruleBody(css, '.eva-cursor-escritura', { within: '@media (prefers-reduced-motion: reduce)' })
+  if (reducido === null || !/background-color:\s*transparent/.test(reducido)) problems.push('con movimiento reducido el cursor se muestra')
   return problems
 }
 
 const INDEX_CSS = read('src/index.css')
 
-test('index.css: cursor de escritura sólido, absoluto, sin animación y oculto con movimiento reducido', () => {
+test('index.css: cursor de escritura sólido, sin animación, sin posicionarse y oculto con movimiento reducido', () => {
   assert.deepEqual(cursorEscrituraProblems(INDEX_CSS), [])
 })
 
-test('cursorEscrituraProblems: detecta parpadeo, flujo normal y falta de regla (triangulación)', () => {
-  const parpadea = `.eva-cursor-escritura[data-cursor]::before { position: static; background-color: red; animation: eva-cursor-escritura 1s infinite }
+test('cursorEscrituraProblems: detecta parpadeo, elemento posicionado y falta de regla (triangulación)', () => {
+  const parpadea = `.eva-cursor-escritura { position: absolute; background-color: red; animation: eva-cursor-escritura 1s infinite }
 @keyframes eva-cursor-escritura { 50% { opacity: 0 } }`
   assert.deepEqual(cursorEscrituraProblems(parpadea), [
-    'el cursor ocupa espacio (no es absolute)',
     'el cursor no usa eva-primary-light',
-    'el cursor tiene animation',
+    'el cursor tiene animation o se posiciona (suma CLS)',
     'hay keyframes de parpadeo del cursor',
     'con movimiento reducido el cursor se muestra',
   ])
@@ -434,4 +477,49 @@ test('tailwind: eva-boot y eva-obturador son las únicas animaciones y ninguna p
   const animation = tailwindConfig.theme.extend.animation
   assert.deepEqual(Object.keys(animation).sort(), ['eva-boot', 'eva-obturador'])
   for (const valor of Object.values(animation)) assert.ok(!/infinite/.test(valor), `${valor} se repite`)
+})
+
+// --- Hook useEscrituraHero (change hero-escritura, 6.1) --------------------
+
+/**
+ * Problemas del ciclo de vida del hook de la entrada escrita.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function hookEscrituraProblems(source) {
+  const problems = []
+  const codigo = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+  if (!/from\s+['"]\.\.\/utils\/motion['"]/.test(codigo) || !/REDUCED_MOTION_QUERY/.test(codigo) || !/prefersReducedMotion/.test(codigo)) {
+    problems.push('no usa prefersReducedMotion/REDUCED_MOTION_QUERY de utils/motion')
+  }
+  if (!/from\s+['"]\.\.\/utils\/escritura['"]/.test(codigo)) problems.push('no usa los helpers de utils/escritura')
+  if (!/requestAnimationFrame\(/.test(codigo)) problems.push('no usa requestAnimationFrame')
+  if (!/cancelAnimationFrame\(/.test(codigo)) problems.push('no cancela el rAF en el cleanup')
+  for (const evento of ['keydown', 'focusin', 'change']) {
+    if (!new RegExp(String.raw`addEventListener\(\s*['"]${evento}['"]`).test(codigo)) problems.push(`no escucha ${evento}`)
+    if (!new RegExp(String.raw`removeEventListener\(\s*['"]${evento}['"]`).test(codigo)) problems.push(`no remueve ${evento}`)
+  }
+  if (!/^let\s+\w*[Ee]jecutada\s*=\s*false/m.test(codigo)) problems.push('falta el flag de módulo de una sola ejecución')
+  if (/setInterval|setTimeout|\bstyle\b/.test(codigo)) problems.push('usa timers o style')
+  return problems
+}
+
+test('useEscrituraHero.js: rAF con cleanup, listeners removidos y flag de una sola ejecución', () => {
+  assert.deepEqual(hookEscrituraProblems(read('src/hooks/useEscrituraHero.js')), [])
+})
+
+test('hookEscrituraProblems: rechaza un hook que no cancela el rAF ni limpia listeners (triangulación)', () => {
+  const malo = `import { prefersReducedMotion, REDUCED_MOTION_QUERY } from '../utils/motion'
+import { estadoEn } from '../utils/escritura'
+let escrituraEjecutada = false
+useEffect(() => { requestAnimationFrame(frame); window.addEventListener('keydown', f); setInterval(f, 10) }, [])`
+  assert.deepEqual(hookEscrituraProblems(malo), [
+    'no cancela el rAF en el cleanup',
+    'no remueve keydown',
+    'no escucha focusin',
+    'no remueve focusin',
+    'no escucha change',
+    'no remueve change',
+    'usa timers o style',
+  ])
 })
