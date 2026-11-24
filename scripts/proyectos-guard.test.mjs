@@ -1,7 +1,7 @@
 /**
  * Guardas estáticas de la sección de proyectos (design D10): evitan regresiones
- * que rompen `position: sticky`, la accesibilidad de la lista, la carga diferida
- * de Three.js o el rendimiento.
+ * de estructura, accesibilidad de la lista y la vuelta del motor 3D. El contraste,
+ * el CSS y el marcado del panel están en `scripts/panel-guard.test.mjs`.
  */
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -50,7 +50,7 @@ function proyectosSources() {
 
 // ───────── estructura que no se debe romper ─────────
 
-test('Home.jsx: <main> recorta con overflow-x-clip y no con hidden (sticky)', () => {
+test('Home.jsx: <main> recorta con overflow-x-clip y no con hidden', () => {
   const home = read('src/pages/Home.jsx')
   const main = home.match(/<main[^>]*>/)?.[0] ?? ''
   assert.ok(main, 'no se encontró <main>')
@@ -79,43 +79,6 @@ test('package.json: sin librerías de animación', () => {
   for (const lib of ['gsap', 'motion', 'framer-motion']) assert.ok(!deps.includes(lib), `dependencia prohibida: ${lib}`)
 })
 
-// ───────── three: versión exacta y carga diferida ─────────
-
-test('package.json: three 0.187.0 exacto y en dependencies', () => {
-  const pkg = JSON.parse(read('package.json'))
-  assert.equal(pkg.dependencies.three, '0.187.0')
-  assert.ok(!pkg.devDependencies?.three)
-})
-
-test('solo src/three/carreteEscena.js importa three', () => {
-  const importers = srcFiles()
-    .filter((f) => f.endsWith('.js') || f.endsWith('.jsx'))
-    .filter((f) => /from\s+['"]three(\/[^'"]*)?['"]|import\(\s*['"]three/.test(read(f)))
-  assert.deepEqual(importers, ['src/three/carreteEscena.js'])
-})
-
-test('useCarrete importa el adaptador con import() dinámico y nadie lo importa estáticamente', () => {
-  assert.ok(/import\(\s*['"]\.\.\/three\/carreteEscena\.js['"]\s*\)/.test(read('src/hooks/useCarrete.js')))
-  for (const file of srcFiles().filter((f) => /\.(js|jsx)$/.test(f))) {
-    assert.ok(!/(^|\n)\s*import[^('"]*from\s+['"][^'"]*carreteEscena/.test(read(file)), `${file} importa el adaptador de forma estática`)
-  }
-})
-
-test('adaptador: libera geometría, materiales, texturas y renderer', () => {
-  const src = read('src/three/carreteEscena.js')
-  assert.ok(/geometry\.dispose\(\)/.test(src), 'falta geometry.dispose()')
-  assert.ok(/material\.dispose\(\)/.test(src) || /materials?\b[^;]*\.dispose\(\)/.test(src), 'falta material.dispose()')
-  assert.ok(/texture\.dispose\(\)/.test(src), 'falta texture.dispose()')
-  assert.ok(/renderer\.dispose\(\)/.test(src), 'falta renderer.dispose()')
-  assert.ok(/forceContextLoss\(\)/.test(src), 'falta forceContextLoss()')
-  assert.ok(/webglcontextlost/.test(src), 'falta la escucha de webglcontextlost')
-})
-
-test('adaptador: sin eval ni new Function', () => {
-  const src = read('src/three/carreteEscena.js')
-  assert.ok(!/\beval\s*\(|new\s+Function\b/.test(src))
-})
-
 test('src: sin recursos ni mensajes de la galería ajena', () => {
   for (const file of srcFiles()) {
     const src = read(file)
@@ -125,97 +88,70 @@ test('src: sin recursos ni mensajes de la galería ajena', () => {
   }
 })
 
-// ───────── ciclo de vida del hook ─────────
+// ───────── sin motor 3D ─────────
 
-test('useCarrete: rueda pasiva, sin historial, con rAF cancelable y visibilitychange', () => {
-  const src = read('src/hooks/useCarrete.js')
-  for (const m of src.matchAll(/addEventListener\(\s*['"]wheel['"][^)]*\)/g)) {
-    assert.ok(!/passive:\s*false/.test(m[0]), `rueda no pasiva: ${m[0]}`)
-  }
-  assert.ok(!/onWheel/.test(src))
-  assert.ok(!/pushState|replaceState/.test(src))
-  assert.ok(/cancelAnimationFrame/.test(src))
-  assert.ok(/visibilitychange/.test(src))
-  assert.ok(/IntersectionObserver/.test(src))
-  assert.ok(/setPointerCapture/.test(src))
-  assert.ok(/pointercancel/.test(src) && /lostpointercapture/.test(src))
+test('package.json y lockfile: sin three', () => {
+  const pkg = JSON.parse(read('package.json'))
+  assert.ok(!pkg.dependencies?.three && !pkg.devDependencies?.three)
+  assert.ok(!read('package-lock.json').includes('node_modules/three"'), 'three sigue en package-lock.json')
 })
 
-test('useModoProyectos: sin historial y sin la API vieja de modos', () => {
-  const src = read('src/hooks/useModoProyectos.js')
-  assert.ok(!/pushState|replaceState/.test(src))
-  assert.ok(!/layoutMode/.test(src))
-  assert.ok(/projectsMode/.test(src))
-})
-
-test('usePinHorizontal ya no existe ni se importa', () => {
-  assert.ok(!existsSync(new URL('src/hooks/usePinHorizontal.js', ROOT)))
-  for (const file of srcFiles().filter((f) => /\.(js|jsx)$/.test(f))) {
-    assert.ok(!/usePinHorizontal/.test(read(file)), `${file} usa usePinHorizontal`)
-  }
-})
-
-test('funciones de paginación eliminadas: nada en src las usa', () => {
-  const viejas = ['PER_PAGE', 'pageCount', 'ctaPlacement', 'trackItemCount', 'pageStride', 'trackOffset', 'pageOfItem', 'currentPage', 'layoutMode']
+test('src: nadie importa three ni menciona WebGL', () => {
   for (const file of srcFiles().filter((f) => /\.(js|jsx)$/.test(f))) {
     const src = read(file)
-    for (const name of viejas) assert.ok(!new RegExp(`\\b${name}\\b`).test(src), `${file} usa ${name}`)
+    assert.ok(!/from\s+['"]three(\/[^'"]*)?['"]|import\(\s*['"]three/.test(src), `${file} importa three`)
+    assert.ok(!/WebGL/i.test(src), `${file} menciona WebGL`)
   }
 })
 
-// ───────── marcado del carrete ─────────
-
-test('Carrete3D.jsx: marcado accesible y escenario despojado', () => {
-  const file = 'src/components/proyectos/Carrete3D.jsx'
-  assert.ok(existsSync(new URL(file, ROOT)), `falta ${file}`)
-  const src = read(file)
-  assert.ok(!/UNIT-/.test(src), 'contiene UNIT-')
-  assert.ok(!/\/\s*0\b/.test(src), 'contiene un indicador "/ 0"')
-  assert.ok(!/aria-live/.test(src), 'contiene aria-live')
-  assert.ok(src.includes('role="img"'))
-  assert.ok(src.includes('Ver proyecto'))
-  assert.ok(src.includes('Más en GitHub'))
-  assert.ok(src.includes('Scrolleá o arrastrá para explorar'))
-  assert.ok(src.includes('03 //'))
-  assert.ok(src.includes('Proyectos'))
-  for (const tag of src.match(/<a\b[^>]*>/g) ?? []) {
-    if (/target="_blank"/.test(tag)) assert.ok(/rel="noreferrer"/.test(tag), `enlace externo sin rel: ${tag}`)
-  }
-  assert.ok((src.match(/target="_blank"/g) ?? []).length >= 2)
+test('archivos del carrete eliminados', () => {
+  const borrados = [
+    'src/components/proyectos/Carrete3D.jsx',
+    'src/three',
+    'src/utils/carrete3d.js',
+    'src/utils/proyectosScroll.js',
+    'src/hooks/useCarrete.js',
+    'src/hooks/useModoProyectos.js',
+    'scripts/carrete3d.test.mjs',
+    'scripts/proyectos-scroll.test.mjs',
+  ]
+  for (const f of borrados) assert.ok(!existsSync(new URL(f, ROOT)), `${f} sigue existiendo`)
 })
 
-test('Projects.jsx: modos reel y carousel, sin indicador ni barra de páginas', () => {
+test('src: nada usa los nombres del carrete ni de la paginación vieja', () => {
+  const viejos = ['useCarrete', 'useModoProyectos', 'proyectosScroll', 'Carrete3D', 'carreteEscena', 'pinHeightVh', 'PER_PAGE', 'usePinHorizontal']
+  for (const file of srcFiles().filter((f) => /\.(js|jsx)$/.test(f))) {
+    const src = read(file)
+    for (const name of viejos) assert.ok(!src.includes(name), `${file} usa ${name}`)
+  }
+})
+
+// ───────── Projects.jsx y CSS ─────────
+
+test('Projects.jsx: ancla, encabezado, panel y cierre; sin modos', () => {
   const src = read('src/components/Projects.jsx')
-  assert.ok(/reel/.test(src) && /data-mode/.test(src) && /ProyectosCierre/.test(src) && /useCarrete/.test(src))
-  assert.ok(!/01 \//.test(src), 'queda el indicador 01 / 02')
-  assert.ok(!/proyectos-barra/.test(src))
+  assert.ok(src.includes('id="proyectos"'))
+  assert.ok(src.includes('aria-labelledby="proyectos-titulo"') && src.includes('id="proyectos-titulo"'))
+  assert.ok(src.includes('03 //') && src.includes('Proyectos'))
+  assert.ok(src.includes('eva-hex-grid'))
+  assert.ok(/<PanelProyectos\b/.test(src) && /<ProyectosCierre\b/.test(src))
+  assert.ok(!/data-mode/.test(src))
+  assert.ok(!/DESLIZÁ/.test(src), 'la pista "DESLIZÁ →" se reemplazó por las flechas')
 })
 
-test('index.css: sin los modos pin y row ni el indicador de páginas', () => {
+test('index.css: sin restos del carrete ni de los modos', () => {
   const css = read('src/index.css')
-  assert.ok(!/data-mode="pin"/.test(css))
-  assert.ok(!/data-mode="row"/.test(css))
-  assert.ok(!/proyectos-indicador-pin/.test(css))
-  assert.ok(/data-mode="reel"/.test(css))
-  assert.ok(/data-mode="carousel"/.test(css))
-  assert.ok(/touch-action:\s*pan-y/.test(css))
+  assert.ok(!/\.carrete-/.test(css))
+  assert.ok(!/proyectos-pin/.test(css))
+  assert.ok(!/data-mode=/.test(css))
+  assert.ok(!/proyectos-carrusel/.test(css))
 })
 
-// --- jerarquia-color-violeta: roles en la sección de proyectos ---
+// ───────── jerarquía de color ─────────
 
-test('proyectos: eyebrow en primary-light, tarjeta con sombra secondary, badges demo=secondary y live=tertiary', () => {
-  const card = read('src/components/proyectos/ProyectoCard.jsx')
-  const cierre = read('src/components/proyectos/ProyectosCierre.jsx')
+test('proyectos: eyebrow en primary-light y cierre con primary/secondary', () => {
   const esperado = {
     'src/components/Projects.jsx': ['tracking-[0.18em] text-eva-primary-light'],
-    'src/components/proyectos/Carrete3D.jsx': ['carrete-titulo-linea text-eva-primary-light'],
-    'src/components/proyectos/ProyectoCard.jsx': [
-      'demo: "border-eva-secondary text-eva-secondary"',
-      'live: "border-eva-tertiary text-eva-tertiary"',
-      'shadow-[6px_6px_0_0_theme(colors.eva.secondary)]',
-      'hover:border-eva-secondary hover:shadow-[8px_8px_0_0_theme(colors.eva.secondary)]',
-      'group-hover:text-eva-secondary',
-    ],
     'src/components/proyectos/ProyectosCierre.jsx': [
       'border-eva-primary bg-eva-primary text-eva-black',
       'hover:border-eva-secondary hover:bg-eva-secondary hover:text-eva-black',
@@ -225,13 +161,16 @@ test('proyectos: eyebrow en primary-light, tarjeta con sombra secondary, badges 
   for (const [file, fragmentos] of Object.entries(esperado)) {
     const source = read(file)
     for (const f of fragmentos) if (!source.includes(f)) faltan.push(`${file}: falta ${f}`)
-    assert.doesNotMatch(source, /eva-(?:orange|purple|green)/, file)
   }
+  for (const file of proyectosSources()) assert.doesNotMatch(read(file), /eva-(?:orange|purple|green)/, file)
   assert.deepEqual(faltan, [])
-  assert.ok(card && cierre)
 })
 
-test('carrete: el shader no usa colores de acento (las texturas son capturas y el fondo es el panel)', () => {
-  const escena = read('src/three/carreteEscena.js')
-  assert.doesNotMatch(escena, /eva-(?:orange|purple|green|primary|secondary|tertiary)|#FF7A1A|#9B5CF0|#74F8D4/i)
+test('cierre: enlaces externos con rel noopener noreferrer y contacto interno', () => {
+  const src = read('src/components/proyectos/ProyectosCierre.jsx')
+  assert.ok(src.includes('Ver GitHub') && src.includes('Contactame'))
+  assert.ok(src.includes('CONTACTO_ANCLA') && src.includes('GITHUB_PERFIL_URL'))
+  for (const tag of src.match(/<a\b[^>]*>/gs) ?? []) {
+    if (/target="_blank"/.test(tag)) assert.match(tag, /rel="noopener noreferrer"/, tag)
+  }
 })

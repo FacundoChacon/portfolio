@@ -1,7 +1,8 @@
-import { ExternalLink } from "lucide-react"
+import { useRef } from "react"
 import { GithubIcon } from "../BrandIcons"
 import { STATUS_LABELS } from "../../data/proyectos"
-import { projectLabel } from "../../utils/proyectosScroll"
+import { useFoil } from "../../hooks/useFoil"
+import { accesoRepositorio, etiquetasVisibles, projectLabel } from "../../utils/panelProyectos"
 
 const STATUS_CLASSES = {
   demo: "border-eva-secondary text-eva-secondary",
@@ -15,7 +16,7 @@ function StatusBadge({ status }) {
   const className = STATUS_CLASSES[key]
   return (
     <span
-      className={`inline-flex items-center gap-1.5 border px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 border px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] ${className}`}
     >
       {status === "inprogress" && <span aria-hidden="true" className="eva-stripes inline-block h-2.5 w-4" />}
       {text}
@@ -23,82 +24,103 @@ function StatusBadge({ status }) {
   )
 }
 
-const NEW_TAB_NOTE = "(abre en una pestaña nueva)"
+const NEW_TAB_NOTE = "(abre el sitio en una pestaña nueva)"
 
-/** Enlace secundario con inversión de color en hover/foco, sin estado ni timers. */
-const secondaryLink =
-  "relative z-10 inline-flex min-h-8 items-center gap-1.5 border-2 border-eva-gray-dim px-2.5 font-mono text-xs uppercase tracking-[0.18em] text-eva-paper hover:border-eva-secondary hover:bg-eva-secondary hover:text-eva-black hover:shadow-[3px_3px_0_0_var(--eva-paper)] focus-visible:bg-eva-secondary focus-visible:text-eva-black motion-safe:transition-colors"
+/** Anillo de foco del botón de repositorio, dentro de la card. */
+const focoInterno = "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-eva-focus"
+
+/** Acción de la card: mismo alto para el enlace "Repositorio" y el botón "Repo privado". */
+const accion =
+  "relative z-10 inline-flex min-h-10 items-center gap-1.5 border-2 px-3 font-mono text-xs uppercase tracking-[0.18em]"
 
 /**
- * Card de un proyecto. Toda la superficie lleva al destino principal (demo o,
- * si no hay, repositorio) mediante el pseudo-elemento del enlace del título.
+ * Card plana de un proyecto, con foil 2.5D bajo un puntero fino. Toda la card lleva a la demo
+ * con un único enlace (el del título, estirado con ::after); el botón de repositorio queda por
+ * encima. No es cristal: fondo propio semiopaco.
  */
 export default function ProyectoCard({ project, index, total }) {
-  const destination = project.live ?? project.repo
-  const destinationName = project.live ? "ver demo" : "ver repositorio"
-  const code = String(index + 1).padStart(2, "0")
+  const envoltorioRef = useRef(null)
+  const caraRef = useRef(null)
+  useFoil(envoltorioRef, caraRef)
+  const { visibles, resto } = etiquetasVisibles(project.tags)
+  const repositorio = accesoRepositorio(project)
 
   return (
-    <article className="proyecto-card eva-panel group relative flex h-full flex-col border-2 border-eva-gray-dim shadow-[6px_6px_0_0_theme(colors.eva.secondary)] focus-within:border-eva-secondary focus-within:shadow-[8px_8px_0_0_theme(colors.eva.secondary)] hover:border-eva-secondary hover:shadow-[8px_8px_0_0_theme(colors.eva.secondary)] motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-150 motion-safe:focus-within:-translate-x-0.5 motion-safe:focus-within:-translate-y-0.5 motion-safe:hover:-translate-x-0.5 motion-safe:hover:-translate-y-0.5">
-      <p className="sr-only">{projectLabel(index, total)}</p>
+    <div className="proyecto-foil h-full" ref={envoltorioRef}>
+      <article
+        ref={caraRef}
+        className="proyecto-card group relative flex h-full flex-col border-2 border-eva-gray-dim hover:border-eva-primary focus-within:border-eva-primary"
+      >
+        <p className="sr-only">{projectLabel(index, total)}</p>
 
-      <div className="flex items-center justify-between gap-3 border-b-2 border-eva-gray-dim px-4 py-2">
-        <span aria-hidden="true" className="font-mono text-[11px] uppercase tracking-[0.18em] text-eva-gray">
-          UNIT-{code}
-        </span>
-        <StatusBadge status={project.status} />
-      </div>
+        <img
+          src={project.image}
+          alt=""
+          width={project.imageWidth}
+          height={project.imageHeight}
+          decoding="async"
+          className="proyecto-card-img block aspect-video w-full border-b-2 border-eva-gray-dim object-cover"
+        />
 
-      <img
-        src={project.image}
-        alt={`Vista previa del proyecto ${project.title}`}
-        width={project.imageWidth}
-        height={project.imageHeight}
-        decoding="async"
-        className="proyecto-card-img w-full border-b-2 border-eva-gray-dim object-cover"
-      />
+        <div className="flex flex-1 flex-col gap-3 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="font-eva-display text-xl font-bold uppercase leading-tight text-eva-paper font-stretch-condensed">
+              {project.live ? (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="proyecto-enlace after:absolute after:inset-0 focus-visible:outline-none"
+                >
+                  {project.title}
+                  <span className="sr-only"> {NEW_TAB_NOTE}</span>
+                </a>
+              ) : (
+                project.title
+              )}
+            </h3>
+            <StatusBadge status={project.status} />
+          </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-eva-display text-2xl font-bold uppercase leading-tight text-eva-paper font-stretch-condensed">
-          <a
-            href={destination}
-            target="_blank"
-            rel="noreferrer"
-            className="after:absolute after:inset-0 group-hover:text-eva-secondary"
-          >
-            {project.title}
-            <span className="sr-only">
-              : {destinationName} {NEW_TAB_NOTE}
-            </span>
-          </a>
-        </h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-eva-gray">{project.description}</p>
+          <p className="line-clamp-3 text-sm leading-relaxed text-eva-gray">{project.description}</p>
 
-        <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Tecnologías">
-          {project.tags.map((tag) => (
-            <li key={tag} className="eva-tag">
-              {tag}
-            </li>
-          ))}
-        </ul>
+          <div aria-hidden="true" className="flex flex-wrap gap-1.5">
+            {visibles.map((tag) => (
+              <span key={tag} className="eva-tag">
+                {tag}
+              </span>
+            ))}
+            {resto > 0 && <span className="eva-tag">+{resto}</span>}
+          </div>
+          <p className="sr-only">Tecnologías: {project.tags.join(", ")}</p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3 border-t-2 border-eva-gray-dim pt-3">
-          {project.live && (
-            <a href={project.live} target="_blank" rel="noreferrer" className={secondaryLink}>
-              <ExternalLink aria-hidden="true" className="size-4" />
-              Demo
-              <span className="sr-only"> de {project.title} {NEW_TAB_NOTE}</span>
-            </a>
-          )}
-          {project.repo && (
-            <a href={project.repo} target="_blank" rel="noreferrer" className={secondaryLink}>
-              <GithubIcon aria-hidden="true" className="size-4" />
-              Repo
-              <span className="sr-only"> de {project.title} {NEW_TAB_NOTE}</span>
-            </a>
-          )}
+          <div className="mt-auto flex flex-wrap items-center gap-3 border-t-2 border-eva-gray-dim pt-3">
+            {repositorio.tipo === "enlace" ? (
+              <a
+                href={repositorio.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${accion} border-eva-gray-dim text-eva-paper hover:border-eva-primary hover:bg-eva-primary hover:text-eva-black motion-safe:transition-colors ${focoInterno}`}
+              >
+                <GithubIcon aria-hidden="true" className="size-4" />
+                Repositorio
+                <span className="sr-only">
+                  {" "}
+                  de {project.title} (abre en una pestaña nueva)
+                </span>
+              </a>
+            ) : (
+              <button type="button" disabled className={`${accion} cursor-not-allowed border-eva-gray-dim text-eva-gray`}>
+                <GithubIcon aria-hidden="true" className="size-4" />
+                Repo privado
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </article>
+
+        <span aria-hidden="true" className="foil-brillo" />
+        <span aria-hidden="true" className="foil-iris" />
+      </article>
+    </div>
   )
 }

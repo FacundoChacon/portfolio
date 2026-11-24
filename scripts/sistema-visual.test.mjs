@@ -253,9 +253,9 @@ test('index.css: franjas, etiquetas y materiales nombran el rol, no el color', (
   assert.match(decl('.eva-panel-label-error'), /background-color:\s*var\(--eva-error\)/)
   // Stack hundido: color de marca, con el secundario como respaldo (change colores-de-marca-hover)
   assert.match(blockBody(source, '.eva-neu-module:hover') ?? '', /border-color:\s*var\(--brand, var\(--eva-secondary\)\)/)
-  assert.match(decl('.carrete-enlace'), /border-bottom:\s*2px solid var\(--eva-primary\)/)
-  assert.match(blockBody(source, '.carrete-enlace:hover') ?? '', /background-color:\s*var\(--eva-secondary\)/)
-  assert.match(blockBody(source, '.carrete-github:hover') ?? '', /var\(--eva-secondary\)/)
+  assert.match(decl('.proyectos-flecha'), /border:\s*2px solid var\(--eva-primary\)/)
+  assert.match(blockBody(source, '.proyectos-flecha:hover') ?? '', /background-color:\s*var\(--eva-primary\)/)
+  assert.match(blockBody(source, '.proyectos-segmento[data-activo]') ?? '', /background-color:\s*var\(--eva-primary\)/)
 })
 
 test('index.css: ::selection es violeta primario con texto negro (5.03)', () => {
