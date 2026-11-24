@@ -144,6 +144,10 @@ function navBrandLogoErrors(source) {
   if (glifo === -1) errors.push('no monta <LogoEva variante="simple"')
   else if (texto !== -1 && glifo > texto) errors.push('el glifo debe ir antes de FC')
   if (texto === -1) errors.push('el texto FC desaparecio')
+  // En 320 px el glifo desborda la barra (empuja el boton del menu fuera de pantalla): se oculta bajo 360 px.
+  if (!/<LogoEva variante="simple"[^>]*className="[^"]*\bhidden\b[^"]*\bmin-\[360px\]:block\b/.test(source)) {
+    errors.push('el glifo debe ocultarse bajo 360 px (hidden min-[360px]:block)')
+  }
   for (const requerido of ['navCode(BRAND_CODE)', 'tracking-[0.2em] text-eva-secondary', 'sr-only', ', ir al inicio', 'to="/"', 'font-eva-display']) {
     if (!source.includes(requerido)) errors.push(`falta ${requerido}`)
   }
@@ -162,6 +166,7 @@ test('navBrandLogoErrors: sin glifo, glifo despues de FC, sin FC o sin sr-only f
   assert.ok(navBrandLogoErrors(despues).includes('el glifo debe ir antes de FC'))
   assert.ok(navBrandLogoErrors(real.replace(/^\s*FC\s*$/m, '')).includes('el texto FC desaparecio'))
   assert.ok(navBrandLogoErrors(real.replace('sr-only', 'hidden')).includes('falta sr-only'))
+  assert.ok(navBrandLogoErrors(real.replace('hidden ', '')).some((e) => e.includes('bajo 360 px')))
 })
 
 // --- pulido-post-auditoria: enlaces visibles y panel móvil ---
