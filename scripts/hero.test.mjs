@@ -253,3 +253,42 @@ test('Hero.jsx: la franja vertical de la figura sigue siendo secondary (eva-stri
   const linea = HERO.split('\n').find((l) => l.includes('absolute -right-6 inset-y-4'))
   assert.ok(linea && !linea.includes('eva-stripes-primary'))
 })
+
+// --- Glifo decorativo (change logo-eva, design D5) ---
+
+/**
+ * Errores del glifo completo en `Hero.jsx`: decorativo, fuera del flujo (absoluto, sin eventos), tamaño
+ * móvil y de escritorio, y animación de entrada solo con `motion-safe:`.
+ * @param {string} source
+ * @returns {string[]}
+ */
+function heroLogoErrors(source) {
+  const errors = []
+  if (!/import\s+LogoEva\s+from\s+["']\.\/LogoEva["']/.test(source)) errors.push('no importa LogoEva')
+  const tag = /<LogoEva\s+variante="completo"[^>]*\/>/.exec(source)?.[0]
+  if (!tag) return [...errors, 'no monta <LogoEva variante="completo"']
+  const clases = /className="([^"]*)"/.exec(tag)?.[1] ?? ''
+  const tokens = clases.split(/\s+/)
+  for (const requerido of ['pointer-events-none', 'absolute', 'z-0', 'h-32']) {
+    if (!tokens.includes(requerido)) errors.push(`el glifo no tiene ${requerido}`)
+  }
+  if (!tokens.some((t) => /^md:h-/.test(t))) errors.push('el glifo no tiene tamaño md:h-*')
+  if (!tokens.includes('motion-safe:animate-eva-boot')) errors.push('el glifo no tiene motion-safe:animate-eva-boot')
+  if (withoutMotionSafe(String.raw`animate-[\w-]+`).test(clases)) errors.push('el glifo tiene una animacion sin motion-safe:')
+  return errors
+}
+
+test('Hero monta el glifo completo decorativo', () => {
+  assert.deepEqual(heroLogoErrors(HERO), [])
+})
+
+test('heroLogoErrors: animate-eva-boot sin motion-safe, sin tamaño md o sin glifo fallan (triangulación)', () => {
+  const tagLogo = /<LogoEva[^>]*\/>/.exec(HERO)?.[0] ?? ''
+  assert.ok(tagLogo, 'el Hero debe tener LogoEva')
+  const soloLogo = HERO.replace(tagLogo, tagLogo.replace('motion-safe:animate-eva-boot', 'animate-eva-boot'))
+  assert.ok(heroLogoErrors(soloLogo).includes('el glifo tiene una animacion sin motion-safe:'))
+  assert.ok(heroLogoErrors(soloLogo).includes('el glifo no tiene motion-safe:animate-eva-boot'))
+  assert.ok(heroLogoErrors(HERO.replace(/\bmd:h-\S+/, '')).includes('el glifo no tiene tamaño md:h-*'))
+  assert.ok(heroLogoErrors(HERO.replace(tagLogo, '')).includes('no monta <LogoEva variante="completo"'))
+  assert.ok(heroLogoErrors(HERO.replace('pointer-events-none', '')).includes('el glifo no tiene pointer-events-none'))
+})

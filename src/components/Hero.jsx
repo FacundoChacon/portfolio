@@ -1,5 +1,6 @@
 import { ArrowDown } from "lucide-react"
 import { GithubIcon, LinkedinIcon } from "./BrandIcons"
+import LogoEva from "./LogoEva"
 import {
   ENLACES_PERFIL,
   FICHA,
@@ -21,7 +22,11 @@ export default function Hero() {
       className="eva-hex-grid relative flex min-h-screen flex-col overflow-x-clip bg-eva-black pt-24"
     >
       <div className="mx-auto grid w-full max-w-6xl flex-1 content-center gap-y-12 px-4 pb-16 md:grid-cols-12 md:gap-x-8 md:px-6">
-        <div className="md:col-span-7">
+        <div className="relative md:col-span-7">
+          <LogoEva
+            variante="completo"
+            className="pointer-events-none absolute right-0 top-0 z-0 h-32 w-auto md:h-40 lg:h-60 xl:h-[280px] motion-safe:animate-eva-boot motion-safe:[animation-delay:120ms]"
+          />
           <p aria-hidden="true" className="font-mono text-sm uppercase tracking-[0.3em] text-eva-primary-light">
             01 {"//"} Presentación
           </p>
