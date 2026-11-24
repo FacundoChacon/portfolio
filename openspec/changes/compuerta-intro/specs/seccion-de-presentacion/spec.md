@@ -1,0 +1,88 @@
+# Spec Delta
+
+## MODIFIED Requirements
+
+### Requirement: Movimiento de entrada según preferencia
+Sin preferencia de movimiento reducido, la sección SHALL entrar escrita en tres fases sucesivas. En la fase A, el kicker, el nombre, el subtítulo y la descripción se escriben de izquierda a derecha en orden de lectura y después aparecen las acciones. En la fase B aparece la tarjeta del retrato con el marco del panel de datos. En la fase C las filas del panel se escriben de derecha a izquierda, en orden. La entrada completa NO SHALL superar 3,5 segundos, medidos desde que empieza: el primer render o, si hay compuerta de entrada, el final de su apertura. Con movimiento reducido, nada se anima ni se desplaza.
+
+#### Scenario: Movimiento reducido activo
+- **WHEN** el visitante tiene activada la preferencia de movimiento reducido
+- **THEN** todos los elementos de la sección se muestran en su estado final desde el primer render, sin escritura, sin animación y sin traslación al hacer hover
+
+#### Scenario: Sin preferencia de movimiento reducido
+- **WHEN** el visitante no pidió movimiento reducido y carga la home
+- **THEN** el kicker, el nombre, el subtítulo y la descripción se escriben uno después del otro, cada uno de izquierda a derecha, y las acciones aparecen recién cuando terminó la descripción
+
+#### Scenario: Retrato después del texto
+- **WHEN** termina la fase A
+- **THEN** aparece la tarjeta del retrato junto con el marco del panel de datos, y antes de ese momento el retrato no se ve
+
+#### Scenario: Panel escrito de derecha a izquierda
+- **WHEN** termina la fase B
+- **THEN** las filas Rol, Stack, Ubicación y Estado se escriben en ese orden; en cada fila los caracteres aparecen desde el extremo derecho hacia la izquierda, primero el valor y después la etiqueta, y cada carácter aparece ya en su posición final
+
+#### Scenario: Duración acotada
+- **WHEN** se mide la entrada desde que empieza (el primer render, o el final de la apertura de la compuerta si la hubo) hasta que el último carácter del panel es visible
+- **THEN** la duración no supera 3,5 segundos
+
+#### Scenario: Sin efectos intermitentes
+- **WHEN** la sección está en pantalla por cualquier tiempo, durante o después de la entrada
+- **THEN** ningún texto ni elemento parpadea, titila ni se revuelve de forma periódica; el indicador de escritura, si se muestra, es fijo y desaparece al terminar cada texto
+
+### Requirement: Entrada escrita una sola vez y sin bloquear
+La entrada escrita SHALL ejecutarse como máximo una vez por carga de página. Cualquier interacción de teclado o foco dentro de la sección SHALL completarla al instante, igual que activar la preferencia de movimiento reducido durante la entrada. Ninguna acción SHALL quedar inaccesible mientras dura. Si la compuerta de entrada está en pantalla, la escritura NO SHALL avanzar detrás de ella: SHALL empezar desde el principio cuando la compuerta termina de abrirse o se salta.
+
+#### Scenario: Volver a la home sin recargar
+- **WHEN** el visitante ya vio la entrada, navega a otra ruta del sitio y vuelve a la home sin recargar la página
+- **THEN** la sección se muestra en su estado final, sin volver a escribirse
+
+#### Scenario: Teclado durante la entrada
+- **WHEN** el visitante presiona una tecla o mueve el foco a un elemento de la sección antes de que termine la entrada
+- **THEN** todos los textos, el retrato, el panel y las acciones quedan en su estado final en ese mismo momento, y el elemento enfocado muestra su indicador de foco
+
+#### Scenario: Preferencia que cambia en caliente
+- **WHEN** el visitante activa la preferencia de movimiento reducido con la entrada en curso
+- **THEN** la sección pasa a su estado final sin recargar la página
+
+#### Scenario: Entorno sin soporte de la preferencia
+- **WHEN** el entorno no permite consultar la preferencia de movimiento
+- **THEN** la sección no falla y se comporta como cuando no hay preferencia
+
+#### Scenario: Escritura después de la compuerta
+- **WHEN** la compuerta de entrada termina de abrirse
+- **THEN** la escritura empieza en ese momento desde el kicker vacío, y mientras las hojas se separan la sección no muestra texto a medio escribir
+
+#### Scenario: Compuerta saltada con una tecla
+- **WHEN** el visitante presiona una tecla para saltar la compuerta
+- **THEN** la compuerta desaparece y la escritura empieza desde el principio, sin completarse por esa misma tecla; una tecla posterior la completa como siempre
+
+#### Scenario: Compuerta saltada con un clic
+- **WHEN** el visitante hace clic o toca la pantalla para saltar la compuerta
+- **THEN** la escritura empieza desde el principio en el mismo cuadro en que desaparece la compuerta, sin que se vea antes la sección completa
+
+### Requirement: Carga prioritaria del retrato
+El retrato SHALL cargarse con prioridad alta, sin carga diferida, y SHALL reservar su espacio antes de descargarse, de modo que su aparición no desplace contenido. La entrada animada NO SHALL demorar la descarga ni el pintado de la imagen del retrato: su aparición en la fase B SHALL lograrse descubriendo una imagen ya pintada. La compuerta de entrada tampoco SHALL demorar la descarga ni el pintado del contenido de la sección. El rediseño NO SHALL elevar el CLS de la home por encima de 0.1.
+
+#### Scenario: Espacio reservado
+- **WHEN** la home se carga con la imagen todavía en descarga
+- **THEN** el recuadro del retrato ya ocupa su tamaño final y nada se mueve cuando la imagen llega
+
+#### Scenario: Prioridad de descarga
+- **WHEN** el navegador descubre el retrato
+- **THEN** lo solicita con prioridad alta y sin esperar a que entre en el viewport, a que avance la entrada animada ni a que se abra la compuerta de entrada
+
+#### Scenario: Métricas no empeoran
+- **WHEN** se mide la home construida en escritorio (1440px), sin movimiento reducido, antes y después del cambio en las mismas condiciones
+- **THEN** el LCP no supera al de la versión anterior más un margen de 10% y el CLS es menor o igual a 0.1
+
+#### Scenario: Métricas en móvil
+- **WHEN** se mide la home construida en móvil (375px), sin movimiento reducido, antes y después del cambio en las mismas condiciones
+- **THEN** el LCP no supera al de la versión anterior en más de 1 segundo y el CLS es menor o igual a 0.1
+
+#### Scenario: Métricas con movimiento reducido
+- **WHEN** se mide la home construida con movimiento reducido en 1440px y en 375px
+- **THEN** el LCP no supera al de la versión anterior más un margen de 10% y el CLS es menor o igual a 0.1
+
+#### Scenario: Métricas en la primera visita de la sesión
+- **WHEN** se mide la home construida en 1440px y en 375px, sin movimiento reducido y con la compuerta de entrada en pantalla (sesión nueva), contra la versión sin compuerta en las mismas condiciones
+- **THEN** el LCP de 1440px no supera al de la versión sin compuerta más un margen de 10%, el de 375px no lo supera en más de 1 segundo y el CLS es menor o igual a 0.1 en ambos anchos
