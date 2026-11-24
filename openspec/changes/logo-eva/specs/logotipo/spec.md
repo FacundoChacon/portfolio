@@ -32,16 +32,24 @@ El glifo SHALL tener una variante completa, con el círculo, el triángulo alto 
 - **WHEN** se cuenta la cantidad de trazos de la variante simple
 - **THEN** es de como máximo 5 y todos pertenecen al triángulo alto o al círculo
 
-### Requirement: Estilo de trazo recto
-Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta rellena con extremos cortados en escuadra (sin puntas) y ancho casi constante: a lo largo del trazo el ancho mínimo SHALL ser al menos el 75 % del máximo, y solo algunos trazos MAY engrosar de forma lineal en un tramo. Cada trazo SHALL pintarse con el color de relleno del logo, con un filo y una sombra desplazada hacia abajo y a la derecha en el color de filo del logo. El glifo NO SHALL usar degradados iridiscentes, brillos difusos ni animaciones en bucle.
+### Requirement: Estilo de trazo recto con aletas
+Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho constante con extremos en escuadra (sin puntas). Una barra MAY llevar aletas: salientes de bordes rectos que suben en línea recta desde un solo lado de la barra y vuelven a ella, de alto entre 0.5 y 1.2 veces el ancho de esa barra. Cada trazo SHALL pintarse con el relleno del logo, con filo y sombra desplazada abajo a la derecha en el color de filo. Sin degradados iridiscentes, brillos difusos ni animaciones en bucle.
 
-#### Scenario: Barra recta sin puntas
+#### Scenario: Barra recta
 - **WHEN** se inspecciona cualquier trazo de cualquiera de las dos variantes, salvo el círculo
-- **THEN** es una forma cerrada rellena sin ningún ángulo interior menor a 60° y su ancho mínimo es al menos el 75 % del máximo
+- **THEN** fuera de sus aletas es una barra de ancho constante con ambos extremos cortados en escuadra
 
-#### Scenario: Relieve lineal mínimo
-- **WHEN** se comparan los anchos de los trazos de cada variante
-- **THEN** al menos uno engrosa de forma lineal en un tramo y ninguno supera un 25 % de aumento
+#### Scenario: Aletas acotadas
+- **WHEN** se inspeccionan las aletas de una barra
+- **THEN** todas salen del mismo lado, no se superponen entre sí, tienen bordes rectos y su alto está entre 0.5 y 1.2 veces el ancho de la barra
+
+#### Scenario: Ubicación de las aletas
+- **WHEN** se inspecciona la variante completa
+- **THEN** tiene aletas en la parte alta del lateral del triángulo alto, junto a la diagonal interior y la mitad alta del lomo, en la diagonal superior izquierda del reloj de arena y bajo la mitad izquierda de su base, y no tiene aletas en el círculo ni en el triángulo chico
+
+#### Scenario: Variante simple legible
+- **WHEN** se dibuja la variante simple a 16 píxeles
+- **THEN** sus barras no llevan aletas y el círculo se distingue separado del triángulo
 
 #### Scenario: Círculo
 - **WHEN** se inspecciona el círculo de cualquiera de las dos variantes

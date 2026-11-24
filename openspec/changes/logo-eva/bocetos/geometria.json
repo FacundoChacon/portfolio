@@ -1,0 +1,331 @@
+{
+  "nota": "Barras rectas de ancho constante con extremos en escuadra; aletas = { lado, inicio, pico, fin, alto } con t de 0 a 1 a lo largo de desde->hasta, lado 1 = normal (-uy, ux). Anillo: circulo exterior e interior excentrico, evenodd.",
+  "completo": {
+    "viewBox": "0 0 104 232",
+    "sombra": 2.6,
+    "filo": 1.1,
+    "trazos": [
+      {
+        "id": "triangulo-lateral",
+        "desde": [
+          51.4,
+          4
+        ],
+        "hasta": [
+          53.4,
+          139.2
+        ],
+        "ancho": 6.4,
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.04,
+            "pico": 0.119,
+            "fin": 0.15,
+            "alto": 5.6
+          },
+          {
+            "lado": 1,
+            "inicio": 0.17,
+            "pico": 0.249,
+            "fin": 0.28,
+            "alto": 5
+          },
+          {
+            "lado": 1,
+            "inicio": 0.3,
+            "pico": 0.372,
+            "fin": 0.4,
+            "alto": 4.2
+          }
+        ]
+      },
+      {
+        "id": "triangulo-derecho",
+        "desde": [
+          49.4,
+          3.2
+        ],
+        "hasta": [
+          97.8,
+          82.4
+        ],
+        "ancho": 6.2,
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.62,
+            "pico": 0.721,
+            "fin": 0.76,
+            "alto": 4.4
+          },
+          {
+            "lado": 1,
+            "inicio": 0.78,
+            "pico": 0.881,
+            "fin": 0.92,
+            "alto": 4.8
+          }
+        ]
+      },
+      {
+        "id": "triangulo-interior",
+        "desde": [
+          52.2,
+          55.6
+        ],
+        "hasta": [
+          77.4,
+          97.6
+        ],
+        "ancho": 4.6,
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.12,
+            "pico": 0.336,
+            "fin": 0.42,
+            "alto": 4.8
+          },
+          {
+            "lado": 1,
+            "inicio": 0.48,
+            "pico": 0.71,
+            "fin": 0.8,
+            "alto": 4.4
+          }
+        ]
+      },
+      {
+        "id": "lomo",
+        "desde": [
+          99.8,
+          71.2
+        ],
+        "hasta": [
+          10.2,
+          208.4
+        ],
+        "ancho": 7.2,
+        "aletas": [
+          {
+            "lado": -1,
+            "inicio": 0.06,
+            "pico": 0.161,
+            "fin": 0.2,
+            "alto": 6.6
+          },
+          {
+            "lado": -1,
+            "inicio": 0.23,
+            "pico": 0.331,
+            "fin": 0.37,
+            "alto": 7.4
+          },
+          {
+            "lado": -1,
+            "inicio": 0.4,
+            "pico": 0.501,
+            "fin": 0.54,
+            "alto": 6.2
+          }
+        ]
+      },
+      {
+        "id": "reloj-superior",
+        "desde": [
+          4.2,
+          116.8
+        ],
+        "hasta": [
+          64.2,
+          139.6
+        ],
+        "ancho": 5.2,
+        "aletas": []
+      },
+      {
+        "id": "reloj-diagonal",
+        "desde": [
+          4.6,
+          116.4
+        ],
+        "hasta": [
+          91.8,
+          225.2
+        ],
+        "ancho": 6.8,
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0.03,
+            "pico": 0.109,
+            "fin": 0.14,
+            "alto": 6
+          },
+          {
+            "lado": 1,
+            "inicio": 0.16,
+            "pico": 0.239,
+            "fin": 0.27,
+            "alto": 5.4
+          },
+          {
+            "lado": 1,
+            "inicio": 0.29,
+            "pico": 0.355,
+            "fin": 0.38,
+            "alto": 4.4
+          }
+        ]
+      },
+      {
+        "id": "reloj-base",
+        "desde": [
+          8.2,
+          203.2
+        ],
+        "hasta": [
+          93.4,
+          224
+        ],
+        "ancho": 6.6,
+        "aletas": [
+          {
+            "lado": 1,
+            "inicio": 0,
+            "pico": 0.054,
+            "fin": 0.12,
+            "alto": 6.4
+          },
+          {
+            "lado": 1,
+            "inicio": 0.15,
+            "pico": 0.258,
+            "fin": 0.3,
+            "alto": 6.6
+          },
+          {
+            "lado": 1,
+            "inicio": 0.33,
+            "pico": 0.438,
+            "fin": 0.48,
+            "alto": 5.6
+          }
+        ]
+      },
+      {
+        "id": "chico-superior",
+        "desde": [
+          56.6,
+          167.2
+        ],
+        "hasta": [
+          89,
+          132.4
+        ],
+        "ancho": 4.6,
+        "aletas": []
+      },
+      {
+        "id": "chico-vertical",
+        "desde": [
+          87,
+          132
+        ],
+        "hasta": [
+          93.4,
+          203.2
+        ],
+        "ancho": 4.8,
+        "aletas": []
+      },
+      {
+        "id": "chico-inferior",
+        "desde": [
+          57,
+          164.4
+        ],
+        "hasta": [
+          94.2,
+          202
+        ],
+        "ancho": 4.6,
+        "aletas": []
+      },
+      {
+        "id": "anillo",
+        "centro": [
+          22.6,
+          58.4
+        ],
+        "radio": 16.5,
+        "centroInterior": [
+          23.4,
+          57.7
+        ],
+        "radioInterior": 10.6
+      }
+    ]
+  },
+  "simple": {
+    "viewBox": "0 0 32 32",
+    "viewBoxSinFondo": "3 1 24 30",
+    "sombra": 0.7,
+    "filo": 0.3,
+    "trazos": [
+      {
+        "id": "triangulo-lateral",
+        "desde": [
+          15.2,
+          1.2
+        ],
+        "hasta": [
+          15.6,
+          30.6
+        ],
+        "ancho": 2.6,
+        "aletas": []
+      },
+      {
+        "id": "triangulo-derecho",
+        "desde": [
+          14.6,
+          1.2
+        ],
+        "hasta": [
+          25.5,
+          18.4
+        ],
+        "ancho": 2.5,
+        "aletas": []
+      },
+      {
+        "id": "triangulo-base",
+        "desde": [
+          25.8,
+          16.2
+        ],
+        "hasta": [
+          14.7,
+          30.9
+        ],
+        "ancho": 2.6,
+        "aletas": []
+      },
+      {
+        "id": "anillo",
+        "centro": [
+          9.1,
+          13.1
+        ],
+        "radio": 4.1,
+        "centroInterior": [
+          9.3,
+          12.9
+        ],
+        "radioInterior": 2.3
+      }
+    ]
+  }
+}

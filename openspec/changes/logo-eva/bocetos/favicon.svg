@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="4" fill="#050505"/>
   <g fill="#F0381E" transform="translate(0.7 0.7)">
-    <path d="M13.9 1.2L14.1 15.9L14 30.7L17.2 30.6L16.7 15.9L16.5 1.1Z"/>
+    <path d="M13.9 1.2L14.3 30.7L16.9 30.6L16.5 1.1Z"/>
     <path d="M13.5 1.8L24.5 19L26.6 17.7L15.6 0.5Z"/>
     <path d="M24.7 15.5L13.6 30.1L15.7 31.7L26.8 17Z"/>
     <path fill-rule="evenodd" d="M5 13.1a4.1 4.1 0 1 0 8.2 0a4.1 4.1 0 1 0 -8.2 0ZM7 12.9a2.3 2.3 0 1 0 4.6 0a2.3 2.3 0 1 0 -4.6 0Z"/>
   </g>
   <g fill="#FFC21A" stroke="#F0381E" stroke-width="0.3" stroke-linejoin="miter" paint-order="stroke">
-    <path d="M13.9 1.2L14.1 15.9L14 30.7L17.2 30.6L16.7 15.9L16.5 1.1Z"/>
+    <path d="M13.9 1.2L14.3 30.7L16.9 30.6L16.5 1.1Z"/>
     <path d="M13.5 1.8L24.5 19L26.6 17.7L15.6 0.5Z"/>
     <path d="M24.7 15.5L13.6 30.1L15.7 31.7L26.8 17Z"/>
     <path fill-rule="evenodd" d="M5 13.1a4.1 4.1 0 1 0 8.2 0a4.1 4.1 0 1 0 -8.2 0ZM7 12.9a2.3 2.3 0 1 0 4.6 0a2.3 2.3 0 1 0 -4.6 0Z"/>
