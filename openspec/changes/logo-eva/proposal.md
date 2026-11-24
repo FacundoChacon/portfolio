@@ -2,7 +2,7 @@
 
 ## Why
 
-facucode.dev no tiene un logo propio: la barra muestra el texto "FC", el favicon es un "FC" verde en monoespaciada que quedó de la estética anterior y la imagen para compartir solo lleva texto. Facundo tiene un glifo personal (el dibujo neón de `public/simbolo.jpeg`: círculo, triángulo alto, reloj de arena de triángulos cruzados y un triángulo chico que apunta a la izquierda) y quiere convertirlo en la marca del sitio, redibujado con trazos rectos tipo barra (ancho casi constante, extremos en escuadra y, como relieve, aletas angulares de bordes rectos en algunos tramos) y los colores del título de Evangelion (relleno amarillo saturado con contorno y sombra desplazada rojo anaranjado), sin copiar ni reproducir ese logotipo ni su tipografía.
+facucode.dev no tiene un logo propio: la barra muestra el texto "FC", el favicon es un "FC" verde en monoespaciada que quedó de la estética anterior y la imagen para compartir solo lleva texto. Facundo tiene un glifo personal (el dibujo neón de `public/simbolo.jpeg`: círculo, triángulo alto, reloj de arena de triángulos cruzados y un triángulo chico que apunta a la izquierda) y quiere convertirlo en la marca del sitio, redibujado con trazos rectos tipo barra (ancho casi constante, extremos en escuadra y, como relieve, una aleta continua y baja en algunos tramos: rampa suave, meseta paralela y cierre recto) y los colores del título de Evangelion (relleno amarillo saturado con contorno y sombra desplazada rojo anaranjado), sin copiar ni reproducir ese logotipo ni su tipografía.
 
 ## What Changes
 

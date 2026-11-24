@@ -32,20 +32,28 @@ El glifo SHALL tener una variante completa, con el círculo, el triángulo alto 
 - **WHEN** se cuenta la cantidad de trazos de la variante simple
 - **THEN** es de como máximo 5 y todos pertenecen al triángulo alto o al círculo
 
-### Requirement: Estilo de trazo recto con aletas
-Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho constante con extremos en escuadra (sin puntas). Una barra MAY llevar aletas: salientes de bordes rectos que suben en línea recta desde un solo lado de la barra y vuelven a ella, de alto entre 0.5 y 1.2 veces el ancho de esa barra. Cada trazo SHALL pintarse con el relleno del logo, con filo y sombra desplazada abajo a la derecha en el color de filo. Sin degradados iridiscentes, brillos difusos ni animaciones en bucle.
+### Requirement: Estilo de trazo recto con aletas continuas
+Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho constante con extremos en escuadra (sin puntas). Una barra MAY llevar una sola aleta continua sobre un lado: una rampa recta suave, una meseta paralela a la barra más larga que la rampa y un cierre recto de vuelta a la barra. Cada trazo SHALL pintarse con el relleno del logo, con filo y sombra desplazada abajo a la derecha en el color de filo. Sin degradados iridiscentes, brillos difusos ni animaciones en bucle.
 
 #### Scenario: Barra recta
 - **WHEN** se inspecciona cualquier trazo de cualquiera de las dos variantes, salvo el círculo
-- **THEN** fuera de sus aletas es una barra de ancho constante con ambos extremos cortados en escuadra
+- **THEN** fuera de su aleta es una barra de ancho constante con ambos extremos cortados en escuadra
 
-#### Scenario: Aletas acotadas
-- **WHEN** se inspeccionan las aletas de una barra
-- **THEN** todas salen del mismo lado, no se superponen entre sí, tienen bordes rectos y su alto está entre 0.5 y 1.2 veces el ancho de la barra
+#### Scenario: Perfil de la aleta
+- **WHEN** se inspecciona la aleta de una barra
+- **THEN** sube en línea recta con un ángulo de como máximo 25° respecto de la barra, sigue paralela a la barra en una meseta más larga que la rampa y se cierra con un borde recto hasta la línea base de la que partió
+
+#### Scenario: Aleta baja
+- **WHEN** se mide el alto de una aleta
+- **THEN** está entre 0.3 y 0.7 veces el ancho de su barra
+
+#### Scenario: Sin dientes de sierra
+- **WHEN** una barra lleva más de una aleta, o una aleta sin meseta que sube y baja en pico
+- **THEN** la verificación automática falla nombrando el trazo
 
 #### Scenario: Ubicación de las aletas
 - **WHEN** se inspecciona la variante completa
-- **THEN** tiene aletas en la parte alta del lateral del triángulo alto, junto a la diagonal interior y la mitad alta del lomo, en la diagonal superior izquierda del reloj de arena y bajo la mitad izquierda de su base, y no tiene aletas en el círculo ni en el triángulo chico
+- **THEN** tiene una aleta en la parte alta del lateral del triángulo alto, en la diagonal interior, en el tramo bajo del lado derecho del triángulo, en la mitad alta del lomo, en el tramo alto de la diagonal superior izquierda del reloj de arena y bajo la mitad izquierda de su base, y no tiene aletas en el círculo ni en el triángulo chico
 
 #### Scenario: Variante simple legible
 - **WHEN** se dibuja la variante simple a 16 píxeles

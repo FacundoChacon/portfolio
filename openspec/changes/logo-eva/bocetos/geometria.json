@@ -1,5 +1,5 @@
 {
-  "nota": "Barras rectas de ancho constante con extremos en escuadra; aletas = { lado, inicio, pico, fin, alto } con t de 0 a 1 a lo largo de desde->hasta, lado 1 = normal (-uy, ux). Anillo: circulo exterior e interior excentrico, evenodd.",
+  "nota": "Barras rectas de ancho constante con extremos en escuadra; una aleta continua por zona = { lado, inicio, rampa, meseta, alto }: inicio/rampa/meseta en fraccion del largo desde->hasta, alto en unidades del viewBox; rampa recta, meseta paralela, cierre perpendicular; lado 1 = normal (-uy, ux). Anillo: circulo exterior e interior excentrico, evenodd.",
   "completo": {
     "viewBox": "0 0 104 232",
     "sombra": 2.6,
@@ -20,23 +20,9 @@
           {
             "lado": 1,
             "inicio": 0.04,
-            "pico": 0.119,
-            "fin": 0.15,
-            "alto": 5.6
-          },
-          {
-            "lado": 1,
-            "inicio": 0.17,
-            "pico": 0.249,
-            "fin": 0.28,
-            "alto": 5
-          },
-          {
-            "lado": 1,
-            "inicio": 0.3,
-            "pico": 0.372,
-            "fin": 0.4,
-            "alto": 4.2
+            "rampa": 0.12,
+            "meseta": 0.24,
+            "alto": 3.2
           }
         ]
       },
@@ -54,17 +40,10 @@
         "aletas": [
           {
             "lado": 1,
-            "inicio": 0.62,
-            "pico": 0.721,
-            "fin": 0.76,
-            "alto": 4.4
-          },
-          {
-            "lado": 1,
-            "inicio": 0.78,
-            "pico": 0.881,
-            "fin": 0.92,
-            "alto": 4.8
+            "inicio": 0.6,
+            "rampa": 0.12,
+            "meseta": 0.2,
+            "alto": 2.8
           }
         ]
       },
@@ -82,17 +61,10 @@
         "aletas": [
           {
             "lado": 1,
-            "inicio": 0.12,
-            "pico": 0.336,
-            "fin": 0.42,
-            "alto": 4.8
-          },
-          {
-            "lado": 1,
-            "inicio": 0.48,
-            "pico": 0.71,
-            "fin": 0.8,
-            "alto": 4.4
+            "inicio": 0.1,
+            "rampa": 0.25,
+            "meseta": 0.45,
+            "alto": 2.3
           }
         ]
       },
@@ -110,24 +82,10 @@
         "aletas": [
           {
             "lado": -1,
-            "inicio": 0.06,
-            "pico": 0.161,
-            "fin": 0.2,
-            "alto": 6.6
-          },
-          {
-            "lado": -1,
-            "inicio": 0.23,
-            "pico": 0.331,
-            "fin": 0.37,
-            "alto": 7.4
-          },
-          {
-            "lado": -1,
-            "inicio": 0.4,
-            "pico": 0.501,
-            "fin": 0.54,
-            "alto": 6.2
+            "inicio": 0.05,
+            "rampa": 0.1,
+            "meseta": 0.38,
+            "alto": 3.6
           }
         ]
       },
@@ -159,23 +117,9 @@
           {
             "lado": 1,
             "inicio": 0.03,
-            "pico": 0.109,
-            "fin": 0.14,
-            "alto": 6
-          },
-          {
-            "lado": 1,
-            "inicio": 0.16,
-            "pico": 0.239,
-            "fin": 0.27,
-            "alto": 5.4
-          },
-          {
-            "lado": 1,
-            "inicio": 0.29,
-            "pico": 0.355,
-            "fin": 0.38,
-            "alto": 4.4
+            "rampa": 0.1,
+            "meseta": 0.24,
+            "alto": 3.4
           }
         ]
       },
@@ -194,23 +138,9 @@
           {
             "lado": 1,
             "inicio": 0,
-            "pico": 0.054,
-            "fin": 0.12,
-            "alto": 6.4
-          },
-          {
-            "lado": 1,
-            "inicio": 0.15,
-            "pico": 0.258,
-            "fin": 0.3,
-            "alto": 6.6
-          },
-          {
-            "lado": 1,
-            "inicio": 0.33,
-            "pico": 0.438,
-            "fin": 0.48,
-            "alto": 5.6
+            "rampa": 0.12,
+            "meseta": 0.38,
+            "alto": 3.3
           }
         ]
       },
