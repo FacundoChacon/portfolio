@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import { NAV_HEIGHT_PX } from '../src/utils/siteNav.js'
+import { ruleBody } from './lib/css-rules.mjs'
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
 
@@ -149,4 +150,56 @@ test('NavBrand: el código //00 acompaña con el color secundario', () => {
   const brand = read('src/components/NavBrand.jsx')
   assert.match(brand, /tracking-\[0\.2em\] text-eva-secondary/)
   assert.doesNotMatch(brand, /eva-orange/)
+})
+
+// --- pulido-post-auditoria: enlaces visibles y panel móvil ---
+
+test('SiteNav consume HOME_NAV_LINKS (no NAV_LINKS) para enlaces y scroll-spy', () => {
+  const nav = read('src/components/SiteNav.jsx')
+  assert.match(nav, /import\s*\{\s*HOME_NAV_LINKS\s*\}\s*from\s*["']\.\.\/utils\/homeNav["']/)
+  assert.match(nav, /SECTION_ORDER\s*=\s*HOME_NAV_LINKS\.map/)
+  assert.equal((nav.match(/HOME_NAV_LINKS\.map\(/g) ?? []).length, 3, 'SECTION_ORDER + escritorio + móvil')
+  assert.doesNotMatch(nav, /\bNAV_LINKS\b/)
+})
+
+/**
+ * Problemas del panel móvil en un CSS: respaldo `100vh` antes de `100dvh`,
+ * desplazamiento propio y contención del desplazamiento.
+ * @param {string} css
+ * @returns {string[]}
+ */
+function findMobileNavProblems(css) {
+  const body = ruleBody(css, '.eva-mobile-nav')
+  if (body === null) return ['falta .eva-mobile-nav']
+  const found = []
+  const vh = body.indexOf('max-height: calc(100vh - var(--eva-nav-h))')
+  const dvh = body.indexOf('max-height: calc(100dvh - var(--eva-nav-h))')
+  if (vh === -1) found.push('falta el respaldo max-height con 100vh')
+  if (dvh === -1) found.push('falta max-height con 100dvh')
+  if (vh !== -1 && dvh !== -1 && vh > dvh) found.push('100vh debe ir antes de 100dvh')
+  if (!/overflow-y:\s*auto/.test(body)) found.push('falta overflow-y: auto')
+  if (!/overscroll-behavior:\s*contain/.test(body)) found.push('falta overscroll-behavior: contain')
+  return found
+}
+
+test('findMobileNavProblems: acepta el panel correcto y rechaza fixtures defectuosos', () => {
+  const ok = '.eva-mobile-nav { max-height: calc(100vh - var(--eva-nav-h)); max-height: calc(100dvh - var(--eva-nav-h)); overflow-y: auto; overscroll-behavior: contain; }'
+  assert.deepEqual(findMobileNavProblems(ok), [])
+  const sinRespaldo = '.eva-mobile-nav { max-height: calc(100dvh - var(--eva-nav-h)); overflow-y: auto; overscroll-behavior: contain; }'
+  assert.deepEqual(findMobileNavProblems(sinRespaldo), ['falta el respaldo max-height con 100vh'])
+  const orden = '.eva-mobile-nav { max-height: calc(100dvh - var(--eva-nav-h)); max-height: calc(100vh - var(--eva-nav-h)); overflow-y: auto; overscroll-behavior: contain; }'
+  assert.deepEqual(findMobileNavProblems(orden), ['100vh debe ir antes de 100dvh'])
+  assert.deepEqual(findMobileNavProblems('.otra { color: red; }'), ['falta .eva-mobile-nav'])
+})
+
+test('index.css define .eva-mobile-nav acotado y desplazable', () => {
+  assert.deepEqual(findMobileNavProblems(CSS), [])
+})
+
+test('SiteNav aplica .eva-mobile-nav al elemento #mobile-nav', () => {
+  const nav = read('src/components/SiteNav.jsx')
+  const start = nav.indexOf('id="mobile-nav"')
+  assert.ok(start !== -1, 'no se encontró #mobile-nav')
+  const tag = nav.slice(start, nav.indexOf('>', start))
+  assert.ok(tag.includes('eva-mobile-nav'), 'el panel no usa la clase eva-mobile-nav')
 })

@@ -17,7 +17,9 @@ import {
   navHref,
   pickActiveSection,
   sectionObserverOptions,
+  visibleNavLinks,
 } from '../src/utils/siteNav.js'
+import { HOME_NAV_LINKS, homeNavLinks } from '../src/utils/homeNav.js'
 
 test('navHref y navCode arman el ancla y el código de sistema', () => {
   assert.equal(navHref('proyectos'), '#proyectos')
@@ -26,7 +28,7 @@ test('navHref y navCode arman el ancla y el código de sistema', () => {
   assert.equal(navCode(BRAND_CODE), '//00')
 })
 
-test('NAV_LINKS conserva los 5 destinos actuales en orden con códigos únicos 01..05', () => {
+test('NAV_LINKS declara los 6 destinos en orden con códigos únicos 01..06', () => {
   assert.deepEqual(
     NAV_LINKS.map(({ id, label }) => [id, label]),
     [
@@ -34,21 +36,79 @@ test('NAV_LINKS conserva los 5 destinos actuales en orden con códigos únicos 0
       ['quien-soy', 'Quién soy'],
       ['proyectos', 'Proyectos'],
       ['stack', 'Stack'],
+      ['testimonios', 'Testimonios'],
       ['contacto', 'Contáctame'],
     ],
   )
-  assert.deepEqual(NAV_LINKS.map((l) => l.code), ['01', '02', '03', '04', '05'])
+  assert.deepEqual(NAV_LINKS.map((l) => l.code), ['01', '02', '03', '04', '05', '06'])
   assert.equal(NAV_HEIGHT_PX, 70)
+})
+
+test('visibleNavLinks sin ocultos devuelve los mismos enlaces (códigos declarados = calculados)', () => {
+  assert.deepEqual(visibleNavLinks(NAV_LINKS, []), NAV_LINKS)
+})
+
+test('visibleNavLinks oculta testimonios y contacto pasa a 05', () => {
+  const links = visibleNavLinks(NAV_LINKS, ['testimonios'])
+  assert.equal(links.length, 5)
+  assert.ok(!links.some((l) => l.id === 'testimonios'))
+  assert.deepEqual(links.map((l) => l.code), ['01', '02', '03', '04', '05'])
+  assert.equal(links.at(-1).id, 'contacto')
+})
+
+test('visibleNavLinks renumera sin huecos al ocultar un id del medio', () => {
+  const links = visibleNavLinks(NAV_LINKS, ['quien-soy'])
+  assert.deepEqual(
+    links.map((l) => [l.id, l.code]),
+    [
+      ['presentacion', '01'],
+      ['proyectos', '02'],
+      ['stack', '03'],
+      ['testimonios', '04'],
+      ['contacto', '05'],
+    ],
+  )
+})
+
+test('visibleNavLinks ignora ids inexistentes y no muta NAV_LINKS', () => {
+  const antes = structuredClone(NAV_LINKS)
+  assert.deepEqual(visibleNavLinks(NAV_LINKS, ['no-existe']), NAV_LINKS)
+  visibleNavLinks(NAV_LINKS, ['testimonios', 'stack'])
+  assert.deepEqual(NAV_LINKS, antes)
+})
+
+const HOME_COMPONENTS = ['Hero', 'About', 'Projects', 'Stack', 'Contact', 'Testimonials']
+  .map((name) => readFileSync(new URL(`../src/components/${name}.jsx`, import.meta.url), 'utf8'))
+  .join('\n')
+
+test('HOME_NAV_LINKS con los datos reales (sin testimonios) omite testimonios y termina en contacto 05', () => {
+  assert.ok(!HOME_NAV_LINKS.some((l) => l.id === 'testimonios'))
+  assert.deepEqual(HOME_NAV_LINKS.at(-1), { id: 'contacto', label: 'Contáctame', code: '05' })
+  for (const { id } of HOME_NAV_LINKS) {
+    assert.ok(HOME_COMPONENTS.includes(`id="${id}"`), `ningún componente de la home declara id="${id}"`)
+  }
+})
+
+test('homeNavLinks con testimonios incluye testimonios 05 y contacto 06', () => {
+  const links = homeNavLinks([{ nombre: 'Ana Pérez' }])
+  assert.deepEqual(links.map((l) => [l.id, l.code]).slice(-2), [['testimonios', '05'], ['contacto', '06']])
+  assert.equal(links.length, 6)
+})
+
+test('homeNavLinks con array vacío equivale a ocultar testimonios', () => {
+  assert.deepEqual(homeNavLinks([]), visibleNavLinks(NAV_LINKS, ['testimonios']))
 })
 
 test('pickActiveSection devuelve la última sección en orden de documento (la que acaba de entrar)', () => {
   const order = NAV_LINKS.map((l) => l.id)
+  const visibles = HOME_NAV_LINKS.map((l) => l.id)
   assert.equal(pickActiveSection(order, new Set()), null)
   assert.equal(pickActiveSection(order, new Set(['stack'])), 'stack')
   assert.equal(pickActiveSection(order, new Set(['stack', 'proyectos'])), 'stack')
   assert.equal(pickActiveSection(order, new Set(['proyectos', 'stack'])), 'stack')
-  assert.equal(pickActiveSection(order, new Set(['testimonios'])), null)
-  assert.equal(pickActiveSection(order, new Set(['testimonios', 'contacto'])), 'contacto')
+  assert.equal(pickActiveSection(order, new Set(['testimonios'])), 'testimonios')
+  assert.equal(pickActiveSection(visibles, new Set(['testimonios'])), null)
+  assert.equal(pickActiveSection(visibles, new Set(['testimonios', 'contacto'])), 'contacto')
 })
 
 test('sectionObserverOptions arma la zona de lectura bajo la barra', () => {
