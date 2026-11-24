@@ -1,21 +1,29 @@
 {
-  "nota": "Barras rectas de ancho constante con extremos en escuadra; una aleta continua por zona = { lado, inicio, rampa, meseta, alto }: inicio/rampa/meseta en fraccion del largo desde->hasta, alto en unidades del viewBox; rampa recta, meseta paralela, cierre perpendicular; lado 1 = normal (-uy, ux). Anillo: circulo exterior e interior excentrico, evenodd.",
+  "nota": "Barras de ancho constante entre vertices compartidos. corteDesde/corteHasta: inglete (bisectriz con la barra que comparte el vertice) o T (el extremo se corta sobre el eje de la barra anfitriona y queda oculto); sin union = escuadra. Una aleta continua { lado, inicio, rampa, meseta, alto } (fracciones del largo desde->hasta; lado 1 = normal (-uy, ux)). Pintado en 3 capas: sombra (relleno+contorno 2*filo, desplazada), filo (contorno 2*filo) y relleno sin contorno encima: solo queda visible el contorno de la silueta unida.",
   "completo": {
-    "viewBox": "0 0 104 232",
+    "viewBox": "0 0 112 243",
     "sombra": 2.6,
-    "filo": 1.1,
+    "filo": 0.55,
     "trazos": [
       {
         "id": "triangulo-lateral",
         "desde": [
-          51.4,
-          4
+          59.2,
+          13
         ],
         "hasta": [
-          53.4,
-          139.2
+          59.2,
+          153.4
         ],
         "ancho": 6.4,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "T",
+          "con": "lomo"
+        },
         "aletas": [
           {
             "lado": 1,
@@ -29,14 +37,22 @@
       {
         "id": "triangulo-derecho",
         "desde": [
-          49.4,
-          3.2
+          59.2,
+          13
         ],
         "hasta": [
-          97.8,
-          82.4
+          104,
+          89
         ],
         "ancho": 6.2,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-lateral"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "lomo"
+        },
         "aletas": [
           {
             "lado": 1,
@@ -50,14 +66,22 @@
       {
         "id": "triangulo-interior",
         "desde": [
-          52.2,
-          55.6
+          59.2,
+          64.6
         ],
         "hasta": [
-          77.4,
-          97.6
+          87.8,
+          112.3
         ],
         "ancho": 4.6,
+        "corteDesde": {
+          "tipo": "T",
+          "con": "triangulo-lateral"
+        },
+        "corteHasta": {
+          "tipo": "T",
+          "con": "lomo"
+        },
         "aletas": [
           {
             "lado": 1,
@@ -71,14 +95,22 @@
       {
         "id": "lomo",
         "desde": [
-          99.8,
-          71.2
+          104,
+          89
         ],
         "hasta": [
-          10.2,
-          208.4
+          16.4,
+          215
         ],
         "ancho": 7.2,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "reloj-base"
+        },
         "aletas": [
           {
             "lado": -1,
@@ -92,27 +124,43 @@
       {
         "id": "reloj-superior",
         "desde": [
-          4.2,
-          116.8
+          11.6,
+          125.6
         ],
         "hasta": [
-          64.2,
-          139.6
+          64.4,
+          146
         ],
         "ancho": 5.2,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "reloj-diagonal"
+        },
+        "corteHasta": {
+          "tipo": "T",
+          "con": "lomo"
+        },
         "aletas": []
       },
       {
         "id": "reloj-diagonal",
         "desde": [
-          4.6,
-          116.4
+          11.6,
+          125.6
         ],
         "hasta": [
-          91.8,
-          225.2
+          99.6,
+          233.4
         ],
         "ancho": 6.8,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "reloj-superior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "reloj-base"
+        },
         "aletas": [
           {
             "lado": 1,
@@ -126,14 +174,22 @@
       {
         "id": "reloj-base",
         "desde": [
-          8.2,
-          203.2
+          16.4,
+          215
         ],
         "hasta": [
-          93.4,
-          224
+          99.6,
+          233.4
         ],
         "ancho": 6.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "lomo"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "reloj-diagonal"
+        },
         "aletas": [
           {
             "lado": 1,
@@ -147,52 +203,76 @@
       {
         "id": "chico-superior",
         "desde": [
-          56.6,
-          167.2
+          63.8,
+          174.8
         ],
         "hasta": [
-          89,
-          132.4
+          95,
+          141.2
         ],
         "ancho": 4.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "chico-inferior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "chico-vertical"
+        },
         "aletas": []
       },
       {
         "id": "chico-vertical",
         "desde": [
-          87,
-          132
+          95,
+          141.2
         ],
         "hasta": [
-          93.4,
-          203.2
+          100.8,
+          211.6
         ],
         "ancho": 4.8,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "chico-superior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "chico-inferior"
+        },
         "aletas": []
       },
       {
         "id": "chico-inferior",
         "desde": [
-          57,
-          164.4
+          63.8,
+          174.8
         ],
         "hasta": [
-          94.2,
-          202
+          100.8,
+          211.6
         ],
         "ancho": 4.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "chico-superior"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "chico-vertical"
+        },
         "aletas": []
       },
       {
         "id": "anillo",
         "centro": [
-          22.6,
-          58.4
+          29.6,
+          67.4
         ],
         "radio": 16.5,
         "centroInterior": [
-          23.4,
-          57.7
+          30.4,
+          66.7
         ],
         "radioInterior": 10.6
       }
@@ -200,61 +280,85 @@
   },
   "simple": {
     "viewBox": "0 0 32 32",
-    "viewBoxSinFondo": "3 1 24 30",
+    "viewBoxSinFondo": "4.5 0 22 32",
     "sombra": 0.7,
-    "filo": 0.3,
+    "filo": 0.15,
     "trazos": [
       {
         "id": "triangulo-lateral",
         "desde": [
-          15.2,
-          1.2
+          15.6,
+          5.6
         ],
         "hasta": [
           15.6,
-          30.6
+          26.9
         ],
         "ancho": 2.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "triangulo-base"
+        },
         "aletas": []
       },
       {
         "id": "triangulo-derecho",
         "desde": [
-          14.6,
-          1.2
+          15.6,
+          5.6
         ],
         "hasta": [
-          25.5,
-          18.4
+          22.9,
+          17.5
         ],
         "ancho": 2.5,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-lateral"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "triangulo-base"
+        },
         "aletas": []
       },
       {
         "id": "triangulo-base",
         "desde": [
-          25.8,
-          16.2
+          22.9,
+          17.5
         ],
         "hasta": [
-          14.7,
-          30.9
+          15.6,
+          26.9
         ],
         "ancho": 2.6,
+        "corteDesde": {
+          "tipo": "inglete",
+          "con": "triangulo-derecho"
+        },
+        "corteHasta": {
+          "tipo": "inglete",
+          "con": "triangulo-lateral"
+        },
         "aletas": []
       },
       {
         "id": "anillo",
         "centro": [
-          9.1,
-          13.1
+          8.9,
+          14.1
         ],
-        "radio": 4.1,
+        "radio": 3.6,
         "centroInterior": [
-          9.3,
-          12.9
+          9.1,
+          13.9
         ],
-        "radioInterior": 2.3
+        "radioInterior": 2
       }
     ]
   }

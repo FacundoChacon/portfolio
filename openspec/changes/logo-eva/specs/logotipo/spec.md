@@ -33,11 +33,11 @@ El glifo SHALL tener una variante completa, con el círculo, el triángulo alto 
 - **THEN** es de como máximo 5 y todos pertenecen al triángulo alto o al círculo
 
 ### Requirement: Estilo de trazo recto con aletas continuas
-Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho constante con extremos en escuadra (sin puntas). Una barra MAY llevar una sola aleta continua sobre un lado: una rampa recta suave, una meseta paralela a la barra más larga que la rampa y un cierre recto de vuelta a la barra. Cada trazo SHALL pintarse con el relleno del logo, con filo y sombra desplazada abajo a la derecha en el color de filo. Sin degradados iridiscentes, brillos difusos ni animaciones en bucle.
+Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho constante. Una barra MAY llevar una sola aleta continua sobre un lado: una rampa recta suave, una meseta paralela a la barra más larga que la rampa y un cierre recto de vuelta a la barra. Cada trazo SHALL pintarse con el relleno del logo, con filo y sombra desplazada abajo a la derecha en el color de filo. Sin degradados iridiscentes, brillos difusos ni animaciones en bucle.
 
 #### Scenario: Barra recta
 - **WHEN** se inspecciona cualquier trazo de cualquiera de las dos variantes, salvo el círculo
-- **THEN** fuera de su aleta es una barra de ancho constante con ambos extremos cortados en escuadra
+- **THEN** fuera de su aleta es una barra de ancho constante con lados rectos y paralelos, sin quiebres ni ondulaciones
 
 #### Scenario: Perfil de la aleta
 - **WHEN** se inspecciona la aleta de una barra
@@ -66,6 +66,36 @@ Cada trazo del glifo, salvo el círculo, SHALL ser una barra recta de ancho cons
 #### Scenario: Sin efectos prohibidos
 - **WHEN** se inspecciona el SVG de cualquiera de las variantes
 - **THEN** no contiene degradados, filtros de desenfoque ni animaciones
+
+### Requirement: Silueta única sin uniones visibles
+El glifo SHALL leerse como una sola forma continua: las barras que se encuentran en un vértice SHALL unirse en inglete (los bordes exteriores en un único vértice agudo y los interiores en otro), una barra que llega a otra SHALL terminar dentro de ella, y ninguna barra SHALL sobresalir de una unión. El filo SHALL contornear solo la silueta exterior de la unión de todos los trazos y sus huecos, y la sombra SHALL ser una sola para toda la silueta.
+
+#### Scenario: Unión en inglete
+- **WHEN** se inspecciona un vértice donde terminan dos barras
+- **THEN** las dos barras comparten el corte del inglete y no queda ningún extremo de barra asomando fuera de la unión
+
+#### Scenario: Barra que llega a otra
+- **WHEN** una barra termina sobre otra barra
+- **THEN** su extremo queda dentro del cuerpo de la barra anfitriona y no se ve su corte
+
+#### Scenario: Sin costuras internas
+- **WHEN** se mira el glifo en cualquier tamaño, incluidos los cruces y las uniones
+- **THEN** no se ve ninguna línea de filo ni de sombra dentro de la silueta y la aleta no muestra separación con su barra
+
+#### Scenario: Barra que sobresale
+- **WHEN** la geometría tiene una barra cuyo extremo no está en un vértice compartido ni sobre el eje de otra barra
+- **THEN** la verificación automática falla nombrando el trazo
+
+### Requirement: Ejes rectos
+Toda barra cuyo eje esté a menos de 4° de la vertical o de la horizontal SHALL quedar exactamente vertical u horizontal; las barras claramente diagonales SHALL conservar el ángulo del dibujo original.
+
+#### Scenario: Barra casi vertical
+- **WHEN** el eje de una barra está a menos de 4° de la vertical
+- **THEN** sus dos extremos tienen exactamente la misma coordenada horizontal
+
+#### Scenario: Barra casi horizontal
+- **WHEN** el eje de una barra está a menos de 4° de la horizontal
+- **THEN** sus dos extremos tienen exactamente la misma coordenada vertical
 
 ### Requirement: Favicon con la variante simple
 El sitio SHALL declarar un favicon SVG que muestra la variante simple del glifo sobre el fondo negro del sistema visual, legible a 16 píxeles, y un ícono táctil PNG de 180×180 píxeles derivado de la misma variante para dispositivos que no usan favicons SVG. Ambos SHALL declararse en el documento de cada página pública.
