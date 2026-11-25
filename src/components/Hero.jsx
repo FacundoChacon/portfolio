@@ -3,6 +3,7 @@ import { ArrowDown } from "lucide-react"
 import { GithubIcon, LinkedinIcon } from "./BrandIcons"
 import TextoEscrito from "./TextoEscrito"
 import { useEscrituraHero } from "../hooks/useEscrituraHero"
+import { useModoHero } from "../hooks/useCompuerta"
 import { crearLineaDeTiempo, faseAlcanza } from "../utils/escritura"
 import {
   DESCRIPCION,
@@ -42,7 +43,8 @@ function claseDeEntrada(fase, desde, hasta) {
 
 export default function Hero() {
   const seccionRef = useRef(null)
-  const { fase, visibles } = useEscrituraHero(LINEA, seccionRef)
+  const modo = useModoHero()
+  const { fase, visibles } = useEscrituraHero(LINEA, seccionRef, modo)
   const bajoLaGrilla = !faseAlcanza(fase, "c")
 
   return (

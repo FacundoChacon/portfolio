@@ -6,6 +6,10 @@
 
 ---
 
+> **Nota (2026-11-24) — `compuerta-intro`.** La home abre con una compuerta decorativa de ~2 s (dos hojas con junta de franjas, glifo completo y "FACU CODE") que se separa hacia arriba y abajo antes de la escritura del hero. Una vez por sesión del navegador (por pestaña), solo entrando por `/` sin ancla y sin movimiento reducido; cualquier gesto la salta. El hero se pinta "listo" debajo de las hojas para no empeorar el LCP. Ver `openspec/changes/compuerta-intro/`.
+
+---
+
 > **Nota (2026-11-24) — `secciones-encuadre`.** Al navegar con la barra, cada sección (Quién soy, Proyectos, Stack, Testimonios, Contáctame) queda pegada a la barra y con su título a ~57 px de ella, con el mismo ritmo vertical (clase `.eva-seccion`, 48/56 px). Proyectos entra completo en 1366×768 y Contáctame cierra la página como un bloque de alto útil (`.contacto-cierre`, tope 52rem). No cambian el hero, la barra ni los textos. Ver `openspec/changes/secciones-encuadre/`.
 
 ---

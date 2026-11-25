@@ -3,6 +3,7 @@
  * `src/utils/compuerta.js` y guards estáticos del componente, el CSS y el hook.
  */
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import {
@@ -19,6 +20,8 @@ import {
   sesionDelNavegador,
   transicionCompuerta,
 } from '../src/utils/compuerta.js'
+import tailwindConfig from '../tailwind.config.js'
+import { ruleBody } from './lib/css-rules.mjs'
 
 /** Almacenamiento falso con la API mínima de `Storage`. */
 function storageFalso({ getItem, setItem } = {}) {
@@ -233,4 +236,327 @@ test('compuerta.js se importa en Node puro: sin window ni document y sin tocar e
   assert.equal(typeof window, 'undefined')
   assert.equal(typeof document, 'undefined')
   assert.equal(sesionDelNavegador(), null, 'sin sessionStorage global devuelve null')
+})
+
+// --- 4.1 Guard estático del componente (design D6, D11) -----------------------
+
+const ROOT = new URL('../', import.meta.url)
+const read = (ruta) => readFileSync(new URL(ruta, ROOT), 'utf8')
+
+/** Etiqueta de apertura (sin el contenido) que contiene `marca`, o '' si no hay. */
+function etiquetaConMarca(source, marca) {
+  const indice = source.indexOf(marca)
+  if (indice < 0) return ''
+  const inicio = source.lastIndexOf('<', indice)
+  return source.slice(inicio, source.indexOf('>', indice) + 1)
+}
+
+/** Problemas de un `CompuertaIntro.jsx`: composición, accesibilidad y CSP. */
+function componenteProblems(source) {
+  const problems = []
+  const codigo = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+  const raiz = etiquetaConMarca(codigo, 'data-compuerta')
+  for (const requerido of ['aria-hidden="true"', 'fixed inset-0', 'z-[70]']) {
+    if (!raiz.includes(requerido)) problems.push(`la raíz no tiene ${requerido}`)
+  }
+  for (const hoja of ['compuerta-hoja-superior', 'compuerta-hoja-inferior']) {
+    if (!/bg-eva-panel/.test(etiquetaConMarca(codigo, hoja))) problems.push(`${hoja} no tiene bg-eva-panel`)
+  }
+  const franjas = (codigo.match(/className="[^"]*\beva-stripes\b[^"]*"/g) ?? []).length
+  if (franjas !== 4) problems.push(`hay ${franjas} franjas eva-stripes y tienen que ser 4 (dos tramos por hoja)`)
+  if (!/compuerta-simbolo[^>]*>\s*<LogoEva variante="completo"/.test(codigo)) {
+    problems.push('el glifo no es <LogoEva variante="completo" /> dentro de compuerta-simbolo')
+  }
+  if (/<svg/.test(codigo)) problems.push('dibuja un <svg> propio en vez de usar LogoEva')
+  const desdeInferior = codigo.slice(Math.max(codigo.indexOf('compuerta-hoja-inferior'), 0))
+  if (!/FACU/.test(desdeInferior) || !/CODE/.test(desdeInferior) || !/font-eva-display/.test(desdeInferior)) {
+    problems.push('FACU y CODE con font-eva-display tienen que ir dentro de la hoja inferior')
+  }
+  const prohibidos = [
+    [/<a[\s>]/, '<a'],
+    [/<button/, '<button'],
+    [/tabIndex/, 'tabIndex'],
+    [/\brole=/, 'role='],
+    [/\bstyle=/, 'style='],
+    [/dangerouslySetInnerHTML/, 'dangerouslySetInnerHTML'],
+    [/#[0-9a-fA-F]{3,8}\b/, 'un color hex'],
+  ]
+  for (const [patron, nombre] of prohibidos) {
+    if (patron.test(codigo)) problems.push(`usa ${nombre}`)
+  }
+  return problems
+}
+
+const COMPONENTE_EJEMPLO = `import LogoEva from './LogoEva'
+export default function CompuertaIntro({ fase, onSaltar }) {
+  return (
+    <div aria-hidden="true" data-compuerta={fase} onClick={onSaltar} className="compuerta fixed inset-0 z-[70]">
+      <div className="compuerta-hoja-superior absolute inset-x-0 top-0 h-1/2 bg-eva-panel">
+        <span className="eva-stripes compuerta-franja-izq" /><span className="eva-stripes compuerta-franja-der" />
+      </div>
+      <div className="absolute inset-0"><span className="compuerta-simbolo"><LogoEva variante="completo" className="h-28" /></span></div>
+      <div className="compuerta-hoja-inferior absolute inset-x-0 top-1/2 h-1/2 bg-eva-panel">
+        <span className="eva-stripes compuerta-franja-izq" /><span className="eva-stripes compuerta-franja-der" />
+        <p className="font-eva-display">FACU CODE</p>
+      </div>
+    </div>
+  )
+}`
+
+test('CompuertaIntro.jsx: raíz decorativa fija, dos hojas, franjas, glifo único y texto en la hoja inferior', () => {
+  assert.deepEqual(componenteProblems(read('src/components/CompuertaIntro.jsx')), [])
+})
+
+test('componenteProblems: acepta el componente de ejemplo correcto (triangulación)', () => {
+  assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO), [])
+})
+
+test('componenteProblems: rechaza tabIndex y style inline (triangulación)', () => {
+  const conTabIndex = COMPONENTE_EJEMPLO.replace('onClick={onSaltar}', 'onClick={onSaltar} tabIndex={0}')
+  assert.deepEqual(componenteProblems(conTabIndex), ['usa tabIndex'])
+  const conStyle = COMPONENTE_EJEMPLO.replace('onClick={onSaltar}', 'onClick={onSaltar} style={{ opacity: 0 }}')
+  assert.deepEqual(componenteProblems(conStyle), ['usa style='])
+})
+
+test('componenteProblems: rechaza elementos interactivos, hex, svg propio, raíz visible y franjas de menos (triangulación)', () => {
+  assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO.replace('<p ', '<a href="#x" ')), ['usa <a'])
+  assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO.replace('h-28"', 'h-28 text-[#ff0000]"')), ['usa un color hex'])
+  assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO.replace('<LogoEva variante="completo" className="h-28" />', '<svg />')), [
+    'el glifo no es <LogoEva variante="completo" /> dentro de compuerta-simbolo',
+    'dibuja un <svg> propio en vez de usar LogoEva',
+  ])
+  assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO.replace('aria-hidden="true" ', '')), ['la raíz no tiene aria-hidden="true"'])
+  const sinPanel = COMPONENTE_EJEMPLO.replace('top-1/2 h-1/2 bg-eva-panel', 'top-1/2 h-1/2')
+  assert.deepEqual(componenteProblems(sinPanel), ['compuerta-hoja-inferior no tiene bg-eva-panel'])
+  const sinFranja = COMPONENTE_EJEMPLO.replace('<span className="eva-stripes compuerta-franja-der" />', '')
+  assert.deepEqual(componenteProblems(sinFranja), ['hay 3 franjas eva-stripes y tienen que ser 4 (dos tramos por hoja)'])
+})
+
+// --- 4.2 Guard del CSS (design D6, D8, D10) ------------------------------------
+
+const SIN_MOVIMIENTO_REDUCIDO = '@media (prefers-reduced-motion: no-preference)'
+const KEYFRAMES = {
+  'compuerta-junta-izq': 'clip-path',
+  'compuerta-junta-der': 'clip-path',
+  'compuerta-retiro': 'clip-path',
+  'compuerta-hoja-arriba': 'transform',
+  'compuerta-hoja-abajo': 'transform',
+}
+const SELECTOR_RETIRO = '.compuerta[data-compuerta="retiro"] .compuerta-simbolo, .compuerta[data-compuerta="apertura"] .compuerta-simbolo'
+const SELECTOR_HOJA = (hoja) => `.compuerta[data-compuerta="apertura"] .compuerta-hoja-${hoja}`
+const propiedades = (cuerpo) => [...new Set([...cuerpo.matchAll(/([a-z-]+)\s*:/g)].map((m) => m[1]))]
+const animacionDe = (cuerpo) => /animation:\s*([^;]+)/.exec(cuerpo)?.[1].trim() ?? ''
+const duracionMs = (animacion) => {
+  const tiempo = /(\d+(?:\.\d+)?)(ms|s)\b/.exec(animacion)
+  return tiempo ? Number(tiempo[1]) * (tiempo[2] === 's' ? 1000 : 1) : Number.NaN
+}
+
+/** Problemas del CSS de la compuerta frente a los tiempos del módulo puro. */
+function cssProblems(css, tiempos = TIEMPOS_COMPUERTA) {
+  const problems = []
+  const dentro = (selector) => ruleBody(css, selector, { within: SIN_MOVIMIENTO_REDUCIDO })
+  const bloqueo = ruleBody(css, 'html.compuerta-cerrada')
+  if (!bloqueo || !/overflow:\s*hidden/.test(bloqueo)) problems.push('html.compuerta-cerrada no tiene overflow: hidden')
+  if (!bloqueo || !/scrollbar-gutter:\s*stable/.test(bloqueo)) problems.push('html.compuerta-cerrada no tiene scrollbar-gutter: stable')
+  for (const [nombre, esperada] of Object.entries(KEYFRAMES)) {
+    const regla = `@keyframes ${nombre}`
+    if (ruleBody(css, regla) !== null) problems.push(`${regla} está fuera de no-preference`)
+    const cuerpo = dentro(regla)
+    if (cuerpo === null) problems.push(`falta ${regla} dentro de no-preference`)
+    else if (propiedades(cuerpo).join() !== esperada) problems.push(`${regla} anima ${propiedades(cuerpo).join()} y solo puede animar ${esperada}`)
+  }
+  const reglas = [
+    ['.compuerta-franja-izq', tiempos.junta, 'compuerta-junta-izq'],
+    ['.compuerta-franja-der', tiempos.junta, 'compuerta-junta-der'],
+    [SELECTOR_RETIRO, tiempos.retiro, 'compuerta-retiro'],
+    [SELECTOR_HOJA('superior'), tiempos.apertura, 'compuerta-hoja-arriba'],
+    [SELECTOR_HOJA('inferior'), tiempos.apertura, 'compuerta-hoja-abajo'],
+  ]
+  for (const [selector, esperado, keyframes] of reglas) {
+    if (ruleBody(css, selector) !== null) problems.push(`${selector} está fuera de no-preference`)
+    const cuerpo = dentro(selector)
+    if (cuerpo === null) {
+      problems.push(`falta la regla ${selector} dentro de no-preference`)
+      continue
+    }
+    const animacion = animacionDe(cuerpo)
+    if (!animacion.startsWith(keyframes)) problems.push(`${selector} no usa ${keyframes}`)
+    if (duracionMs(animacion) !== esperado) problems.push(`${selector} dura ${duracionMs(animacion)} ms y TIEMPOS_COMPUERTA dice ${esperado} ms`)
+    if (/\binfinite\b|animation-iteration-count|\s[2-9]\d*\s*$/.test(animacion)) problems.push(`${selector} repite la animación`)
+  }
+  return problems
+}
+
+const CSS_REAL = read('src/index.css')
+
+test('index.css: bloqueo de desplazamiento, keyframes y reglas de la compuerta solo con movimiento permitido', () => {
+  assert.deepEqual(cssProblems(CSS_REAL), [])
+})
+
+test('cssProblems: rechaza una apertura de 600 ms desincronizada de TIEMPOS_COMPUERTA (triangulación)', () => {
+  const desincronizado = CSS_REAL.replace(/(compuerta-hoja-arriba) 500ms/, '$1 600ms')
+  assert.notEqual(desincronizado, CSS_REAL)
+  assert.deepEqual(cssProblems(desincronizado), [`${SELECTOR_HOJA('superior')} dura 600 ms y TIEMPOS_COMPUERTA dice 500 ms`])
+})
+
+test('cssProblems: sigue la constante y no el valor del CSS (triangulación con otros tiempos)', () => {
+  const alternativos = { ...TIEMPOS_COMPUERTA, apertura: 400 }
+  assert.deepEqual(cssProblems(CSS_REAL, alternativos), [
+    `${SELECTOR_HOJA('superior')} dura 500 ms y TIEMPOS_COMPUERTA dice 400 ms`,
+    `${SELECTOR_HOJA('inferior')} dura 500 ms y TIEMPOS_COMPUERTA dice 400 ms`,
+  ])
+})
+
+test('cssProblems: rechaza animation infinite y la falta de scrollbar-gutter (triangulación)', () => {
+  const infinito = CSS_REAL.replace(/(compuerta-retiro 200ms steps\(4, end\)) forwards/, '$1 infinite')
+  assert.notEqual(infinito, CSS_REAL)
+  assert.deepEqual(cssProblems(infinito), [`${SELECTOR_RETIRO} repite la animación`])
+  const sinGutter = CSS_REAL.replace(/(html\.compuerta-cerrada \{[^}]*?)scrollbar-gutter:\s*stable;/, '$1')
+  assert.notEqual(sinGutter, CSS_REAL)
+  assert.deepEqual(cssProblems(sinGutter), ['html.compuerta-cerrada no tiene scrollbar-gutter: stable'])
+})
+
+test('cssProblems: rechaza un keyframe fuera de no-preference y uno que anima otra propiedad (triangulación)', () => {
+  const fuera = `${CSS_REAL}\n@keyframes compuerta-retiro { to { clip-path: inset(0) } }\n`
+  assert.ok(cssProblems(fuera).includes('@keyframes compuerta-retiro está fuera de no-preference'))
+  const conOpacidad = CSS_REAL.replace(/(@keyframes compuerta-hoja-arriba \{[^}]*\})/, '$1 to { opacity: 0 }')
+  assert.notEqual(conOpacidad, CSS_REAL)
+  assert.ok(cssProblems(conOpacidad).some((p) => p.startsWith('@keyframes compuerta-hoja-arriba anima')))
+})
+
+test('CompuertaIntro.jsx: las demoras del barrido coinciden con TIEMPOS_COMPUERTA y eva-boot dura glifo y texto', () => {
+  const source = read('src/components/CompuertaIntro.jsx')
+  const demoras = [...source.matchAll(/\[animation-delay:(\d+)ms\]/g)].map((m) => Number(m[1])).sort((a, b) => a - b)
+  assert.deepEqual(demoras, [TIEMPOS_COMPUERTA.glifoInicio, TIEMPOS_COMPUERTA.textoInicio])
+  assert.equal(TIEMPOS_COMPUERTA.glifo, 360)
+  assert.equal(TIEMPOS_COMPUERTA.texto, 360)
+  assert.match(tailwindConfig.theme.extend.animation['eva-boot'], /^evaBoot 0\.36s /)
+})
+
+// --- 5.1 Guard estático del hook, Home y la CSP (design D1, D2, D3, D9, D10) --------
+
+/** Problemas del hook `useCompuerta.js`: reloj, bloqueo, gestos de salto y decisión por carga. */
+function hookCompuertaProblems(source) {
+  const problems = []
+  const codigo = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+  if (!/requestAnimationFrame\(/.test(codigo) || !/cancelAnimationFrame\(/.test(codigo)) {
+    problems.push('el reloj no usa requestAnimationFrame con cancelAnimationFrame en el cleanup')
+  }
+  if (!/useLayoutEffect\(/.test(codigo) || !/document\.documentElement\.classList\.add\(\s*['"]compuerta-cerrada['"]/.test(codigo)) {
+    problems.push('no agrega compuerta-cerrada a document.documentElement en un useLayoutEffect')
+  }
+  if (!/document\.documentElement\.classList\.remove\(\s*['"]compuerta-cerrada['"]/.test(codigo)) {
+    problems.push('no quita compuerta-cerrada en el cleanup')
+  }
+  for (const evento of ['keydown', 'wheel', 'touchmove']) {
+    if (!new RegExp(String.raw`window\.addEventListener\(\s*['"]${evento}['"]`).test(codigo)) problems.push(`no escucha ${evento} en window`)
+    if (!new RegExp(String.raw`window\.removeEventListener\(\s*['"]${evento}['"]`).test(codigo)) problems.push(`no remueve ${evento} de window`)
+  }
+  if (!/addEventListener\(\s*['"]change['"]/.test(codigo) || !/removeEventListener\(\s*['"]change['"]/.test(codigo)) {
+    problems.push('no escucha y remueve el change de matchMedia')
+  }
+  for (const evento of ['pointerdown', 'touchstart', 'mousedown']) {
+    if (new RegExp(`['"]${evento}['"]`).test(codigo)) problems.push(`escucha ${evento} (provoca clic fantasma)`)
+  }
+  if (/document\.addEventListener\(\s*['"]keydown['"]/.test(codigo)) problems.push('escucha keydown en document y no en window')
+  if (!/^let\s+decisionDeEstaCarga\b/m.test(codigo)) problems.push('falta la variable de módulo decisionDeEstaCarga')
+  if (!/^const\s+\w*RUTA_DE_ENTRADA\w*\s*=.*pathname/m.test(codigo)) problems.push('no captura location.pathname al evaluar el módulo')
+  if (/setInterval|setTimeout|\bstyle\b/.test(codigo)) problems.push('usa timers o style')
+  return problems
+}
+
+const HOOK_COMPUERTA_EJEMPLO = `import { useLayoutEffect } from 'react'
+const RUTA_DE_ENTRADA = globalThis.location?.pathname ?? '/'
+let decisionDeEstaCarga = null
+export function useCompuerta() {
+  useLayoutEffect(() => {
+    document.documentElement.classList.add('compuerta-cerrada')
+    return () => document.documentElement.classList.remove('compuerta-cerrada')
+  }, [])
+  useEffect(() => {
+    let raf = requestAnimationFrame(f)
+    window.addEventListener('keydown', f); window.addEventListener('wheel', f, { passive: true }); window.addEventListener('touchmove', f, { passive: true })
+    mq.addEventListener('change', f)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('keydown', f); window.removeEventListener('wheel', f); window.removeEventListener('touchmove', f)
+      mq.removeEventListener('change', f)
+    }
+  }, [])
+}`
+
+test('useCompuerta.js: reloj con rAF, bloqueo en useLayoutEffect, gestos en window y decisión por carga', () => {
+  assert.deepEqual(hookCompuertaProblems(read('src/hooks/useCompuerta.js')), [])
+})
+
+test('hookCompuertaProblems: acepta el hook de ejemplo correcto (triangulación)', () => {
+  assert.deepEqual(hookCompuertaProblems(HOOK_COMPUERTA_EJEMPLO), [])
+})
+
+test('hookCompuertaProblems: rechaza un hook que salta en touchstart (clic fantasma) (triangulación)', () => {
+  const conTouchstart = HOOK_COMPUERTA_EJEMPLO.replace("window.addEventListener('touchmove', f, { passive: true })", "window.addEventListener('touchstart', f)")
+  assert.deepEqual(hookCompuertaProblems(conTouchstart), ['no escucha touchmove en window', 'escucha touchstart (provoca clic fantasma)'])
+  const conPointerdown = HOOK_COMPUERTA_EJEMPLO.replace("window.addEventListener('wheel', f, { passive: true })", "window.addEventListener('pointerdown', f)")
+  assert.deepEqual(hookCompuertaProblems(conPointerdown), ['no escucha wheel en window', 'escucha pointerdown (provoca clic fantasma)'])
+})
+
+test('hookCompuertaProblems: rechaza un keydown en document, timers, style y la falta de cleanup del bloqueo (triangulación)', () => {
+  const enDocument = HOOK_COMPUERTA_EJEMPLO.replace("window.addEventListener('keydown', f);", "document.addEventListener('keydown', f);")
+  assert.deepEqual(hookCompuertaProblems(enDocument), ['no escucha keydown en window', 'escucha keydown en document y no en window'])
+  assert.deepEqual(hookCompuertaProblems(`${HOOK_COMPUERTA_EJEMPLO}\nsetTimeout(f, 10)`), ['usa timers o style'])
+  const sinQuitar = HOOK_COMPUERTA_EJEMPLO.replace("return () => document.documentElement.classList.remove('compuerta-cerrada')", 'return undefined')
+  assert.deepEqual(hookCompuertaProblems(sinQuitar), ['no quita compuerta-cerrada en el cleanup'])
+  const sinRuta = HOOK_COMPUERTA_EJEMPLO.replace("globalThis.location?.pathname ?? '/'", "'/'")
+  assert.deepEqual(hookCompuertaProblems(sinRuta), ['no captura location.pathname al evaluar el módulo'])
+})
+
+test('CompuertaIntro.jsx: salta con onClick y no con eventos de puntero o toque', () => {
+  const source = read('src/components/CompuertaIntro.jsx')
+  assert.match(source, /onClick=\{saltar\}/)
+  assert.doesNotMatch(source, /onPointerDown|onTouchStart|onMouseDown/)
+})
+
+test('Home.jsx: el proveedor envuelve la barra y main, y renderiza la compuerta una sola vez', () => {
+  const home = read('src/pages/Home.jsx').replace(/\r\n/g, '\n')
+  const proveedor = /<CompuertaProvider>([\s\S]*)<\/CompuertaProvider>/.exec(home)
+  assert.ok(proveedor, 'falta <CompuertaProvider>')
+  assert.match(proveedor[1], /<SiteNav \/>/)
+  assert.match(proveedor[1], /<main[\s\S]*<\/main>/)
+  assert.equal((home.match(/<CompuertaIntro \/>/g) ?? []).length, 1)
+  assert.equal((home.match(/<CompuertaProvider>/g) ?? []).length, 1)
+})
+
+test('Hero.jsx: recibe el modo de la compuerta y se lo pasa al hook de escritura', () => {
+  const hero = read('src/components/Hero.jsx')
+  assert.match(hero, /useModoHero\(\)/)
+  assert.match(hero, /useEscrituraHero\(LINEA, seccionRef, modo\)/)
+})
+
+test('index.html no contiene la compuerta ni scripts inline', () => {
+  const html = read('index.html')
+  assert.doesNotMatch(html, /compuerta/i)
+  const scripts = [...html.matchAll(/<script\b([^>]*)>/gi)]
+  for (const [, atributos] of scripts) assert.match(atributos, /\bsrc=/, `script inline: <script${atributos}>`)
+})
+
+test('vercel.json conserva script-src y style-src en self, sin unsafe-inline', () => {
+  const { headers } = JSON.parse(read('vercel.json'))
+  const csp = headers.flatMap((regla) => regla.headers).find((cabecera) => cabecera.key === 'Content-Security-Policy').value
+  assert.match(csp, /script-src 'self'(;|$)/)
+  assert.match(csp, /style-src 'self'(;|$)/)
+  assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval/)
+})
+
+test('package.json no suma dependencias para la compuerta', () => {
+  const { dependencies, devDependencies } = JSON.parse(read('package.json'))
+  assert.deepEqual(Object.keys(dependencies).sort(), [
+    '@fontsource-variable/jetbrains-mono',
+    '@fontsource-variable/noto-serif-display',
+    '@react-pdf/renderer',
+    'lucide-react',
+    'react',
+    'react-dom',
+    'react-router-dom',
+  ])
+  assert.equal(Object.keys(devDependencies).length, 11)
 })

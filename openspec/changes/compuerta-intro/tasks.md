@@ -87,7 +87,7 @@
 
 ## 4. Componente y estilos de la compuerta (design D6, D8, D10, D11)
 
-- [ ] 4.1 RED: guard estático en `scripts/compuerta.test.mjs` sobre el nuevo `src/components/CompuertaIntro.jsx`. Tiene que:
+- [x] 4.1 RED: guard estático en `scripts/compuerta.test.mjs` sobre el nuevo `src/components/CompuertaIntro.jsx`. Tiene que:
   - Tener una raíz con `aria-hidden="true"`, `fixed inset-0`, `z-[70]` y `data-compuerta`.
   - Tener dos hojas (`compuerta-hoja-superior` y `compuerta-hoja-inferior`) con `bg-eva-panel`.
   - Armar las franjas `eva-stripes` en dos tramos por hoja.
@@ -96,7 +96,7 @@
   - No tener `<a`, `<button`, `tabIndex`, `role=`, `style=`, `dangerouslySetInnerHTML` ni hex de colores.
 
   Triangular con un componente de ejemplo con `tabIndex={0}` y otro con `style={{…}}`, que tienen que fallar. Verificación: el test falla.
-- [ ] 4.2 RED: guard de CSS en `scripts/compuerta.test.mjs` con `ruleBody` de `scripts/lib/css-rules.mjs`:
+- [x] 4.2 RED: guard de CSS en `scripts/compuerta.test.mjs` con `ruleBody` de `scripts/lib/css-rules.mjs`:
   - `html.compuerta-cerrada` tiene `overflow: hidden` y `scrollbar-gutter: stable`.
   - Los `@keyframes compuerta-*` y las reglas que los usan están solo dentro de `@media (prefers-reduced-motion: no-preference)`.
   - Las hojas animan solo `transform` y la junta y el retiro solo `clip-path`.
@@ -104,12 +104,12 @@
   - Ninguna regla tiene `infinite` ni más de una iteración.
 
   Triangular con un CSS donde la apertura dura 600 ms (desincronizada) y otro con `animation-iteration-count: infinite`, que tienen que fallar. Verificación: el test falla.
-- [ ] 4.3 GREEN: crear `CompuertaIntro.jsx` (recibe `fase` y `onSaltar` por props o por contexto) y agregar las reglas y los keyframes en `src/index.css` según D6 y D8. Verificación: `npm test`, `npm run lint` y `npm run build` en verde, y siguen en verde los guards de `limpieza-cyberpunk` (keyframes de Tailwind intactos), `logotipo` (sin hex del logo) y `sistema-visual`.
-- [ ] 4.4 Refactor: comentarios breves en `index.css` (por qué `scrollbar-gutter` y por qué los keyframes no van en Tailwind) y helpers con nombre en el guard si hay repetición. Verificación: `npm test` en verde.
+- [x] 4.3 GREEN: crear `CompuertaIntro.jsx` (recibe `fase` y `onSaltar` por props o por contexto) y agregar las reglas y los keyframes en `src/index.css` según D6 y D8. Verificación: `npm test`, `npm run lint` y `npm run build` en verde, y siguen en verde los guards de `limpieza-cyberpunk` (keyframes de Tailwind intactos), `logotipo` (sin hex del logo) y `sistema-visual`.
+- [x] 4.4 Refactor: comentarios breves en `index.css` (por qué `scrollbar-gutter` y por qué los keyframes no van en Tailwind) y helpers con nombre en el guard si hay repetición. Verificación: `npm test` en verde.
 
 ## 5. Estado, salto e integración en Home (design D1, D2, D3, D9, D10)
 
-- [ ] 5.1 RED: guard estático en `scripts/compuerta.test.mjs`:
+- [x] 5.1 RED: guard estático en `scripts/compuerta.test.mjs`:
   - `src/hooks/useCompuerta.js` usa `requestAnimationFrame` con `cancelAnimationFrame` en el cleanup, `useLayoutEffect` para la clase `compuerta-cerrada` sobre `document.documentElement`, y la quita en el cleanup.
   - Escucha `keydown`, `wheel` y `touchmove` en `window` y el `change` de `matchMedia`, y remueve cada uno. No escucha `pointerdown` ni `touchstart` para saltar.
   - Tiene una variable de módulo con la decisión por carga y captura la ruta de entrada al evaluar el módulo.
@@ -121,11 +121,11 @@
   - `package.json` no suma dependencias.
 
   Triangular con un hook de ejemplo que salta en `touchstart` y otro que escucha `keydown` en `document`, que tienen que fallar. Verificación: el test falla.
-- [ ] 5.2 GREEN: implementar `useCompuerta.js` (proveedor, decisión cacheada, reloj desde el primer rAF, reductor, listeners, bloqueo y `consumida`) e integrar en `Home.jsx` y `Hero.jsx`. Verificación:
+- [x] 5.2 GREEN: implementar `useCompuerta.js` (proveedor, decisión cacheada, reloj desde el primer rAF, reductor, listeners, bloqueo y `consumida`) e integrar en `Home.jsx` y `Hero.jsx`. Verificación:
   - `npm test`, `npm run lint` y `npm run build` en verde.
   - `npm run dev` con `StrictMode`: sin errores en consola y la intro se ve una sola vez (sin doble arranque).
-- [ ] 5.3 Comprobación rápida con Playwright sobre el build (1440×900): la compuerta aparece en el primer cuadro con contenido, se abre a los ~2 s y el hero empieza a escribirse después. Recargar no la muestra. Verificación: tres capturas en el scratchpad (`compuerta-smoke-*.png`) y los tiempos en el resumen.
-- [ ] 5.4 Documentación:
+- [x] 5.3 Comprobación rápida con Playwright sobre el build (1440×900): la compuerta aparece en el primer cuadro con contenido, se abre a los ~2 s y el hero empieza a escribirse después. Recargar no la muestra. Verificación: tres capturas en el scratchpad (`compuerta-smoke-*.png`) y los tiempos en el resumen.
+- [x] 5.4 Documentación:
   - Agregar en `knowledge-base/09_decisiones_y_supuestos.md` la entrada "Compuerta de entrada (change `compuerta-intro`)". Cubre: una vez por sesión por pestaña, sin almacenamiento no hay compuerta, sin compuerta con movimiento reducido ni con ancla, el hero "listo" bajo la compuerta por el LCP y keyframes en `index.css`.
   - Agregar al inicio de `CHANGES.md` una nota fechada `compuerta-intro`.
 
