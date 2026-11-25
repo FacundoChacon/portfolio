@@ -268,6 +268,9 @@ function componenteProblems(source) {
   if (!/compuerta-simbolo[^>]*>\s*<LogoEva variante="completo"/.test(codigo)) {
     problems.push('el glifo no es <LogoEva variante="completo" /> dentro de compuerta-simbolo')
   }
+  if (codigo.indexOf('compuerta-simbolo') < codigo.indexOf('compuerta-hoja-inferior')) {
+    problems.push('el glifo tiene que ir después de las dos hojas: si no, la hoja inferior le tapa la mitad de abajo')
+  }
   if (/<svg/.test(codigo)) problems.push('dibuja un <svg> propio en vez de usar LogoEva')
   const desdeInferior = codigo.slice(Math.max(codigo.indexOf('compuerta-hoja-inferior'), 0))
   if (!/FACU/.test(desdeInferior) || !/CODE/.test(desdeInferior) || !/font-eva-display/.test(desdeInferior)) {
@@ -295,11 +298,11 @@ export default function CompuertaIntro({ fase, onSaltar }) {
       <div className="compuerta-hoja-superior absolute inset-x-0 top-0 h-1/2 bg-eva-panel">
         <span className="eva-stripes compuerta-franja-izq" /><span className="eva-stripes compuerta-franja-der" />
       </div>
-      <div className="absolute inset-0"><span className="compuerta-simbolo"><LogoEva variante="completo" className="h-28" /></span></div>
       <div className="compuerta-hoja-inferior absolute inset-x-0 top-1/2 h-1/2 bg-eva-panel">
         <span className="eva-stripes compuerta-franja-izq" /><span className="eva-stripes compuerta-franja-der" />
         <p className="font-eva-display">FACU CODE</p>
       </div>
+      <div className="absolute inset-0"><span className="compuerta-simbolo"><LogoEva variante="completo" className="h-28" /></span></div>
     </div>
   )
 }`
@@ -310,6 +313,16 @@ test('CompuertaIntro.jsx: raíz decorativa fija, dos hojas, franjas, glifo únic
 
 test('componenteProblems: acepta el componente de ejemplo correcto (triangulación)', () => {
   assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO), [])
+})
+
+test('componenteProblems: rechaza el glifo entre las hojas, donde la hoja inferior lo corta a la mitad (triangulación)', () => {
+  const capa = `      <div className="absolute inset-0"><span className="compuerta-simbolo"><LogoEva variante="completo" className="h-28" /></span></div>
+`
+  const entreHojas = COMPONENTE_EJEMPLO.replace(capa, '').replace('      <div className="compuerta-hoja-inferior', capa + '      <div className="compuerta-hoja-inferior')
+  assert.notEqual(entreHojas, COMPONENTE_EJEMPLO)
+  assert.deepEqual(componenteProblems(entreHojas), [
+    'el glifo tiene que ir después de las dos hojas: si no, la hoja inferior le tapa la mitad de abajo',
+  ])
 })
 
 test('componenteProblems: rechaza tabIndex y style inline (triangulación)', () => {

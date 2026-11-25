@@ -27,12 +27,6 @@ export default function CompuertaIntro() {
         <span className="eva-stripes absolute h-2 compuerta-franja-der bottom-0 left-[calc(50%+3.125rem)] right-0 md:left-[calc(50%+3.8125rem)]" />
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`compuerta-simbolo block ${BARRIDO} motion-safe:[animation-delay:200ms]`}>
-          <LogoEva variante="completo" className="block h-28 w-auto md:h-40" />
-        </span>
-      </div>
-
       <div className="compuerta-hoja-inferior absolute inset-x-0 top-1/2 h-1/2 bg-eva-panel">
         <span className="eva-stripes absolute h-2 compuerta-franja-izq left-0 right-[calc(50%+3.125rem)] top-0 md:right-[calc(50%+3.8125rem)]" />
         <span className="eva-stripes absolute h-2 compuerta-franja-der left-[calc(50%+3.125rem)] right-0 top-0 md:left-[calc(50%+3.8125rem)]" />
@@ -43,6 +37,12 @@ export default function CompuertaIntro() {
             <span className="text-eva-paper">FACU</span> <span className="text-eva-primary-light">CODE</span>
           </span>
         </p>
+      </div>
+
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className={`compuerta-simbolo block ${BARRIDO} motion-safe:[animation-delay:200ms]`}>
+          <LogoEva variante="completo" className="block h-28 w-auto md:h-40" />
+        </span>
       </div>
     </div>
   )
