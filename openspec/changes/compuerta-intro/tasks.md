@@ -32,20 +32,20 @@
 
 ## 2. Lógica pura de la compuerta (design D3, D4, D7, D9)
 
-- [ ] 2.1 RED/GREEN/TRIANGULATE de `crearLineaCompuerta` y `faseCompuerta` en el nuevo `scripts/compuerta.test.mjs`, con el nuevo `src/utils/compuerta.js` (`TIEMPOS_COMPUERTA` congelado):
+- [x] 2.1 RED/GREEN/TRIANGULATE de `crearLineaCompuerta` y `faseCompuerta` en el nuevo `scripts/compuerta.test.mjs`, con el nuevo `src/utils/compuerta.js` (`TIEMPOS_COMPUERTA` congelado):
   - Con los tiempos por defecto, las fases son `armado` [0, 840), `lectura` [840, 1300), `retiro` [1300, 1500), `apertura` [1500, 2000) y `abierta` desde 2000. El total es ≤ 2200.
   - Bordes exactos de cada fase (t−1, t, t+1). `t` negativo da `armado` y un `t` muy grande da `abierta`.
   - Triangular con tiempos alternativos (los tests no pueden depender de los valores por defecto).
   - Tiempos con total > 2200 o tramos que se solapan hacen que `crearLineaCompuerta` lance un error con mensaje claro.
 
   Verificación: tests en verde.
-- [ ] 2.2 RED/GREEN/TRIANGULATE de `debeMostrarCompuerta({ reducedMotion, rutaDeEntrada, hash, sesion })`:
+- [x] 2.2 RED/GREEN/TRIANGULATE de `debeMostrarCompuerta({ reducedMotion, rutaDeEntrada, hash, sesion })`:
   - `true` solo con `/`, sin ancla válida, sesión disponible y no vista, y sin movimiento reducido.
   - `false` con cada condición por separado: movimiento reducido, `/configurador`, `#proyectos`, sesión no disponible, ya vista.
   - `#`, `''`, `#%E0%A4%A` (URI inválida) y `#1abc` (no es un id) se tratan como sin ancla, porque reutiliza `resolveHashTarget`.
 
   Verificación: tests en verde.
-- [ ] 2.3 RED/GREEN/TRIANGULATE de `leerSesion(storage)` y `marcarSesion(storage)`, con almacenamientos falsos:
+- [x] 2.3 RED/GREEN/TRIANGULATE de `leerSesion(storage)` y `marcarSesion(storage)`, con almacenamientos falsos:
   - Uno normal: lee vacío, después de marcar lee `vista`, y la clave es `facucode.compuerta`.
   - Uno cuyo `getItem` lanza: `disponible: false`.
   - Uno cuyo `setItem` lanza: `marcarSesion` devuelve `false` sin lanzar.
@@ -54,14 +54,14 @@
   - `decidirCompuerta(entradas, storage)` marca la sesión al decidir mostrarla y devuelve `false` si la marca falla (design D4).
 
   Verificación: tests en verde.
-- [ ] 2.4 RED/GREEN/TRIANGULATE del reductor `transicionCompuerta(estado, accion)` y de `estadoHeroSegunCompuerta(fase)`:
+- [x] 2.4 RED/GREEN/TRIANGULATE del reductor `transicionCompuerta(estado, accion)` y de `estadoHeroSegunCompuerta(fase)`:
   - `cuadro(t)` avanza la fase según la línea y nunca retrocede.
   - `saltar` y `movimiento-reducido` pasan a `abierta` desde cualquier fase, y desde `abierta` no cambian nada.
   - El modo del hero es `lista` para `armado`, `lectura` y `retiro`, `en-espera` para `apertura` y `libre` para `abierta` y para "sin compuerta".
   - `bloqueaDesplazamiento(fase)` es verdadero solo en `armado`, `lectura` y `retiro`.
 
   Verificación: tests en verde.
-- [ ] 2.5 Refactor: JSDoc y constantes con nombre en `src/utils/compuerta.js`, sin DOM ni React. Un test importa el módulo en Node puro sin `window`. Verificación: `npm test` y `npm run lint` en verde.
+- [x] 2.5 Refactor: JSDoc y constantes con nombre en `src/utils/compuerta.js`, sin DOM ni React. Un test importa el módulo en Node puro sin `window`. Verificación: `npm test` y `npm run lint` en verde.
 
 ## 3. Escritura del hero según la compuerta (design D5, D9)
 
