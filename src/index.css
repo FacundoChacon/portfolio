@@ -615,11 +615,21 @@
    guard los compara. Los keyframes viven aquí y no en tailwind.config.js: ese guard fija la lista de Tailwind en
    evaBoot y evaObturador (el barrido del glifo y del texto reutiliza evaBoot desde el componente). */
 
-/* Con la compuerta cerrada la página no se desplaza. `scrollbar-gutter: stable` reserva el canal de la barra mientras
-   el desbordamiento está oculto: sin él, el contenido se ensancharía al desaparecer la barra y saltaría al bloquear y al liberar (CLS). */
+/* Con la compuerta cerrada la página no se desplaza. `overflow-y: scroll` conserva el canal de la barra (clásica: queda
+   la pista sin pulgar; superpuesta u oculta: ancho 0): con `overflow: hidden` el contenido se ensancharía al reaparecer la
+   barra al liberar (CLS). No se usa `scrollbar-gutter: stable` porque reserva el canal aunque la barra no exista (barras
+   superpuestas u ocultas) y entonces el contenido se ensancha al liberar: 0,12 de CLS en 375 px. */
 html.compuerta-cerrada {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+/* `overflow: hidden` en <html> solo oculta la barra: scrollBy, scrollIntoView y el foco siguen desplazando. Recortar el
+   cuerpo al alto de la ventana (`clip` no es un contenedor desplazable) deja la página sin nada que desplazar. */
+html.compuerta-cerrada body {
+  height: 100vh;
+  height: 100svh;
   overflow: hidden;
-  scrollbar-gutter: stable;
+  overflow: clip;
 }
 
 @media (prefers-reduced-motion: no-preference) {

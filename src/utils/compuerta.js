@@ -174,3 +174,16 @@ export function estadoHeroSegunCompuerta(fase) {
 export function bloqueaDesplazamiento(fase) {
   return FASES_CERRADAS.includes(fase)
 }
+
+/** Teclas cuya acción por defecto desplaza la página en vertical. */
+const TECLAS_DE_DESPLAZAMIENTO = Object.freeze([' ', 'Spacebar', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End'])
+
+/**
+ * ¿La tecla desplazaría la página? La que salta la compuerta no puede hacerlo: llega con el bloqueo puesto,
+ * pero el bloqueo se quita antes de que el navegador ejecute su acción por defecto.
+ * @param {unknown} tecla `KeyboardEvent.key`
+ * @returns {boolean}
+ */
+export function teclaDesplaza(tecla) {
+  return typeof tecla === 'string' && TECLAS_DE_DESPLAZAMIENTO.includes(tecla)
+}

@@ -18,6 +18,7 @@ import {
   leerSesion,
   marcarSesion,
   sesionDelNavegador,
+  teclaDesplaza,
   transicionCompuerta,
 } from '../src/utils/compuerta.js'
 import tailwindConfig from '../tailwind.config.js'
@@ -356,8 +357,16 @@ function cssProblems(css, tiempos = TIEMPOS_COMPUERTA) {
   const problems = []
   const dentro = (selector) => ruleBody(css, selector, { within: SIN_MOVIMIENTO_REDUCIDO })
   const bloqueo = ruleBody(css, 'html.compuerta-cerrada')
-  if (!bloqueo || !/overflow:\s*hidden/.test(bloqueo)) problems.push('html.compuerta-cerrada no tiene overflow: hidden')
-  if (!bloqueo || !/scrollbar-gutter:\s*stable/.test(bloqueo)) problems.push('html.compuerta-cerrada no tiene scrollbar-gutter: stable')
+  // El canal de la barra se conserva con `overflow-y: scroll` y no con `scrollbar-gutter: stable`: el gutter reserva
+  // el canal aunque la barra sea oculta o superpuesta, y al liberar el contenido se ensancharía (CLS en 375).
+  if (!bloqueo || !/overflow-x:\s*hidden/.test(bloqueo)) problems.push('html.compuerta-cerrada no tiene overflow-x: hidden')
+  if (!bloqueo || !/overflow-y:\s*scroll/.test(bloqueo)) problems.push('html.compuerta-cerrada no tiene overflow-y: scroll')
+  if (bloqueo && /scrollbar-gutter/.test(bloqueo)) problems.push('html.compuerta-cerrada usa scrollbar-gutter')
+  // `overflow: hidden` en <html> no impide el desplazamiento programático (scrollBy, scrollIntoView): el cuerpo se
+  // recorta al alto de la ventana con `overflow: clip` y no hay nada que desplazar.
+  const cuerpo = ruleBody(css, 'html.compuerta-cerrada body')
+  if (!cuerpo || !/overflow:\s*clip/.test(cuerpo)) problems.push('html.compuerta-cerrada body no tiene overflow: clip')
+  if (!cuerpo || !/height:\s*100svh/.test(cuerpo)) problems.push('html.compuerta-cerrada body no tiene height: 100svh')
   for (const [nombre, esperada] of Object.entries(KEYFRAMES)) {
     const regla = `@keyframes ${nombre}`
     if (ruleBody(css, regla) !== null) problems.push(`${regla} está fuera de no-preference`)
@@ -407,13 +416,25 @@ test('cssProblems: sigue la constante y no el valor del CSS (triangulación con 
   ])
 })
 
-test('cssProblems: rechaza animation infinite y la falta de scrollbar-gutter (triangulación)', () => {
+test('cssProblems: rechaza animation infinite, un bloqueo sin overflow-y: scroll y el scrollbar-gutter (triangulación)', () => {
   const infinito = CSS_REAL.replace(/(compuerta-retiro 200ms steps\(4, end\)) forwards/, '$1 infinite')
   assert.notEqual(infinito, CSS_REAL)
   assert.deepEqual(cssProblems(infinito), [`${SELECTOR_RETIRO} repite la animación`])
-  const sinGutter = CSS_REAL.replace(/(html\.compuerta-cerrada \{[^}]*?)scrollbar-gutter:\s*stable;/, '$1')
-  assert.notEqual(sinGutter, CSS_REAL)
-  assert.deepEqual(cssProblems(sinGutter), ['html.compuerta-cerrada no tiene scrollbar-gutter: stable'])
+  const sinScroll = CSS_REAL.replace(/(html\.compuerta-cerrada \{[^}]*?)overflow-y:\s*scroll;/, '$1overflow-y: hidden;')
+  assert.notEqual(sinScroll, CSS_REAL)
+  assert.deepEqual(cssProblems(sinScroll), ['html.compuerta-cerrada no tiene overflow-y: scroll'])
+  const conGutter = CSS_REAL.replace(/(html\.compuerta-cerrada \{[^}]*?)overflow-y:\s*scroll;/, '$1overflow-y: scroll; scrollbar-gutter: stable;')
+  assert.notEqual(conGutter, CSS_REAL)
+  assert.deepEqual(cssProblems(conGutter), ['html.compuerta-cerrada usa scrollbar-gutter'])
+})
+
+test('cssProblems: rechaza un bloqueo que solo oculta el desbordamiento de html y no recorta el cuerpo (triangulación)', () => {
+  const sinClip = CSS_REAL.replace(/(html\.compuerta-cerrada body \{[^}]*?)overflow: clip;/, '$1overflow: visible;')
+  assert.notEqual(sinClip, CSS_REAL)
+  assert.deepEqual(cssProblems(sinClip), ['html.compuerta-cerrada body no tiene overflow: clip'])
+  const sinAlto = CSS_REAL.replace(/(html\.compuerta-cerrada body \{[^}]*?)height: 100svh;/, '$1')
+  assert.notEqual(sinAlto, CSS_REAL)
+  assert.deepEqual(cssProblems(sinAlto), ['html.compuerta-cerrada body no tiene height: 100svh'])
 })
 
 test('cssProblems: rechaza un keyframe fuera de no-preference y uno que anima otra propiedad (triangulación)', () => {
@@ -461,6 +482,9 @@ function hookCompuertaProblems(source) {
   if (/document\.addEventListener\(\s*['"]keydown['"]/.test(codigo)) problems.push('escucha keydown en document y no en window')
   if (!/^let\s+decisionDeEstaCarga\b/m.test(codigo)) problems.push('falta la variable de módulo decisionDeEstaCarga')
   if (!/^const\s+\w*RUTA_DE_ENTRADA\w*\s*=.*pathname/m.test(codigo)) problems.push('no captura location.pathname al evaluar el módulo')
+  if (!/teclaDesplaza\(/.test(codigo) || !/preventDefault\(\)/.test(codigo)) {
+    problems.push('la tecla que salta puede desplazar la página (falta preventDefault con teclaDesplaza)')
+  }
   if (/setInterval|setTimeout|\bstyle\b/.test(codigo)) problems.push('usa timers o style')
   return problems
 }
@@ -469,6 +493,7 @@ const HOOK_COMPUERTA_EJEMPLO = `import { useLayoutEffect } from 'react'
 const RUTA_DE_ENTRADA = globalThis.location?.pathname ?? '/'
 let decisionDeEstaCarga = null
 export function useCompuerta() {
+  const alTeclear = (e) => { if (teclaDesplaza(e.key)) e.preventDefault() }
   useLayoutEffect(() => {
     document.documentElement.classList.add('compuerta-cerrada')
     return () => document.documentElement.classList.remove('compuerta-cerrada')
@@ -559,4 +584,23 @@ test('package.json no suma dependencias para la compuerta', () => {
     'react-router-dom',
   ])
   assert.equal(Object.keys(devDependencies).length, 11)
+})
+
+// --- Teclas que desplazan (la tecla que salta no puede mover la página) -----------
+
+test('teclaDesplaza: Espacio, RePág, AvPág, flechas verticales, Inicio y Fin desplazan', () => {
+  for (const tecla of [' ', 'Spacebar', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End']) {
+    assert.equal(teclaDesplaza(tecla), true, JSON.stringify(tecla))
+  }
+})
+
+test('teclaDesplaza: Tab, Enter, Escape, letras, flechas horizontales y valores no válidos no desplazan', () => {
+  for (const tecla of ['Tab', 'Enter', 'Escape', 'a', 'ArrowLeft', 'ArrowRight', 'Shift', '', undefined, null, 32]) {
+    assert.equal(teclaDesplaza(tecla), false, JSON.stringify(tecla))
+  }
+})
+
+test('hookCompuertaProblems: rechaza un hook cuya tecla de salto puede desplazar la página (triangulación)', () => {
+  const sinPrevenir = HOOK_COMPUERTA_EJEMPLO.replace('if (teclaDesplaza(e.key)) e.preventDefault()', 'void e')
+  assert.deepEqual(hookCompuertaProblems(sinPrevenir), ['la tecla que salta puede desplazar la página (falta preventDefault con teclaDesplaza)'])
 })

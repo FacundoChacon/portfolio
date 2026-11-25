@@ -133,7 +133,7 @@
 
 ## 6. Verificación integrada y checkpoint
 
-- [ ] 6.1 Comportamiento por sesión y entrada (Playwright, build con CSP, contexto nuevo por caso):
+- [x] 6.1 Comportamiento por sesión y entrada (Playwright, build con CSP, contexto nuevo por caso):
   - Primera carga de `/`: compuerta presente.
   - Recarga: ausente.
   - Recarga a los 800 ms (a mitad de la intro): ausente.
@@ -146,7 +146,7 @@
   - `page.emulateMedia({ reducedMotion: 'reduce' })` a los 500 ms: la compuerta desaparece en el cuadro siguiente.
 
   Verificación: tabla de resultados en el resumen.
-- [ ] 6.2 Salto, en 1440 y en 375 con `hasTouch`:
+- [x] 6.2 Salto, en 1440 y en 375 con `hasTouch`:
   - Clic a los 300 ms sobre la posición de "Ver proyectos": compuerta fuera en ≤ 1 cuadro (≤ 50 ms medidos) y la URL sin `#proyectos`.
   - `tap` en 375: lo mismo.
   - `keyboard.press('Space')` y `press('Tab')`: compuerta fuera, foco visible en el salto al contenido con Tab y la escritura del hero **empieza** desde el kicker vacío (no queda completa). Una segunda tecla la completa.
@@ -155,7 +155,7 @@
   - En ningún caso se ve el hero completo antes de la escritura: captura del cuadro siguiente al salto.
 
   Verificación: resultados y capturas en el resumen.
-- [ ] 6.3 Accesibilidad, CSP y desplazamiento:
+- [x] 6.3 Accesibilidad, CSP y desplazamiento:
   - A los 500 ms, `ariaSnapshot` de `body` sin nada de la compuerta ("FACU CODE" ausente) y con el contenido del hero.
   - Ningún elemento de la compuerta en el orden de Tab.
   - Consola sin violaciones de CSP ni errores durante toda la intro.
@@ -163,7 +163,7 @@
   - En 1440, `clientWidth` igual al de la línea de base durante y después del bloqueo.
 
   Verificación: resultados en el resumen.
-- [ ] 6.4 Métricas con la metodología de 1.2 (mediana de 3, sesión nueva por corrida):
+- [x] 6.4 Métricas con la metodología de 1.2 (mediana de 3, sesión nueva por corrida):
   - CLS ≤ 0,1 en 1440 y 375 con la compuerta.
   - LCP de 1440 ≤ base + 10 % (el candidato sigue siendo el retrato).
   - LCP de 375 ≤ base + 1 s (el candidato sigue siendo el párrafo).
@@ -171,12 +171,12 @@
   - Duración medida de la compuerta ≤ 2,2 s y escritura del hero ≤ 3,5 s desde el fin de la apertura.
 
   Verificación: tabla antes → después en el resumen. Si una cota falla, detenerse y reportar.
-- [ ] 6.5 Cuadros y video de la intro en 1440×900 y en 375×812, sin movimiento reducido, en el scratchpad:
+- [x] 6.5 Cuadros y video de la intro en 1440×900 y en 375×812, sin movimiento reducido, en el scratchpad:
   - PNG en los instantes clave: 0, 150, 400, 700, 1000, 1400, 1600, 1800, 2000 y 2600 ms, como `compuerta-<ancho>-<ms>.png`. La captura de los 2600 ms tiene que mostrar el hero escribiéndose.
   - Un `.webm` por ancho con `recordVideo`, de 6 s (`compuerta-1440.webm` y `compuerta-375.webm`).
 
   Verificación: archivos presentes y sus rutas absolutas en el resumen.
-- [ ] 6.6 `npm run ci` completo en verde (lint, verify:*, tests, build y verify:build) y conteo de tests contra 1.1. Verificación: salida de `npm run ci` en el resumen.
+- [x] 6.6 `npm run ci` completo en verde (lint, verify:*, tests, build y verify:build) y conteo de tests contra 1.1. Verificación: salida de `npm run ci` en el resumen.
 - [ ] 6.7 **Checkpoint visual del usuario (MEDIUM). Queda para el usuario.** Presentar los cuadros y videos de 6.5 y la tabla de 6.4, y pedir visto bueno sobre:
   - El glifo que se recoge hacia la junta antes de abrir (design D6, frente a partirlo o hacerlo viajar con una hoja).
   - "FACU" en papel y "CODE" en violeta claro.

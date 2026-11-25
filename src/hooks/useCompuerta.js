@@ -5,6 +5,7 @@ import {
   decidirCompuerta,
   estadoHeroSegunCompuerta,
   sesionDelNavegador,
+  teclaDesplaza,
   transicionCompuerta,
 } from '../utils/compuerta'
 
@@ -48,7 +49,7 @@ export function CompuertaProvider({ children }) {
   const bloquea = bloqueaDesplazamiento(fase)
   const saltar = useCallback(() => dispatch({ tipo: 'saltar' }), [])
 
-  // Antes del primer pintado: la página ya nace bloqueada y sin salto de diseño (`scrollbar-gutter: stable`).
+  // Antes del primer pintado: la página ya nace bloqueada y sin salto de diseño (`overflow-y: scroll`, ver index.css).
   useLayoutEffect(() => {
     if (!bloquea) return undefined
     document.documentElement.classList.add('compuerta-cerrada')
@@ -79,17 +80,22 @@ export function CompuertaProvider({ children }) {
     // Listeners en `window` (no en `document`): la escritura del hero escucha `keydown` en el mismo objetivo, y el DOM
     // no invoca durante un despacho a los listeners que se agregan al mismo objetivo. La tecla que salta no la completa.
     const alSaltar = () => dispatch({ tipo: 'saltar' })
+    // La tecla que salta no puede desplazar: el bloqueo se quita antes de que el navegador ejecute su acción por defecto.
+    const alTeclear = (evento) => {
+      if (teclaDesplaza(evento.key)) evento.preventDefault()
+      dispatch({ tipo: 'saltar' })
+    }
     const alCambiarMovimiento = (evento) => {
       if (evento.matches) dispatch({ tipo: 'movimiento-reducido' })
     }
     raf = requestAnimationFrame(cuadro)
-    window.addEventListener('keydown', alSaltar)
+    window.addEventListener('keydown', alTeclear)
     window.addEventListener('wheel', alSaltar, { passive: true })
     window.addEventListener('touchmove', alSaltar, { passive: true })
     mediaQuery?.addEventListener('change', alCambiarMovimiento)
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('keydown', alSaltar)
+      window.removeEventListener('keydown', alTeclear)
       window.removeEventListener('wheel', alSaltar)
       window.removeEventListener('touchmove', alSaltar)
       mediaQuery?.removeEventListener('change', alCambiarMovimiento)

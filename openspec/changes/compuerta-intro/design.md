@@ -242,6 +242,11 @@ Alternativas:
 
 El primer gesto que salta no desplaza la página porque llega con el bloqueo puesto. Desde el siguiente, desplaza normalmente.
 
+**Desviación medida en el apply** (reemplaza a la regla de arriba; los spikes 1.4 y 6.3 lo respaldan):
+- `overflow: hidden` en `<html>` no impide el desplazamiento programático (`scrollBy` dejó `scrollY` en 400 con el bloqueo puesto). Se suma `html.compuerta-cerrada body { height: 100svh; overflow: clip }`: sin nada que desplazar, `scrollBy` y `scrollIntoView` quedan en 0.
+- `scrollbar-gutter: stable` reserva el canal aunque la barra sea oculta o superpuesta (en 375 con barras ocultas reservó 15 px): al liberar, el contenido se ensanchó y el CLS fue 0,12. Se reemplaza por `overflow-x: hidden; overflow-y: scroll`, que conserva el canal solo si hay barra. Medido: `clientWidth` 1425 → 1425 → 1425 (base, durante, después) con barras visibles, y CLS ≤ 0,004 con barras ocultas, visibles y en móvil.
+- La tecla que salta se `preventDefault` si desplaza (`teclaDesplaza`: Espacio, RePág, AvPág, flechas verticales, Inicio y Fin): el bloqueo se quita antes de la acción por defecto y Espacio dejaba la página 712 px más abajo.
+
 ### D11. Accesibilidad
 
 - **Capa decorativa**: `aria-hidden="true"`, sin elementos enfocables, sin `tabIndex` y sin roles. "FACU CODE" no se duplica en `sr-only` porque no es contenido. `inert` no hace falta (no hay nada enfocable) y React 18 no lo tipa.
