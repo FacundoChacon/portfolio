@@ -12,18 +12,18 @@
 
 ## 1. Red de seguridad, línea de base y spikes
 
-- [ ] 1.1 Correr `npm test` en la rama sin cambios y anotar cuántos tests pasan. Si hay fallas previas, detenerse y reportarlas sin corregirlas. Verificación: conteo en el resumen del apply.
-- [ ] 1.2 Línea de base en `main` (build + preview, Playwright), mediana de 3 corridas:
+- [x] 1.1 Correr `npm test` en la rama sin cambios y anotar cuántos tests pasan. Si hay fallas previas, detenerse y reportarlas sin corregirlas. Verificación: conteo en el resumen del apply.
+- [x] 1.2 Línea de base en `main` (build + preview, Playwright), mediana de 3 corridas:
   - LCP (elemento y tiempo) y CLS de `/` en 1440×900 y 375×812, con y sin `reducedMotion: 'reduce'`.
   - Ancho de `document.documentElement.clientWidth` en 1440 con barra de desplazamiento.
 
   Verificación: tabla en el resumen. El candidato a LCP tiene que ser el retrato en 1440 y el párrafo en 375, como en `hero-escritura`.
-- [ ] 1.3 Spike de LCP del hero "listo" bajo una capa opaca (design D5), sobre el build de `main`, con un script de Playwright que inyecte una capa `fixed inset-0` opaca antes del primer pintado (`addInitScript` + CSS por `page.addStyleTag`; es solo medición):
+- [x] 1.3 Spike de LCP del hero "listo" bajo una capa opaca (design D5), sobre el build de `main`, con un script de Playwright que inyecte una capa `fixed inset-0` opaca antes del primer pintado (`addInitScript` + CSS por `page.addStyleTag`; es solo medición):
   - Con el hero completado de inmediato (simular `lista`, p. ej. con un `keydown` sintético en el primer cuadro), medir en 375 y en 1440 que la entrada de LCP del párrafo o del retrato cae en el primer cuadro.
   - A los 1500 ms, quitar la capa y forzar una reescritura del párrafo: texto transparente y revelado progresivo con un snippet en la página. Comprobar que **no** aparece una entrada de LCP nueva posterior y que el CLS queda ≤ 0,1.
 
   Si aparece una entrada nueva, detenerse y presentar al usuario las opciones de D5 ("texto fantasma" o aceptar el LCP móvil de la primera visita) antes de seguir. Verificación: entradas de LCP con tiempos y la decisión en el resumen.
-- [ ] 1.4 Spike de bloqueo de desplazamiento y clic fantasma (design D9, D10), en el build de `main` con estilos y listeners inyectados:
+- [x] 1.4 Spike de bloqueo de desplazamiento y clic fantasma (design D9, D10), en el build de `main` con estilos y listeners inyectados:
   - En 1440 con barra visible, alternar `html { overflow: hidden; scrollbar-gutter: stable }`. El `clientWidth` y la posición de `#presentacion h1` no cambian y no hay entradas de `layout-shift`.
   - En 375 con `hasTouch: true`, una capa que se quita en `click` y que está encima de "Ver proyectos": tras un `tap`, la URL no cambia a `#proyectos`.
   - El mismo caso con la capa quitada en `touchstart`, para documentar que ahí sí hay clic fantasma.
