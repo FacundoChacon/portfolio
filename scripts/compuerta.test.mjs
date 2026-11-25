@@ -252,6 +252,29 @@ function etiquetaConMarca(source, marca) {
   return source.slice(inicio, source.indexOf('>', indice) + 1)
 }
 
+/** Cuenta una clase exacta (no `compuerta-placa-texto` cuando se busca `compuerta-placa`) en un bloque de JSX. */
+const contarClase = (bloque, clase) => (bloque.match(new RegExp(`(?<![\\w-])${clase}(?![\\w-])`, 'g')) ?? []).length
+
+/** Mínimos de decoración por hoja (design D14): las mismas piezas arriba y abajo, simétricas. */
+const DECORACION_POR_HOJA = { 'compuerta-placa': 2, 'compuerta-labio': 2, 'compuerta-nervio': 2 }
+
+/** Decoración metálica del componente (design D14): superficie, relieves y simetría entre las dos hojas. */
+function decoracionComponenteProblems(codigo) {
+  const problems = []
+  const corte = codigo.indexOf('compuerta-hoja-inferior')
+  const hojas = { superior: codigo.slice(0, corte), inferior: codigo.slice(corte, codigo.indexOf('compuerta-simbolo', corte)) }
+  for (const [nombre, bloque] of Object.entries(hojas)) {
+    if (!/compuerta-metal/.test(etiquetaConMarca(codigo, `compuerta-hoja-${nombre}`))) problems.push(`compuerta-hoja-${nombre} no tiene compuerta-metal`)
+    for (const [clase, minimo] of Object.entries(DECORACION_POR_HOJA)) {
+      if (contarClase(bloque, clase) < minimo) problems.push(`la hoja ${nombre} tiene menos de ${minimo} piezas ${clase}`)
+    }
+  }
+  for (const clase of Object.keys(DECORACION_POR_HOJA)) {
+    if (contarClase(hojas.superior, clase) !== contarClase(hojas.inferior, clase)) problems.push(`las hojas no son simétricas en ${clase}`)
+  }
+  return problems
+}
+
 /** Problemas de un `CompuertaIntro.jsx`: composición, accesibilidad y CSP. */
 function componenteProblems(source) {
   const problems = []
@@ -276,8 +299,10 @@ function componenteProblems(source) {
   if (!/FACU/.test(desdeInferior) || !/CODE/.test(desdeInferior) || !/font-eva-display/.test(desdeInferior)) {
     problems.push('FACU y CODE con font-eva-display tienen que ir dentro de la hoja inferior')
   }
+  problems.push(...decoracionComponenteProblems(codigo))
   const prohibidos = [
     [/<a[\s>]/, '<a'],
+    [/<img/, '<img'],
     [/<button/, '<button'],
     [/tabIndex/, 'tabIndex'],
     [/\brole=/, 'role='],
@@ -295,11 +320,17 @@ const COMPONENTE_EJEMPLO = `import LogoEva from './LogoEva'
 export default function CompuertaIntro({ fase, onSaltar }) {
   return (
     <div aria-hidden="true" data-compuerta={fase} onClick={onSaltar} className="compuerta fixed inset-0 z-[70]">
-      <div className="compuerta-hoja-superior absolute inset-x-0 top-0 h-1/2 bg-eva-panel">
+      <div className="compuerta-hoja-superior compuerta-metal absolute inset-x-0 top-0 h-1/2 bg-eva-panel">
         <span className="eva-stripes compuerta-franja-izq" /><span className="eva-stripes compuerta-franja-der" />
+        <span className="compuerta-placa" /><span className="compuerta-placa" />
+        <span className="compuerta-labio" /><span className="compuerta-labio" />
+        <span className="compuerta-nervio" /><span className="compuerta-nervio" />
       </div>
-      <div className="compuerta-hoja-inferior absolute inset-x-0 top-1/2 h-1/2 bg-eva-panel">
+      <div className="compuerta-hoja-inferior compuerta-metal absolute inset-x-0 top-1/2 h-1/2 bg-eva-panel">
         <span className="eva-stripes compuerta-franja-izq" /><span className="eva-stripes compuerta-franja-der" />
+        <span className="compuerta-placa" /><span className="compuerta-placa" />
+        <span className="compuerta-labio" /><span className="compuerta-labio" />
+        <span className="compuerta-nervio" /><span className="compuerta-nervio" />
         <p className="font-eva-display">FACU CODE</p>
       </div>
       <div className="absolute inset-0"><span className="compuerta-simbolo"><LogoEva variante="completo" className="h-28" /></span></div>
@@ -344,6 +375,28 @@ test('componenteProblems: rechaza elementos interactivos, hex, svg propio, raíz
   assert.deepEqual(componenteProblems(sinPanel), ['compuerta-hoja-inferior no tiene bg-eva-panel'])
   const sinFranja = COMPONENTE_EJEMPLO.replace('<span className="eva-stripes compuerta-franja-der" />', '')
   assert.deepEqual(componenteProblems(sinFranja), ['hay 3 franjas eva-stripes y tienen que ser 4 (dos tramos por hoja)'])
+})
+
+test('componenteProblems: rechaza hojas sin metal, sin piezas o asimétricas, e imágenes (triangulación, design D14)', () => {
+  const sinMetal = COMPONENTE_EJEMPLO.replace('compuerta-hoja-superior compuerta-metal', 'compuerta-hoja-superior')
+  assert.deepEqual(componenteProblems(sinMetal), ['compuerta-hoja-superior no tiene compuerta-metal'])
+  const dosPlacas = '<span className="compuerta-placa" /><span className="compuerta-placa" />\n        <span className="compuerta-labio" />'
+  const unaPlaca = COMPONENTE_EJEMPLO.replace(dosPlacas, '<span className="compuerta-placa" />\n        <span className="compuerta-labio" />')
+  assert.notEqual(unaPlaca, COMPONENTE_EJEMPLO)
+  assert.deepEqual(componenteProblems(unaPlaca), [
+    'la hoja superior tiene menos de 2 piezas compuerta-placa',
+    'las hojas no son simétricas en compuerta-placa',
+  ])
+  const nervios = '<span className="compuerta-nervio" /><span className="compuerta-nervio" />\n      </div>\n      <div className="compuerta-hoja-inferior'
+  const nervioDeMas = COMPONENTE_EJEMPLO.replace(nervios, nervios.replace('/>\n', '/><span className="compuerta-nervio" />\n'))
+  assert.notEqual(nervioDeMas, COMPONENTE_EJEMPLO)
+  assert.deepEqual(componenteProblems(nervioDeMas), ['las hojas no son simétricas en compuerta-nervio'])
+  assert.deepEqual(componenteProblems(COMPONENTE_EJEMPLO.replace('<p ', '<img src="x.png" /><p ')), ['usa <img'])
+})
+
+test('contarClase: no confunde compuerta-placa con compuerta-placa-texto (triangulación)', () => {
+  assert.equal(contarClase('compuerta-placa compuerta-placa-texto "compuerta-placa"', 'compuerta-placa'), 2)
+  assert.equal(contarClase('a compuerta-placa-texto', 'compuerta-placa'), 0)
 })
 
 // --- 4.2 Guard del CSS (design D6, D8, D10) ------------------------------------
@@ -456,6 +509,56 @@ test('cssProblems: rechaza un keyframe fuera de no-preference y uno que anima ot
   const conOpacidad = CSS_REAL.replace(/(@keyframes compuerta-hoja-arriba \{[^}]*\})/, '$1 to { opacity: 0 }')
   assert.notEqual(conOpacidad, CSS_REAL)
   assert.ok(cssProblems(conOpacidad).some((p) => p.startsWith('@keyframes compuerta-hoja-arriba anima')))
+})
+
+// --- 4.3 Guard del CSS de la decoración metálica (design D14) --------------------------------
+
+const PIEZAS_CSS = ['.compuerta-metal', '.compuerta-placa', '.compuerta-placa-texto', '.compuerta-labio', '.compuerta-nervio']
+
+/** Problemas de la decoración: superficie metálica, relieves biselados y nada pesado (sin imágenes, filtros ni dientes). */
+function decoracionCssProblems(css) {
+  const problems = []
+  const seccion = css.slice(css.indexOf('/* Compuerta de entrada')).replace(/\/\*[\s\S]*?\*\//g, '')
+  if (!seccion.trim()) return ['falta la sección de la compuerta']
+  const cuerpos = Object.fromEntries(PIEZAS_CSS.map((selector) => [selector, ruleBody(seccion, selector)]))
+  for (const [selector, cuerpo] of Object.entries(cuerpos)) if (cuerpo === null) problems.push(`falta la regla ${selector}`)
+  if (cuerpos['.compuerta-metal'] && !/repeating-linear-gradient\(\s*(180deg|0deg|to bottom)/.test(cuerpos['.compuerta-metal'])) {
+    problems.push('.compuerta-metal no tiene el cepillado (repeating-linear-gradient horizontal)')
+  }
+  for (const selector of ['.compuerta-placa', '.compuerta-placa-texto', '.compuerta-labio', '.compuerta-nervio']) {
+    const cuerpo = cuerpos[selector]
+    if (cuerpo && !/box-shadow:[^;]*\binset\b/.test(cuerpo)) problems.push(`${selector} no tiene bisel (box-shadow inset)`)
+  }
+  if (!/--compuerta-remache:[^;]*radial-gradient/.test(seccion)) problems.push('falta --compuerta-remache con radial-gradient')
+  const prohibidos = [
+    [/backdrop-filter/, 'backdrop-filter'],
+    [/(^|[;{\s])filter\s*:/, 'filter'],
+    [/blur\(/, 'blur()'],
+    [/url\(/, 'url() (imágenes o SVG)'],
+    [/polygon\(/, 'polygon() (dientes de sierra)'],
+    [/@import/, '@import'],
+    [/#[0-9a-fA-F]{3,8}\b/, 'un color hex'],
+  ]
+  for (const [patron, nombre] of prohibidos) if (patron.test(seccion)) problems.push(`usa ${nombre}`)
+  return problems
+}
+
+test('index.css: la decoración metálica tiene superficie cepillada, relieves biselados y remaches, sin nada pesado', () => {
+  assert.deepEqual(decoracionCssProblems(CSS_REAL), [])
+})
+
+test('decoracionCssProblems: rechaza filtros, imágenes, dientes de sierra, hex y piezas faltantes (triangulación)', () => {
+  const con = (extra) => `${CSS_REAL}\n.compuerta-extra { ${extra} }\n`
+  assert.deepEqual(decoracionCssProblems(con('backdrop-filter: blur(4px);')), ['usa backdrop-filter', 'usa blur()'])
+  assert.deepEqual(decoracionCssProblems(con('filter: contrast(1.2);')), ['usa filter'])
+  assert.deepEqual(decoracionCssProblems(con('background: url(x.png);')), ['usa url() (imágenes o SVG)'])
+  assert.deepEqual(decoracionCssProblems(con('clip-path: polygon(0 0, 50% 100%, 100% 0);')), ['usa polygon() (dientes de sierra)'])
+  assert.deepEqual(decoracionCssProblems(con('color: #ff0000;')), ['usa un color hex'])
+  assert.deepEqual(decoracionCssProblems(CSS_REAL.replace('.compuerta-labio {', '.compuerta-otra {')), ['falta la regla .compuerta-labio'])
+  assert.deepEqual(decoracionCssProblems(CSS_REAL.replace(/repeating-linear-gradient\(\s*180deg/g, 'linear-gradient(180deg')), [
+    '.compuerta-metal no tiene el cepillado (repeating-linear-gradient horizontal)',
+  ])
+  assert.deepEqual(decoracionCssProblems(CSS_REAL.replace('--compuerta-remache:', '--otra:')), ['falta --compuerta-remache con radial-gradient'])
 })
 
 test('CompuertaIntro.jsx: las demoras del barrido coinciden con TIEMPOS_COMPUERTA y eva-boot dura glifo y texto', () => {

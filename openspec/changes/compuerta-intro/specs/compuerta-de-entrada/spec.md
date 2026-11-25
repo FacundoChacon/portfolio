@@ -7,11 +7,15 @@ Define la compuerta de entrada de la home: una intro decorativa con el glifo de 
 ## ADDED Requirements
 
 ### Requirement: Composición de la compuerta
-La compuerta SHALL cubrir toda la pantalla con dos hojas, una superior y una inferior, que se encuentran en una junta horizontal en el centro de la pantalla. La junta SHALL leerse como una línea de franjas de peligro interrumpida por la variante completa del glifo, centrada sobre ella. El texto "FACU CODE" SHALL ir debajo del glifo, sobre la hoja inferior.
+La compuerta SHALL cubrir toda la pantalla con dos hojas, una superior y una inferior, que se encuentran en una junta horizontal en el centro de la pantalla. La junta SHALL leerse como una línea de franjas de peligro interrumpida por la variante completa del glifo, centrada sobre ella. El texto "FACU CODE" SHALL ir debajo del glifo, sobre la hoja inferior. Cada hoja SHALL verse como una plancha metálica de relieve sobrio: superficie cepillada, aletas rectas y continuas, un labio elevado en la junta, placas hundidas con remaches dispersos y la misma decoración, espejada, en las dos hojas; todo ello viaja con su hoja al abrirse y NO SHALL usar imágenes, filtros ni formas de dientes de sierra.
 
 #### Scenario: Compuerta cerrada en escritorio
 - **WHEN** la compuerta está cerrada en una pantalla de 1440×900
 - **THEN** no se ve nada de la página, la junta cruza la pantalla de borde a borde a media altura con el glifo completo en su centro y "FACU CODE" se lee debajo del glifo
+
+#### Scenario: Aspecto metálico con relieves
+- **WHEN** la compuerta está cerrada en 1440×900 o en 375×812
+- **THEN** ambas hojas muestran la misma decoración metálica espejada, el glifo se ve entero sobre la junta y "FACU CODE" se lee sobre su placa, sin desbordamiento horizontal
 
 #### Scenario: Compuerta cerrada en móvil
 - **WHEN** la compuerta está cerrada en una pantalla de 375×812

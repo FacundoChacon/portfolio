@@ -143,7 +143,7 @@ Alternativas:
 **Hojas**:
 - Dos `div`: el superior en `top-0 h-1/2` y el inferior en `top-1/2 h-1/2`.
 - Color: `bg-eva-panel` (#100E0C), un tono apenas más claro que la página (#050505). Así, al separarse, se leen como dos objetos sólidos y no como "negro sobre negro".
-- Sin textura ni etiquetas extra: movimiento y ruido mínimos, como pide el gusto del usuario.
+- Textura y relieve: ver D14 (decoración metálica). El movimiento sigue siendo el mínimo.
 
 **Junta (la línea del boceto)**:
 - En el borde de contacto, cada hoja lleva una franja de peligro `eva-stripes` (naranja `eva-secondary` sobre negro, el mismo patrón diagonal de las franjas del sitio) de 8 px. Juntas forman una banda de 16 px centrada en la mitad de la pantalla.
@@ -170,6 +170,18 @@ Alternativas:
 **"FACU CODE" se va con la hoja inferior**, porque está impreso en ella. Es lo más literal al boceto y no necesita una animación propia.
 
 Las dos decisiones visuales (recogerse vs. alternativas y colores del texto) quedan como ítems del **checkpoint visual** del usuario.
+
+### D14. Decoración metálica y relieves (pedido posterior del usuario)
+
+El usuario pidió "decorar más la compuerta con relieves y aspecto metálico". Se suma a D6 sin tocar tiempos ni movimiento; todo viaja con su hoja.
+
+- **Superficie** (`compuerta-metal`, sobre `bg-eva-panel`, que el guard sigue exigiendo): cepillado horizontal con dos `repeating-linear-gradient` de pasos distintos y un brillo vertical (`--compuerta-brillo`, espejado entre hojas). Capas translúcidas de papel (luz) y negro (sombra) sobre el token, sin hex.
+- **Luz** siempre desde arriba a la izquierda, también en la hoja inferior: borde claro arriba/izquierda y oscuro abajo/derecha con `box-shadow` inset.
+- **Relieves**: dos `compuerta-nervio` por hoja (aletas bajas, continuas y rectas: rampa, meseta y cierre; nunca dientes), un `compuerta-labio` elevado en la junta (dos tramos con el mismo hueco del glifo que las franjas), dos `compuerta-placa` hundidas a los lados (terminan a 9,5 rem de la junta en móvil y 11 rem en escritorio para no chocar con el rótulo) y una `compuerta-placa-texto` hundida: en la hoja inferior aloja "FACU CODE" y en la superior un rótulo mono "SECTOR 00 // ACCESO" en tono apagado (sin marcas ajenas).
+- **Remaches** sparse: una variable `--compuerta-remache` (radial-gradient de 8 px) en filas sobre placas y labio y en las esquinas de las placas de rótulo.
+- **Simetría**: las hojas llevan las mismas piezas con posiciones espejadas. Un guard compara los conteos.
+- **Prohibido** en la sección CSS de la compuerta (guard): `url()`, `filter`, `backdrop-filter`, `blur()`, `polygon()`, hex e imágenes/`<img>` en el componente. Costo: solo gradientes estáticos, sin impacto en LCP/CLS (la capa sigue `aria-hidden`).
+- **Móvil**: mismas piezas, filas de remaches más cortas; sin desbordamiento horizontal.
 
 ### D7. Línea de tiempo y constantes
 
