@@ -65,14 +65,14 @@
 
 ## 3. Escritura del hero según la compuerta (design D5, D9)
 
-- [ ] 3.1 RED/GREEN/TRIANGULATE en `scripts/escritura.test.mjs` de `estadoInicialSegunModo(modo, linea, { reducedMotion, yaEjecutada })` en `src/utils/escritura.js`:
+- [x] 3.1 RED/GREEN/TRIANGULATE en `scripts/escritura.test.mjs` de `estadoInicialSegunModo(modo, linea, { reducedMotion, yaEjecutada })` en `src/utils/escritura.js`:
   - `lista` da `estadoFinal`.
   - `en-espera` da `estadoEn(0)`.
   - `libre` da lo mismo que hoy: `estadoEn(0)` si `debeAnimar` y `estadoFinal` si no.
   - Con movimiento reducido, todos los modos dan `estadoFinal`.
 
   Verificación: tests en verde. Los tests existentes de `escritura.test.mjs` siguen en verde.
-- [ ] 3.2 RED: ampliar el guard del hook en `scripts/hero.test.mjs` (`hookEscrituraProblems`):
+- [x] 3.2 RED: ampliar el guard del hook en `scripts/hero.test.mjs` (`hookEscrituraProblems`):
   - El hook acepta un tercer parámetro de modo con valor por defecto `'libre'`.
   - Solo arranca rAF y listeners en `libre`.
   - No marca `escrituraEjecutada` fuera de `libre`.
@@ -80,7 +80,7 @@
   - Sigue sin timers ni `style`.
 
   Triangular con un hook de ejemplo que arranca el rAF en `lista`, que tiene que fallar. Verificación: el test falla.
-- [ ] 3.3 GREEN: implementar el modo en `useEscrituraHero.js`: estado inicial por `estadoInicialSegunModo`, efecto con `modo` en las dependencias, `t0` al pasar a `libre` (seguro ante `StrictMode`) y filtro por `timeStamp`. `Hero.jsx` recibe el modo por contexto, con `'libre'` por defecto si no hay proveedor. Verificación:
+- [x] 3.3 GREEN: implementar el modo en `useEscrituraHero.js`: estado inicial por `estadoInicialSegunModo`, efecto con `modo` en las dependencias, `t0` al pasar a `libre` (seguro ante `StrictMode`) y filtro por `timeStamp`. `Hero.jsx` recibe el modo por contexto, con `'libre'` por defecto si no hay proveedor. Verificación:
   - `npm test` y `npm run lint` (sin advertencias de `react-hooks`) en verde.
   - Guard "Hero no renderiza el glifo del logotipo" en verde.
   - Playwright en 1440 sin compuerta: la entrada escrita se comporta igual que en la línea de base (misma secuencia y duración ≤ 3,5 s).
