@@ -175,3 +175,20 @@ export function mismoEstado(a, b) {
 export function debeAnimar({ reducedMotion, yaEjecutada }) {
   return !reducedMotion && !yaEjecutada
 }
+
+/**
+ * Estado inicial del hero según el modo que le da la compuerta de entrada (change `compuerta-intro`):
+ * - `lista`: estado final, el hero espera tapado (así el LCP cae en el primer cuadro).
+ * - `en-espera`: `estadoEn(0)`, todo reservado y transparente mientras se abren las hojas.
+ * - `libre` (y cualquier otro valor): la escritura de siempre.
+ * Con movimiento reducido todos los modos dan el estado final.
+ * @param {'lista'|'en-espera'|'libre'} modo
+ * @param {LineaDeTiempo} linea
+ * @param {{ reducedMotion: boolean, yaEjecutada: boolean }} flags
+ * @returns {{ fase: string, visibles: Record<string, number> }}
+ */
+export function estadoInicialSegunModo(modo, linea, { reducedMotion, yaEjecutada }) {
+  if (reducedMotion || modo === 'lista') return estadoFinal(linea)
+  if (modo === 'en-espera') return estadoEn(0, linea)
+  return debeAnimar({ reducedMotion, yaEjecutada }) ? estadoEn(0, linea) : estadoFinal(linea)
+}

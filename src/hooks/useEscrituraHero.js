@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { REDUCED_MOTION_QUERY, prefersReducedMotion } from '../utils/motion'
-import { debeAnimar, estadoEn, estadoFinal, mismoEstado } from '../utils/escritura'
+import { estadoEn, estadoFinal, estadoInicialSegunModo, mismoEstado } from '../utils/escritura'
 
 /** La entrada escrita corre como máximo una vez por carga de página (sobrevive a la navegación SPA). */
 let escrituraEjecutada = false
@@ -14,22 +14,31 @@ let escrituraEjecutada = false
  * Cualquier tecla, el foco dentro de la sección o activar el movimiento reducido
  * la completan al instante.
  *
+ * `modo` lo fija la compuerta de entrada: solo en `libre` corre la escritura. En `lista` y `en-espera`
+ * el estado se deriva en el render (sin rAF ni listeners ni marcar la ejecución), así el paso de la
+ * compuerta a `libre` reinicia la escritura en el mismo commit en que la compuerta desaparece.
+ *
  * @param {import('../utils/escritura').LineaDeTiempo} linea
  * @param {{ current: HTMLElement | null }} seccionRef sección que escucha `focusin`
+ * @param {'lista'|'en-espera'|'libre'} [modo]
  * @returns {{ fase: string, visibles: Record<string, number> }}
  */
-export function useEscrituraHero(linea, seccionRef) {
-  const [estado, setEstado] = useState(() =>
-    debeAnimar({ reducedMotion: prefersReducedMotion(), yaEjecutada: escrituraEjecutada })
-      ? estadoEn(0, linea)
-      : estadoFinal(linea),
-  )
-  const corriendo = useRef(estado.fase !== 'fin')
-  const t0 = useRef(null)
+export function useEscrituraHero(linea, seccionRef, modo = 'libre') {
+  // Progreso de la escritura: solo existe una vez que arrancó en `libre`.
+  const [progreso, setProgreso] = useState(null)
+  const inicial = estadoInicialSegunModo(modo, linea, {
+    reducedMotion: prefersReducedMotion(),
+    yaEjecutada: escrituraEjecutada,
+  })
+
+  const yaFinal = inicial.fase === 'fin'
 
   useEffect(() => {
-    if (!corriendo.current) return undefined
+    if (modo !== 'libre') return undefined
+    // Movimiento reducido o ya ejecutada: el primer render ya es el estado final.
+    if (yaFinal) return undefined
     const seccion = seccionRef.current
+    const t0 = performance.now()
     let raf = 0
     let mediaQuery = null
     try {
@@ -38,19 +47,23 @@ export function useEscrituraHero(linea, seccionRef) {
       mediaQuery = null
     }
 
-    const actualizar = (siguiente) => setEstado((previo) => (mismoEstado(previo, siguiente) ? previo : siguiente))
+    const actualizar = (siguiente) => setProgreso((previo) => (previo && mismoEstado(previo, siguiente) ? previo : siguiente))
 
     function completar() {
-      corriendo.current = false
       escrituraEjecutada = true
       cancelAnimationFrame(raf)
       actualizar(estadoFinal(linea))
+    }
+    // Una tecla anterior a t0 es la que saltó la compuerta: no completa la escritura que ella misma inició.
+    function alTeclear(evento) {
+      if (evento.timeStamp < t0) return
+      completar()
     }
     function alCambiarMovimiento(evento) {
       if (evento.matches) completar()
     }
     function cuadro(ahora) {
-      const t = ahora - t0.current
+      const t = ahora - t0
       if (t >= linea.total) {
         completar()
         return
@@ -59,20 +72,18 @@ export function useEscrituraHero(linea, seccionRef) {
       raf = requestAnimationFrame(cuadro)
     }
 
-    // t0 vive en un ref: el doble efecto de StrictMode no reinicia la escritura.
-    if (t0.current === null) t0.current = performance.now()
     raf = requestAnimationFrame(cuadro)
-    window.addEventListener('keydown', completar)
+    window.addEventListener('keydown', alTeclear)
     seccion?.addEventListener('focusin', completar)
     mediaQuery?.addEventListener('change', alCambiarMovimiento)
 
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('keydown', completar)
+      window.removeEventListener('keydown', alTeclear)
       seccion?.removeEventListener('focusin', completar)
       mediaQuery?.removeEventListener('change', alCambiarMovimiento)
     }
-  }, [linea, seccionRef])
+  }, [linea, seccionRef, modo, yaFinal])
 
-  return estado
+  return modo === 'libre' && progreso ? progreso : inicial
 }

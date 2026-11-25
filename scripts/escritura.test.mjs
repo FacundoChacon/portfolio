@@ -13,6 +13,7 @@ import {
   debeAnimar,
   estadoEn,
   estadoFinal,
+  estadoInicialSegunModo,
   estadosDeCaracteres,
   faseAlcanza,
   faseEn,
@@ -285,4 +286,40 @@ test('estadoFinal: todo el texto escrito en fase fin', () => {
   assert.equal(final.fase, 'fin')
   assert.equal(final.visibles.descripcion, Array.from(DESCRIPCION).length)
   assert.equal(final.visibles['estado-valor'], Array.from('Operativo · disponible').length)
+})
+
+// --- estadoInicialSegunModo (change `compuerta-intro`, design D5) -------------
+
+const SIN_FLAGS = { reducedMotion: false, yaEjecutada: false }
+
+test('estadoInicialSegunModo: lista da el estado final (el hero espera tapado por la compuerta)', () => {
+  const linea = crearLineaDeTiempo(TEXTOS)
+  assert.deepEqual(estadoInicialSegunModo('lista', linea, SIN_FLAGS), estadoFinal(linea))
+  assert.equal(estadoInicialSegunModo('lista', linea, SIN_FLAGS).fase, 'fin')
+})
+
+test('estadoInicialSegunModo: en-espera da estadoEn(0), aunque la escritura ya se haya ejecutado', () => {
+  const linea = crearLineaDeTiempo(TEXTOS)
+  assert.deepEqual(estadoInicialSegunModo('en-espera', linea, SIN_FLAGS), estadoEn(0, linea))
+  assert.equal(estadoInicialSegunModo('en-espera', linea, SIN_FLAGS).fase, 'a')
+  assert.deepEqual(estadoInicialSegunModo('en-espera', linea, { ...SIN_FLAGS, yaEjecutada: true }), estadoEn(0, linea))
+})
+
+test('estadoInicialSegunModo: libre da lo de siempre, estadoEn(0) si debeAnimar y estadoFinal si no', () => {
+  const linea = crearLineaDeTiempo(TEXTOS)
+  assert.deepEqual(estadoInicialSegunModo('libre', linea, SIN_FLAGS), estadoEn(0, linea))
+  assert.deepEqual(estadoInicialSegunModo('libre', linea, { reducedMotion: false, yaEjecutada: true }), estadoFinal(linea))
+  assert.deepEqual(estadoInicialSegunModo('libre', linea, { reducedMotion: true, yaEjecutada: false }), estadoFinal(linea))
+})
+
+test('estadoInicialSegunModo: con movimiento reducido todos los modos dan el estado final', () => {
+  const linea = crearLineaDeTiempo(TEXTOS)
+  for (const modo of ['lista', 'en-espera', 'libre']) {
+    assert.deepEqual(estadoInicialSegunModo(modo, linea, { reducedMotion: true, yaEjecutada: false }), estadoFinal(linea), modo)
+  }
+})
+
+test('estadoInicialSegunModo: un modo desconocido se trata como libre', () => {
+  const linea = crearLineaDeTiempo(TEXTOS)
+  assert.deepEqual(estadoInicialSegunModo('raro', linea, SIN_FLAGS), estadoEn(0, linea))
 })

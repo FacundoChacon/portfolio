@@ -501,6 +501,18 @@ function hookEscrituraProblems(source) {
   }
   if (!/^let\s+\w*[Ee]jecutada\s*=\s*false/m.test(codigo)) problems.push('falta el flag de módulo de una sola ejecución')
   if (/setInterval|setTimeout|\bstyle\b/.test(codigo)) problems.push('usa timers o style')
+  // Modo de la compuerta (change `compuerta-intro`, design D5): solo `libre` arranca la escritura.
+  if (!/function\s+useEscrituraHero\([^)]*\bmodo\s*=\s*['"]libre['"]\s*\)/.test(codigo)) {
+    problems.push('no recibe el modo como tercer parámetro con valor por defecto libre')
+  }
+  const guardia = codigo.search(/modo\s*!==\s*['"]libre['"]/)
+  const primerArranque = [/requestAnimationFrame\(/, /addEventListener\(/, /escrituraEjecutada\s*=\s*true/]
+    .map((patron) => codigo.search(patron))
+    .filter((indice) => indice >= 0)
+  if (guardia < 0 || primerArranque.some((indice) => indice < guardia)) {
+    problems.push('arranca rAF, listeners o marca la ejecución sin comprobar antes que el modo es libre')
+  }
+  if (!/timeStamp/.test(codigo)) problems.push('no ignora keydown con timeStamp anterior a t0')
   return problems
 }
 
@@ -521,5 +533,47 @@ useEffect(() => { requestAnimationFrame(frame); window.addEventListener('keydown
     'no escucha change',
     'no remueve change',
     'usa timers o style',
+    'no recibe el modo como tercer parámetro con valor por defecto libre',
+    'arranca rAF, listeners o marca la ejecución sin comprobar antes que el modo es libre',
+    'no ignora keydown con timeStamp anterior a t0',
+  ])
+})
+
+/** Hook de ejemplo correcto en los puntos nuevos: la guardia de modo va antes de todo arranque. */
+const HOOK_CON_MODO = `import { prefersReducedMotion, REDUCED_MOTION_QUERY } from '../utils/motion'
+import { estadoEn } from '../utils/escritura'
+let escrituraEjecutada = false
+export function useEscrituraHero(linea, seccionRef, modo = 'libre') {
+  useEffect(() => {
+    if (modo !== 'libre') return undefined
+    const alTeclear = (e) => { if (e.timeStamp < t0) return; escrituraEjecutada = true }
+    raf = requestAnimationFrame(cuadro); cancelAnimationFrame(raf)
+    window.addEventListener('keydown', alTeclear); window.removeEventListener('keydown', alTeclear)
+    seccion.addEventListener('focusin', f); seccion.removeEventListener('focusin', f)
+    mq.addEventListener('change', f); mq.removeEventListener('change', f)
+  }, [modo])
+}`
+
+test('hookEscrituraProblems: acepta un hook que arranca solo en modo libre (triangulación)', () => {
+  assert.deepEqual(hookEscrituraProblems(HOOK_CON_MODO), [])
+})
+
+test('hookEscrituraProblems: rechaza un hook que arranca el rAF también en lista (triangulación)', () => {
+  const sinGuardia = HOOK_CON_MODO.replace("    if (modo !== 'libre') return undefined\n", '')
+  assert.deepEqual(hookEscrituraProblems(sinGuardia), [
+    'arranca rAF, listeners o marca la ejecución sin comprobar antes que el modo es libre',
+  ])
+  const guardiaTarde = HOOK_CON_MODO.replace("    if (modo !== 'libre') return undefined\n", '').replace('raf = requestAnimationFrame(cuadro);', "if (modo !== 'libre') return undefined; raf = requestAnimationFrame(cuadro);")
+  assert.deepEqual(hookEscrituraProblems(guardiaTarde), [
+    'arranca rAF, listeners o marca la ejecución sin comprobar antes que el modo es libre',
+  ], 'la guardia tiene que ir antes de marcar la ejecución y de los listeners, no solo del rAF')
+})
+
+test('hookEscrituraProblems: rechaza un hook sin modo por defecto o sin filtro por timeStamp (triangulación)', () => {
+  assert.deepEqual(hookEscrituraProblems(HOOK_CON_MODO.replace("modo = 'libre'", 'modo')), [
+    'no recibe el modo como tercer parámetro con valor por defecto libre',
+  ])
+  assert.deepEqual(hookEscrituraProblems(HOOK_CON_MODO.replace('e.timeStamp < t0', 'false')), [
+    'no ignora keydown con timeStamp anterior a t0',
   ])
 })

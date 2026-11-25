@@ -610,3 +610,148 @@
     background-color: transparent;
   }
 }
+
+/* Compuerta de entrada (change `compuerta-intro`). Los tiempos reflejan TIEMPOS_COMPUERTA (utils/compuerta.js) y un
+   guard los compara. Los keyframes viven aquí y no en tailwind.config.js: ese guard fija la lista de Tailwind en
+   evaBoot y evaObturador (el barrido del glifo y del texto reutiliza evaBoot desde el componente). */
+
+/* Con la compuerta cerrada la página no se desplaza. `overflow-y: scroll` conserva el canal de la barra (clásica: queda
+   la pista sin pulgar; superpuesta u oculta: ancho 0): con `overflow: hidden` el contenido se ensancharía al reaparecer la
+   barra al liberar (CLS). No se usa `scrollbar-gutter: stable` porque reserva el canal aunque la barra no exista (barras
+   superpuestas u ocultas) y entonces el contenido se ensancha al liberar: 0,12 de CLS en 375 px. */
+html.compuerta-cerrada {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+/* `overflow: hidden` en <html> solo oculta la barra: scrollBy, scrollIntoView y el foco siguen desplazando. Recortar el
+   cuerpo al alto de la ventana (`clip` no es un contenedor desplazable) deja la página sin nada que desplazar. */
+html.compuerta-cerrada body {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* Decoración metálica de las hojas (design D14): CSS puro, sin imágenes, SVG ni filtros. Los colores salen de los tokens
+   (el fondo es bg-eva-panel) y de capas translúcidas de papel (luz) y negro (sombra), con la luz siempre desde arriba
+   a la izquierda: borde claro arriba/izquierda y oscuro abajo/derecha, también en la hoja inferior. Los relieves son
+   barras rectas y continuas (rampa, meseta y cierre), nunca dientes. Todo viaja con su hoja. */
+.compuerta {
+  /* Remache: cabeza con brillo y aro oscuro; se usa como mosaico de 8 px. */
+  --compuerta-remache: radial-gradient(circle at 50% 50%, rgb(237 230 214 / 0.55) 0, rgb(237 230 214 / 0.2) 1.2px, rgb(0 0 0 / 0.65) 3px, transparent 3.5px);
+}
+
+/* Superficie: cepillado horizontal fino (dos mosaicos con pasos distintos para que no se vea periódico) y un brillo
+   suave que sube hacia el centro de cada hoja y se apaga hacia la junta. */
+.compuerta-metal {
+  background-image:
+    repeating-linear-gradient(180deg, rgb(237 230 214 / 0.045) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(180deg, transparent 0 7px, rgb(0 0 0 / 0.25) 7px 8px, transparent 8px 13px),
+    var(--compuerta-brillo);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(237 230 214 / 0.1);
+}
+.compuerta-hoja-superior {
+  --compuerta-brillo: linear-gradient(180deg, rgb(237 230 214 / 0.03), rgb(237 230 214 / 0.16) 40%, rgb(0 0 0 / 0.3));
+}
+.compuerta-hoja-inferior {
+  --compuerta-brillo: linear-gradient(0deg, rgb(237 230 214 / 0.03), rgb(237 230 214 / 0.16) 40%, rgb(0 0 0 / 0.3));
+}
+
+/* Nervio: aleta baja y continua a todo lo ancho (rampa clara, meseta, cierre oscuro). */
+.compuerta-nervio {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0.5rem;
+  background-image: linear-gradient(180deg, rgb(237 230 214 / 0.24) 0 1px, rgb(237 230 214 / 0.09) 1px calc(100% - 2px), rgb(0 0 0 / 0.5) calc(100% - 2px));
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(237 230 214 / 0.1);
+}
+
+/* Placa hundida con remaches en las dos filas de borde. */
+.compuerta-placa {
+  position: absolute;
+  background-color: rgb(0 0 0 / 0.24);
+  box-shadow: inset 2px 2px 0 rgb(0 0 0 / 0.6), inset -1px -1px 0 rgb(237 230 214 / 0.2), 0 1px 0 rgb(237 230 214 / 0.07);
+}
+.compuerta-placa::before,
+.compuerta-placa::after {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 8px;
+  background: var(--compuerta-remache) center / 36px 8px repeat-x;
+}
+.compuerta-placa::before {
+  top: 0.5rem;
+}
+.compuerta-placa::after {
+  bottom: 0.5rem;
+}
+
+/* Labio: barra elevada con remaches a lo largo de la junta (en dos tramos, como las franjas). */
+.compuerta-labio {
+  position: absolute;
+  height: 0.75rem;
+  background-color: rgb(237 230 214 / 0.08);
+  background-image: var(--compuerta-remache);
+  background-position: 1rem center;
+  background-size: 56px 8px;
+  background-repeat: repeat-x;
+  box-shadow: inset 0 1px 0 rgb(237 230 214 / 0.26), inset 0 -1px 0 rgb(0 0 0 / 0.7), inset 1px 0 0 rgb(237 230 214 / 0.12), inset -1px 0 0 rgb(0 0 0 / 0.5), 0 1px 0 rgb(0 0 0 / 0.6);
+}
+
+/* Placa de rótulo hundida con un remache en cada esquina (la de la hoja inferior lleva "FACU CODE"). */
+.compuerta-placa-texto {
+  background-color: rgb(0 0 0 / 0.3);
+  background-image: var(--compuerta-remache), var(--compuerta-remache), var(--compuerta-remache), var(--compuerta-remache);
+  background-position: left 0.3rem top 0.3rem, right 0.3rem top 0.3rem, left 0.3rem bottom 0.3rem, right 0.3rem bottom 0.3rem;
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  box-shadow: inset 2px 2px 0 rgb(0 0 0 / 0.65), inset -1px -1px 0 rgb(237 230 214 / 0.2), 0 1px 0 rgb(237 230 214 / 0.07);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Junta: las franjas se trazan desde el hueco del glifo hacia los bordes. */
+  .compuerta-franja-izq {
+    animation: compuerta-junta-izq 300ms steps(6, end) backwards;
+  }
+  .compuerta-franja-der {
+    animation: compuerta-junta-der 300ms steps(6, end) backwards;
+  }
+
+  /* Retiro: el glifo se recoge hacia la junta y queda recogido durante la apertura (forwards). */
+  .compuerta[data-compuerta="retiro"] .compuerta-simbolo,
+  .compuerta[data-compuerta="apertura"] .compuerta-simbolo {
+    animation: compuerta-retiro 200ms steps(4, end) forwards;
+  }
+
+  /* Apertura: ease-in, arranca pesada y acelera. */
+  .compuerta[data-compuerta="apertura"] .compuerta-hoja-superior {
+    animation: compuerta-hoja-arriba 500ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  }
+  .compuerta[data-compuerta="apertura"] .compuerta-hoja-inferior {
+    animation: compuerta-hoja-abajo 500ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  }
+
+  @keyframes compuerta-junta-izq {
+    from { clip-path: inset(0 0 0 100%); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+  @keyframes compuerta-junta-der {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+  @keyframes compuerta-retiro {
+    from { clip-path: inset(0 0 0 0); }
+    to { clip-path: inset(50% 0 50% 0); }
+  }
+  @keyframes compuerta-hoja-arriba {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100%); }
+  }
+  @keyframes compuerta-hoja-abajo {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+}

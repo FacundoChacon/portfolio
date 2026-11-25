@@ -1,0 +1,66 @@
+import LogoEva from "./LogoEva"
+import { useCompuerta } from "../hooks/useCompuerta"
+
+/** Barrido de entrada del glifo y de "FACU CODE" (demoras = TIEMPOS_COMPUERTA.glifoInicio y .textoInicio). */
+const BARRIDO = "motion-safe:animate-eva-boot"
+
+/**
+ * Compuerta de entrada: dos hojas opacas que se abren hacia arriba y hacia abajo antes de la escritura del hero.
+ * Las hojas son de metal decorado (CSS en `index.css`, design D14). Es una capa decorativa (`aria-hidden`, sin elementos enfocables ni roles) encima de la página real. Todo el
+ * movimiento lo hace el CSS según `data-compuerta` (`index.css`); React solo cambia la fase.
+ * Un clic o un toque la salta: va en `click` y no en `pointerdown`/`touchstart`, para que el clic sintetizado
+ * del toque caiga sobre la capa y no sobre lo que hay debajo.
+ */
+export default function CompuertaIntro() {
+  const { fase, saltar } = useCompuerta()
+  if (!fase || fase === "abierta") return null
+
+  return (
+    <div
+      aria-hidden="true"
+      data-compuerta={fase}
+      onClick={saltar}
+      className="compuerta fixed inset-0 z-[70] overflow-hidden"
+    >
+      <div className="compuerta-hoja-superior compuerta-metal absolute inset-x-0 top-0 h-1/2 bg-eva-panel">
+        <span className="compuerta-nervio top-2" />
+        <span className="compuerta-nervio top-5" />
+        <span className="compuerta-placa top-9 bottom-[9.5rem] left-3 right-[calc(50%+4.5rem)] md:right-[calc(50%+6rem)] md:bottom-44 md:left-6" />
+        <span className="compuerta-placa top-9 bottom-[9.5rem] right-3 left-[calc(50%+4.5rem)] md:bottom-44 md:right-6 md:left-[calc(50%+6rem)]" />
+        <span className="compuerta-labio bottom-2 left-0 right-[calc(50%+3.125rem)] md:right-[calc(50%+3.8125rem)]" />
+        <span className="compuerta-labio bottom-2 left-[calc(50%+3.125rem)] right-0 md:left-[calc(50%+3.8125rem)]" />
+        <span className="eva-stripes absolute h-2 compuerta-franja-izq bottom-0 left-0 right-[calc(50%+3.125rem)] md:right-[calc(50%+3.8125rem)]" />
+        <span className="eva-stripes absolute h-2 compuerta-franja-der bottom-0 left-[calc(50%+3.125rem)] right-0 md:left-[calc(50%+3.8125rem)]" />
+        <span className="compuerta-placa-texto absolute bottom-[4.5rem] left-1/2 -translate-x-1/2 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.3em] whitespace-nowrap text-eva-gray/60 md:bottom-24 md:px-6 md:text-xs">
+          SECTOR 00 // ACCESO
+        </span>
+      </div>
+
+      <div className="compuerta-hoja-inferior compuerta-metal absolute inset-x-0 top-1/2 h-1/2 bg-eva-panel">
+        <span className="compuerta-nervio bottom-2" />
+        <span className="compuerta-nervio bottom-5" />
+        <span className="compuerta-placa bottom-9 top-[9.5rem] left-3 right-[calc(50%+4.5rem)] md:right-[calc(50%+6rem)] md:top-44 md:left-6" />
+        <span className="compuerta-placa bottom-9 top-[9.5rem] right-3 left-[calc(50%+4.5rem)] md:top-44 md:right-6 md:left-[calc(50%+6rem)]" />
+        <span className="compuerta-labio top-2 left-0 right-[calc(50%+3.125rem)] md:right-[calc(50%+3.8125rem)]" />
+        <span className="compuerta-labio top-2 left-[calc(50%+3.125rem)] right-0 md:left-[calc(50%+3.8125rem)]" />
+        <span className="eva-stripes absolute h-2 compuerta-franja-izq left-0 right-[calc(50%+3.125rem)] top-0 md:right-[calc(50%+3.8125rem)]" />
+        <span className="eva-stripes absolute h-2 compuerta-franja-der left-[calc(50%+3.125rem)] right-0 top-0 md:left-[calc(50%+3.8125rem)]" />
+        <p className="flex justify-center pt-[4.5rem] md:pt-24">
+          <span className="compuerta-placa-texto inline-block px-4 py-2 md:px-8 md:py-3">
+            <span
+              className={`inline-block font-eva-display text-3xl font-black uppercase tracking-[0.2em] whitespace-nowrap font-stretch-condensed md:text-5xl ${BARRIDO} motion-safe:[animation-delay:480ms]`}
+            >
+              <span className="text-eva-paper">FACU</span> <span className="text-eva-primary-light">CODE</span>
+            </span>
+          </span>
+        </p>
+      </div>
+
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className={`compuerta-simbolo block ${BARRIDO} motion-safe:[animation-delay:200ms]`}>
+          <LogoEva variante="completo" className="block h-28 w-auto md:h-40" />
+        </span>
+      </div>
+    </div>
+  )
+}

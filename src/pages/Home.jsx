@@ -7,6 +7,8 @@ import Projects from '../components/Projects'
 import Stack from '../components/Stack'
 import Testimonials from '../components/Testimonials'
 import Contact from '../components/Contact'
+import CompuertaIntro from "../components/CompuertaIntro"
+import { CompuertaProvider } from "../hooks/useCompuerta"
 
 // Solo la primera carga de la página: después manda el router / la restauración del navegador.
 let primerMontaje = true
@@ -57,7 +59,7 @@ function useAnclaDirecta() {
 export default function Home() {
   useAnclaDirecta()
   return (
-    <>
+    <CompuertaProvider>
       <SiteNav />
       <main id="contenido" tabIndex={-1} className="relative min-h-screen overflow-x-clip bg-eva-black outline-none">
         <Hero />
@@ -67,6 +69,7 @@ export default function Home() {
         <Testimonials />
         <Contact />
       </main>
-    </>
+      <CompuertaIntro />
+    </CompuertaProvider>
   )
 }
