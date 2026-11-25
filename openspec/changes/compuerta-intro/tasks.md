@@ -177,10 +177,12 @@
 
   Verificación: archivos presentes y sus rutas absolutas en el resumen.
 - [x] 6.6 `npm run ci` completo en verde (lint, verify:*, tests, build y verify:build) y conteo de tests contra 1.1. Verificación: salida de `npm run ci` en el resumen.
-- [ ] 6.7 **Checkpoint visual del usuario (MEDIUM). Queda para el usuario.** Presentar los cuadros y videos de 6.5 y la tabla de 6.4, y pedir visto bueno sobre:
+- [x] 6.7 **Checkpoint visual del usuario (MEDIUM). Queda para el usuario.** Presentar los cuadros y videos de 6.5 y la tabla de 6.4, y pedir visto bueno sobre:
   - El glifo que se recoge hacia la junta antes de abrir (design D6, frente a partirlo o hacerlo viajar con una hoja).
   - "FACU" en papel y "CODE" en violeta claro.
   - Hojas en `eva-panel` con franjas naranjas en la junta.
   - Curva y duración de la apertura (500 ms ease-in) y duración total (~2 s).
 
   Ajustar solo constantes y clases dentro de las specs según su respuesta. Verificación: respuesta del usuario anotada en esta tarea, con fecha.
+
+  2026-11-24 — Respuesta del usuario: primera versión "se ve feo el logo, como cortado a la mitad" (corregido en fcee591: glifo por encima de las dos hojas); pidió "relieves" y "aspecto metálico" (c735f6c, D14); visto bueno final: "ahí me gustó más".
